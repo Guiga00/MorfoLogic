@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MorfoLogic - Plataforma Montessori</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <script src="./js/audio.js" defer></script>
+    <script src="./js/main.js" defer></script>
+    <script src="./js/auth.js" defer></script>
+
+    // Minijogos
+    <script src="./js/memory.js" defer></script>
+    <script src="./js/genius.js" defer></script>
+    <script src="./js/ligar.js" defer></script>
+  </head>
+  <body
+    class="bg-stone-100 text-stone-800 flex items-center justify-center min-h-screen"
+  >
+    <div id="app" class="w-full max-w-4xl mx-auto p-4">
+      <div
+        id="login-screen"
+        class="text-center bg-white p-8 rounded-2xl shadow-lg fade-in"
+      >
+        <h1 class="text-4xl md:text-5xl font-extrabold text-teal-600 mb-2">
+          MorfoLogic
+        </h1>
+        <p class="text-stone-500 mb-8">
+          Aprenda gramática com o método Montessori
+        </p>
+        <form id="login-form" class="max-w-sm mx-auto">
+          <input
+            type="text"
+            id="username"
+            placeholder="Digite seu usuário"
+            class="w-full px-4 py-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-teal-500 focus:outline-none transition"
+            required
+          />
+          <input
+            type="password"
+            id="password"
+            placeholder="Digite sua senha"
+            class="w-full px-4 py-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-teal-500 focus:outline-none transition"
+            required
+          />
+          <button
+            id="login-button"
+            type="submit"
+            class="w-full bg-teal-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-teal-700 transition-transform hover:scale-105"
+          >
+            Entrar
+          </button>
+        </form>
+        <p id="login-error" class="text-red-500 mt-4 h-5"></p>
+      </div>
+
+      <div
+        id="static-screen"
+        class="hidden text-center bg-white p-8 rounded-2xl shadow-lg"
+      >
+        <h1 class="text-3xl md:text-4xl font-bold text-stone-700 mb-4">
+          Bem-vindo(a)!
+        </h1>
+        <p class="text-stone-500 mb-6">
+          Esta é uma área reservada para administração.
+        </p>
+        <svg
+          class="mx-auto w-32 h-32 md:w-48 md:h-48 text-teal-500"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="1.5"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          />
+        </svg>
+        <button
+          onclick="goBackToLogin()"
+          class="mt-8 bg-stone-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-stone-600 transition"
+        >
+          Voltar
+        </button>
+      </div>
+
+      <div id="game-selection-screen" class="hidden">
+        <header class="flex justify-between items-center mb-8">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-teal-600">
+              Selecione um Minijogo
+            </h1>
+            <p class="text-stone-500">
+              Sua pontuação geral é:
+              <span id="general-score" class="font-bold text-teal-700">0</span>
+            </p>
+          </div>
+          <button
+            onclick="goBackToLogin()"
+            class="bg-stone-200 text-stone-600 font-bold py-2 px-4 rounded-lg hover:bg-stone-300 transition"
+          >
+            Sair
+          </button>
+        </header>
+        <div class="grid md:grid-cols-3 gap-6 text-center">
+          <div
+            onclick="openPhaseSelectionModal('memory')"
+            class="bg-white p-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all"
+          >
+            <h2 class="text-2xl font-bold mb-2 text-stone-700">Memória</h2>
+            <p class="text-stone-500 mb-4">
+              Encontre os pares de símbolos e classes.
+            </p>
+            <div class="text-6xl text-amber-500 mb-4">🧠</div>
+            <button
+              class="w-full bg-amber-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-amber-600 transition pointer-events-none"
+            >
+              Jogar
+            </button>
+          </div>
+          <div
+            onclick="openPhaseSelectionModal('genius')"
+            class="bg-white p-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all"
+          >
+            <h2 class="text-2xl font-bold mb-2 text-stone-700">Genius</h2>
+            <p class="text-stone-500 mb-4">
+              Memorize e repita a sequência de símbolos.
+            </p>
+            <div class="text-6xl text-sky-500 mb-4">✨</div>
+            <button
+              class="w-full bg-sky-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-sky-600 transition pointer-events-none"
+            >
+              Jogar
+            </button>
+          </div>
+          <div
+            onclick="openPhaseSelectionModal('ligar')"
+            class="bg-white p-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all"
+          >
+            <h2 class="text-2xl font-bold mb-2 text-stone-700">Ligar</h2>
+            <p class="text-stone-500 mb-4">
+              Arraste os símbolos para suas classes.
+            </p>
+            <div class="text-6xl text-rose-500 mb-4">🔗</div>
+            <button
+              class="w-full bg-rose-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-rose-600 transition pointer-events-none"
+            >
+              Jogar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="game-screen" class="hidden">
+        <header class="flex justify-between items-center mb-4">
+          <div>
+            <h2
+              id="game-title"
+              class="text-2xl md:text-3xl font-bold text-teal-600"
+            ></h2>
+            <p class="text-stone-500 text-sm md:text-base">
+              Fase <span id="game-phase"></span> | Pontos:
+              <span id="game-score" class="font-bold">0</span>
+            </p>
+          </div>
+          <div>
+            <button
+              onclick="restartPhase()"
+              class="bg-stone-200 text-stone-600 font-bold py-2 px-4 rounded-lg hover:bg-stone-300 transition mr-2 text-sm md:text-base"
+            >
+              Reiniciar
+            </button>
+            <button
+              onclick="goToGameSelection()"
+              class="bg-teal-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-700 transition text-sm md:text-base"
+            >
+              Voltar
+            </button>
+          </div>
+        </header>
+        <div
+          id="game-board"
+          class="bg-white p-4 md:p-6 rounded-2xl shadow-lg min-h-[500px] flex flex-col items-center justify-center"
+        ></div>
+        <div
+          id="game-message"
+          class="text-center text-lg md:text-xl font-semibold mt-4 h-8"
+        ></div>
+      </div>
+    </div>
+
+    <div
+      id="phase-selection-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white p-6 md:p-8 rounded-2xl shadow-2xl text-center max-w-md w-full"
+      >
+        <h2
+          id="phase-selection-title"
+          class="text-2xl md:text-3xl font-bold mb-6"
+        >
+          Selecione o Nível
+        </h2>
+        <div
+          id="phase-selection-buttons"
+          class="grid grid-cols-3 gap-4 mb-6"
+        ></div>
+        <button
+          onclick="closePhaseSelectionModal()"
+          class="bg-stone-200 text-stone-700 font-bold py-2 px-6 rounded-lg hover:bg-stone-300 transition"
+        >
+          Voltar
+        </button>
+      </div>
+    </div>
+
+    <div
+      id="phase-end-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full"
+      >
+        <h2 id="modal-title" class="text-2xl md:text-3xl font-bold mb-2"></h2>
+        <p
+          id="modal-score"
+          class="text-base md:text-lg text-stone-600 mb-1"
+        ></p>
+        <p
+          id="modal-bonus"
+          class="text-base md:text-lg text-amber-500 font-bold mb-6"
+        ></p>
+        <div class="flex flex-col sm:flex-row gap-4">
+          <button
+            id="modal-next-phase"
+            class="flex-1 bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition"
+          >
+            Próxima Fase
+          </button>
+          <button
+            onclick="goToGameSelection()"
+            class="flex-1 bg-stone-200 text-stone-700 font-bold py-3 rounded-lg hover:bg-stone-300 transition"
+          >
+            Mudar de Jogo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="session-expired-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full"
+      >
+        <h2 class="text-2xl md:text-3xl font-bold mb-2 text-amber-600">
+          Sessão Expirada!
+        </h2>
+        <p class="text-base md:text-lg text-stone-600 mb-6">
+          Seu tempo acabou. Para continuar jogando, por favor, faça o login
+          novamente.
+        </p>
+        <button
+          onclick="goBackToLogin(true)"
+          class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition"
+        >
+          OK
+        </button>
+      </div>
+    </div>
+  </body>
+</html>
