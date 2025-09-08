@@ -23,10 +23,10 @@ const GRAMMAR_CLASSES = [
       `<svg class="${c}" viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="#262626"/></svg>`,
   },
   {
-    id: 2,
-    name: "Artigo",
+    id: 4,
+    name: "Verbo",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><polygon points="50,40 70,80 30,80" fill="#67e8f9"/></svg>`,
+      `<svg class="${c}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#ef4444"/></svg>`,
   },
   {
     id: 3,
@@ -35,10 +35,10 @@ const GRAMMAR_CLASSES = [
       `<svg class="${c}" viewBox="0 0 100 100"><polygon points="50,25 80,85 20,85" fill="#0891b2"/></svg>`,
   },
   {
-    id: 4,
-    name: "Verbo",
+    id: 2,
+    name: "Artigo",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#ef4444"/></svg>`,
+      `<svg class="${c}" viewBox="0 0 100 100"><polygon points="50,40 70,80 30,80" fill="#67e8f9"/></svg>`,
   },
   {
     id: 5,
@@ -47,16 +47,16 @@ const GRAMMAR_CLASSES = [
       `<svg class="${c}" viewBox="0 0 100 100"><polygon points="50,10 75,90 25,90" fill="#a855f7"/></svg>`,
   },
   {
+    id: 10,
+    name: "Numeral",
+    symbol: (c) =>
+      `<svg class="${c}" viewBox="0 0 100 100"><rect x="10" y="45" width="80" height="15" rx="7" fill="#38bdf8"/></svg>`,
+  },
+  {
     id: 6,
     name: "Advérbio",
     symbol: (c) =>
       `<svg class="${c}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="25" fill="#f97316"/></svg>`,
-  },
-  {
-    id: 7,
-    name: "Preposição",
-    symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><path d="M10 60 A 40 40 0 0 1 90 60" stroke="#22c55e" stroke-width="15" fill="none" stroke-linecap="round"/></svg>`,
   },
   {
     id: 8,
@@ -65,16 +65,16 @@ const GRAMMAR_CLASSES = [
       `<svg class="${c}" viewBox="0 0 100 100"><rect x="20" y="45" width="60" height="10" rx="5" fill="#ec4899"/></svg>`,
   },
   {
+    id: 7,
+    name: "Preposição",
+    symbol: (c) =>
+      `<svg class="${c}" viewBox="0 0 100 100"><path d="M10 60 A 40 40 0 0 1 90 60" stroke="#22c55e" stroke-width="15" fill="none" stroke-linecap="round"/></svg>`,
+  },
+  {
     id: 9,
     name: "Interjeição",
     symbol: (c) =>
       `<svg class="${c}" viewBox="0 0 100 100"><g fill="#f59e0b"><rect x="45" y="10" width="10" height="50" rx="5"/><circle cx="50" cy="75" r="8"/></g></svg>`,
-  },
-  {
-    id: 10,
-    name: "Numeral",
-    symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><rect x="10" y="45" width="80" height="15" rx="7" fill="#38bdf8"/></svg>`,
   },
 ];
 
@@ -86,6 +86,41 @@ const USERS = {
 };
 const SESSION_DURATION_MINUTES = 15;
 let geniusSequenceInterval = null; // Para ser acessível globalmente
+
+// --- DADOS DOS JOGOS ---
+const GENIUS_PHRASES = {
+  1: [
+    { word: "Encontramos", classId: 4 }, // Verbo
+    { word: "o", classId: 2 }, // Artigo
+    { word: "tesouro", classId: 1 }, // Substantivo
+    { word: "perdido.", classId: 3 }, // Adjetivo
+  ],
+  2: [
+    { word: "Meu", classId: 5 }, // Pronome
+    { word: "lanche", classId: 1 }, // Substantivo
+    { word: "favorito", classId: 3 }, // Adjetivo
+    { word: "é", classId: 4 }, // Verbo
+    { word: "suco", classId: 1 }, // Substantivo
+    { word: "e", classId: 8 }, // Conjunção
+    { word: "bolo", classId: 1 }, // Substantivo
+    { word: "de", classId: 7 }, // Preposição
+    { word: "chocolate.", classId: 1 }, // Substantivo (ou Adjetivo, dependendo da análise)
+  ],
+  3: [
+    { word: "Oba!", classId: 9 }, // Interjeição
+    { word: "As", classId: 2 }, // Artigo
+    { word: "minhas", classId: 5 }, // Pronome
+    { word: "duas", classId: 10 }, // Numeral
+    { word: "bonecas", classId: 1 }, // Substantivo
+    { word: "novas", classId: 3 }, // Adjetivo
+    { word: "e", classId: 8 }, // Conjunção
+    { word: "perfumadas", classId: 3 }, // Adjetivo
+    { word: "chegaram", classId: 4 }, // Verbo
+    { word: "hoje", classId: 6 }, // Advérbio
+    { word: "em", classId: 7 }, // Preposição
+    { word: "casa!", classId: 1 }, // Substantivo
+  ],
+};
 
 // --- PERSISTÊNCIA DE DADOS ---
 function saveData() {
@@ -198,7 +233,7 @@ function goToGameSelection() {
 
 // --- LÓGICA DE JOGO (GERAL) ---
 function openPhaseSelectionModal(gameType) {
-  const titles = { memory: "Memória", genius: "Genius", ligar: "Ligar" };
+  const titles = { memory: "Memória", genius: "Genius", ligar: "Tempo" };
   document.getElementById("phase-selection-title").textContent =
     titles[gameType];
   const maxPhaseUnlocked = (AppState.progress[gameType] || 0) + 1;
@@ -218,9 +253,16 @@ function closePhaseSelectionModal() {
 }
 
 function getClassesForPhase(phase) {
-  const counts = [4, 6, 10];
-  const numClasses = counts[phase - 1] || 4;
-  return GRAMMAR_CLASSES.slice(0, numClasses);
+  const counts = {
+    memory: [4, 7, 10], // Corresponde a Fase 1, 2 e 3 do doc
+    ligar: [4, 7, 10], // Jogo "Tempo" usa a mesma lógica de classes
+  };
+  const classIds = counts.memory[phase - 1];
+
+  // Retorna um subconjunto de GRAMMAR_CLASSES
+  // Para garantir que as classes certas sejam pegas, o ideal seria mapear por ID.
+  // Mas para simplificar, vamos pegar os primeiros 'classIds' elementos.
+  return GRAMMAR_CLASSES.slice(0, classIds);
 }
 
 function startGame(type, phase) {
@@ -246,7 +288,7 @@ function restartPhase() {
 }
 
 function updateGameUI() {
-  const titles = { memory: "Memória", genius: "Genius", ligar: "Ligar" };
+  const titles = { memory: "Memória", genius: "Genius", ligar: "Tempo" };
   document.getElementById("game-title").textContent =
     titles[AppState.currentGame.type];
   document.getElementById("game-phase").textContent =
@@ -264,6 +306,7 @@ function showPhaseEndModal(completed = true) {
   const modalBonus = document.getElementById("modal-bonus");
   const modalNext = document.getElementById("modal-next-phase");
   let currentScore = score;
+
   if (completed) {
     GameAudio.play("success");
     modalTitle.textContent = `Fase ${phase} Concluída!`;
@@ -280,12 +323,16 @@ function showPhaseEndModal(completed = true) {
   } else {
     modalTitle.textContent = `Fim de Jogo`;
     modalScore.textContent = `Sua pontuação final foi: ${currentScore} pontos.`;
-    modalBonus.textContent = `Você chegou na sequência de ${
-      geniusState.sequence.length - 1
-    } itens.`;
+    modalBonus.textContent =
+      type === "genius"
+        ? `Você acertou ${geniusState.playerSequence.length - 1} de ${
+            geniusState.sequence.length
+          } palavras.`
+        : "";
   }
   AppState.generalScore += currentScore;
   saveData();
+
   if (isLastPhase && completed) {
     modalNext.textContent = "Voltar ao Menu";
     modalNext.onclick = goToGameSelection;

@@ -28,6 +28,9 @@ function initMemoryGame(phase) {
     matches: 0,
     totalPairs: classes.length,
   };
+
+  const previewTime = phase === 1 ? 10000 : 15000; // 10s para fase 1, 15s para as outras
+
   let gridCols = "grid-cols-4";
   if (phase === 2) gridCols = "grid-cols-3 sm:grid-cols-4";
   if (phase === 3) gridCols = "grid-cols-4 sm:grid-cols-5";
@@ -44,7 +47,7 @@ function initMemoryGame(phase) {
     cards.forEach((card) => card.classList.remove("flipped"));
     memoryState.lockBoard = false;
     document.getElementById("game-message").textContent = "Encontre os pares!";
-  }, 5000);
+  }, previewTime);
 }
 
 function handleMemoryClick(cardElement) {

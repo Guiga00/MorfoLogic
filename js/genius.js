@@ -1,101 +1,115 @@
 /**
- * Módulo do Minijogo Genius
- * Contém toda a lógica de funcionamento do jogo Genius (sequência).
+ * Módulo do Minijogo Genius (Versão Frases)
+ * Contém a nova lógica de funcionamento do Genius, baseada em montar frases.
  */
 let geniusState = {};
 
 function initGeniusGame(phase) {
-  clearInterval(geniusSequenceInterval);
-  const classes = getClassesForPhase(phase);
-  const limits = [5, 8, 12];
-  geniusState = {
-    classes,
-    sequence: [],
-    playerSequence: [],
-    turn: "computer",
-    limit: limits[phase - 1],
-  };
+  const phraseData = GENIUS_PHRASES[phase];
+  const board = document.getElementById("game-board");
   AppState.currentGame.score = 0;
   updateGameUI();
-  const board = document.getElementById("game-board");
-  let gridCols = classes.length > 4 ? "grid-cols-3" : "grid-cols-2";
-  board.innerHTML = `<div class="grid ${gridCols} gap-4">${classes
-    .map(
-      (c) =>
-        `<div data-id="${
-          c.id
-        }" onclick="handleGeniusClick(this)" class="genius-symbol w-20 h-20 sm:w-24 sm:h-24 p-2 bg-white rounded-lg shadow cursor-pointer transition-transform duration-200">${c.symbol(
-          "w-full h-full"
-        )}</div>`
-    )
-    .join("")}</div>`;
+
+  // Mapeia os símbolos necessários para a fase
+  const requiredSymbols = [...new Set(phraseData.map((p) => p.classId))];
+  const symbolsBank = GRAMMAR_CLASSES.filter((gc) =>
+    requiredSymbols.includes(gc.id)
+  );
+
+  geniusState = {
+    phrase: phraseData,
+    sequence: [],
+    playerSequence: [],
+    step: 0,
+    turn: "computer",
+  };
+
+  // Monta o HTML do tabuleiro
+  board.innerHTML = `
+    <div class="w-full flex flex-col items-center gap-8">
+      <div id="genius-phrase" class="text-2xl md:text-3xl font-bold h-24 flex flex-wrap items-center justify-center gap-x-2">
+        </div>
+      <div id="genius-symbols-bank" class="flex flex-wrap items-center justify-center gap-4">
+        ${symbolsBank
+          .map(
+            (s) => `
+          <div class="draggable w-16 h-16 p-1 bg-white rounded-lg shadow cursor-grab active:cursor-grabbing" data-id="${
+            s.id
+          }">
+            ${s.symbol("w-full h-full pointer-events-none")}
+          </div>
+        `
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+
   document.getElementById("game-message").textContent =
-    "Prepare-se para começar...";
+    "Observe a formação da frase...";
   setTimeout(computerTurn, 2000);
 }
 
 function computerTurn() {
   geniusState.turn = "computer";
-  document.getElementById("game-message").textContent =
-    "Observe a sequência...";
-  const randomClass =
-    geniusState.classes[Math.floor(Math.random() * geniusState.classes.length)];
-  geniusState.sequence.push(randomClass.id);
-  geniusState.playerSequence = [];
-  playSequence();
-}
-
-function playSequence() {
-  let i = 0;
-  clearInterval(geniusSequenceInterval);
-  geniusSequenceInterval = setInterval(() => {
-    if (i < geniusState.sequence.length) {
-      lightUpSymbol(geniusState.sequence[i]);
-      i++;
-    } else {
-      clearInterval(geniusSequenceInterval);
-      geniusState.turn = "player";
-      document.getElementById("game-message").textContent =
-        "Sua vez! Repita a sequência.";
-    }
-  }, 800);
-}
-
-function lightUpSymbol(id) {
-  const el = document.querySelector(`.genius-symbol[data-id='${id}']`);
-  if (el) {
-    GameAudio.play("genius");
-    el.classList.add("lit");
-    setTimeout(() => el.classList.remove("lit"), 400);
-  }
-}
-
-function handleGeniusClick(el) {
-  if (geniusState.turn !== "player") return;
-  const id = parseInt(el.dataset.id);
-  lightUpSymbol(id);
-  geniusState.playerSequence.push(id);
-  const currentStep = geniusState.playerSequence.length - 1;
-  if (
-    geniusState.playerSequence[currentStep] !==
-    geniusState.sequence[currentStep]
-  ) {
-    GameAudio.play("error");
+  geniusState.step++;
+  if (geniusState.step > geniusState.phrase.length) {
+    geniusState.turn = "player";
     document.getElementById("game-message").textContent =
-      "Sequência errada! Fim de jogo.";
-    geniusState.turn = "computer";
-    setTimeout(() => showPhaseEndModal(false), 500);
+      "Sua vez! Complete a frase.";
+    renderPlayerTurn();
     return;
   }
-  if (geniusState.playerSequence.length === geniusState.sequence.length) {
-    AppState.currentGame.score += 10;
-    updateGameUI();
-    if (geniusState.sequence.length === geniusState.limit) {
-      geniusState.turn = "computer";
-      setTimeout(() => showPhaseEndModal(true), 500);
-    } else {
-      geniusState.turn = "computer";
-      setTimeout(computerTurn, 1000);
+
+  renderComputerTurn();
+
+  setTimeout(() => {
+    if (geniusState.turn === "computer") {
+      // Previne loop se o jogador sair
+      computerTurn();
     }
-  }
+  }, 3000); // Intervalo entre as palavras
+}
+
+function renderComputerTurn() {
+  const phraseContainer = document.getElementById("genius-phrase");
+  const currentWords = geniusState.phrase.slice(0, geniusState.step);
+  const newWord = currentWords[currentWords.length - 1];
+  const symbol = GRAMMAR_CLASSES.find((gc) => gc.id === newWord.classId);
+
+  // Mostra a frase com a palavra nova e o símbolo
+  phraseContainer.innerHTML = currentWords
+    .map((wordData, index) => {
+      const isNewWord = index === currentWords.length - 1;
+      return `
+      <div class="flex flex-col items-center">
+        <span class="px-1">${wordData.word}</span>
+        <div class="h-16 w-16 p-1 ${isNewWord ? "opacity-100" : "opacity-0"}">
+          ${isNewWord ? symbol.symbol("w-full h-full") : ""}
+        </div>
+      </div>
+    `;
+    })
+    .join("");
+}
+
+function renderPlayerTurn() {
+  const phraseContainer = document.getElementById("genius-phrase");
+  // Mostra a frase completa com slots vazios para os símbolos
+  phraseContainer.innerHTML = geniusState.phrase
+    .map(
+      (wordData, index) => `
+        <div class="flex flex-col items-center">
+            <span class="px-1">${wordData.word}</span>
+            <div class="target bg-stone-200 w-16 h-16 rounded-lg" data-index="${index}"></div>
+        </div>
+    `
+    )
+    .join("");
+
+  // Habilita o drag-and-drop nos símbolos e slots
+  document.querySelectorAll("#genius-symbols-bank .draggable").forEach((el) => {
+    el.addEventListener("mousedown", dragStart);
+    el.addEventListener("touchstart", dragStart, { passive: false });
+  });
 }
