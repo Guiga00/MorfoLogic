@@ -6,14 +6,17 @@
 const DraggableManager = {
   draggedEl: null,
   placeholder: null,
+  originalEl: null, // Referência ao elemento original no modo clone
   offsetX: 0,
   offsetY: 0,
   onDropCallback: null,
   isLocked: false, // Trava para evitar cliques múltiplos
+  config: { mode: "move" }, // 'move' ou 'clone'
 
   // Adiciona os listeners de início de arrasto
-  makeDraggable(selector, onDrop) {
-    this.cleanup(); // Garante que não há listeners antigos
+  makeDraggable(selector, onDrop, config = { mode: "move" }) {
+    this.cleanup();
+    this.config = config;
     document.querySelectorAll(selector).forEach((el) => {
       el.addEventListener("mousedown", this.dragStart.bind(this));
       el.addEventListener("touchstart", this.dragStart.bind(this), {
@@ -35,8 +38,8 @@ const DraggableManager = {
     document.removeEventListener("touchend", this._dragEnd);
     this.draggedEl = null;
     this.placeholder = null;
+    this.originalEl = null;
     this.isLocked = false;
-    console.log("Listeners de Drag-and-Drop limpos.");
   },
 
   dragStart(e) {
@@ -47,17 +50,23 @@ const DraggableManager = {
     // Ativa a trava
     this.isLocked = true;
 
-    this.draggedEl = e.currentTarget;
-    const el = this.draggedEl;
+    const el = e.currentTarget;
 
-    this.placeholder = document.createElement("div");
-    this.placeholder.className = "w-16 h-16";
-    el.parentElement.insertBefore(this.placeholder, el);
+    if (this.config.mode === "clone") {
+      this.originalEl = el;
+      this.draggedEl = el.cloneNode(true); // O elemento arrastado é um clone
+    } else {
+      // modo 'move'
+      this.draggedEl = el;
+      this.placeholder = document.createElement("div");
+      this.placeholder.className = "w-16 h-16";
+      el.parentElement.insertBefore(this.placeholder, el);
+    }
 
     const rect = el.getBoundingClientRect();
-    document.body.appendChild(el);
+    document.body.appendChild(this.draggedEl);
 
-    Object.assign(el.style, {
+    Object.assign(this.draggedEl.style, {
       position: "absolute",
       left: `${rect.left}px`,
       top: `${rect.top}px`,
@@ -67,15 +76,15 @@ const DraggableManager = {
       cursor: "grabbing",
       transform: "scale(1.1)",
     });
-    el.classList.add("dragging");
+    this.draggedEl.classList.add("dragging");
 
-    this.offsetX = el.offsetWidth / 2;
-    this.offsetY = el.offsetHeight / 2;
+    this.offsetX = this.draggedEl.offsetWidth / 2;
+    this.offsetY = this.draggedEl.offsetHeight / 2;
 
     const moveX = e.clientX || e.touches[0].clientX;
     const moveY = e.clientY || e.touches[0].clientY;
-    el.style.left = `${moveX - this.offsetX}px`;
-    el.style.top = `${moveY - this.offsetY}px`;
+    this.draggedEl.style.left = `${moveX - this.offsetX}px`;
+    this.draggedEl.style.top = `${moveY - this.offsetY}px`;
 
     this._dragMove = this._dragMove.bind(this);
     this._dragEnd = this._dragEnd.bind(this);
@@ -126,6 +135,7 @@ const DraggableManager = {
     this.draggedEl.classList.remove("dragging");
     this.draggedEl = null;
     this.placeholder = null;
+    this.originalEl = null;
   },
 
   // Nova função para liberar a trava

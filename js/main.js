@@ -260,10 +260,6 @@ function getClassesForPhase(phase) {
     ligar: [4, 7, 10], // Jogo "Tempo" usa a mesma lógica de classes
   };
   const classCount = counts.memory[phase - 1] || 10;
-  // Esta lógica seleciona as classes gramaticais corretas com base no protótipo.
-  // Fase 1: substantivo, adjetivo, artigo e numeral (IDs 1, 3, 2, 10)
-  // Fase 2: adiciona pronome, verbo, advérbio (IDs 5, 4, 6)
-  // Fase 3: adiciona preposição, conjunção, interjeição (IDs 7, 8, 9)
   const phaseClasses = {
     1: [1, 3, 2, 10],
     2: [1, 3, 2, 10, 5, 4, 6],

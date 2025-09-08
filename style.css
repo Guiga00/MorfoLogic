@@ -1,3 +1,14 @@
+:root {
+  /*
+    =================================================
+    == CONTROLE A OPACIDADE DA DICA DO JOGO AQUI ==
+    Altere o valor abaixo para deixar a dica mais 
+    forte ou mais fraca. (0.0 = invisível, 1.0 = total)
+    =================================================
+  */
+  --symbol-hint-opacity: 0.2;
+}
+
 body {
   font-family: "Nunito", sans-serif;
   /* Previne o zoom por "double tap" em dispositivos móveis */
@@ -54,6 +65,12 @@ body {
 .card-matched .card-back {
   box-shadow: 0 0 15px 3px rgba(250, 204, 21, 0.7);
   border: 2px solid #facc15;
+}
+
+/* --- Dica do Jogo da Memória --- */
+.card-name-symbol-bg {
+  opacity: var(--symbol-hint-opacity);
+  z-index: 0;
 }
 
 /* --- Estilos para Drag and Drop --- */

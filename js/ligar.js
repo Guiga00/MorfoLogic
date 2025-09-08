@@ -5,7 +5,7 @@
 let ligarState = {};
 
 function initLigarGame(phase) {
-  DraggableManager.cleanup(); // Limpa listeners de arrasto anteriores
+  DraggableManager.cleanup();
 
   const classes = getClassesForPhase(phase);
   const symbols = [...classes].sort(() => Math.random() - 0.5);

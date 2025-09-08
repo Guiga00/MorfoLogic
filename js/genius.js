@@ -1,11 +1,11 @@
 /**
  * Módulo do Minijogo Genius (Versão Frases)
- * Utiliza o DraggableManager para a lógica de arrastar e soltar.
+ * Utiliza o DraggableManager no modo 'clone' para permitir o reuso de símbolos.
  */
 let geniusState = {};
 
 function initGeniusGame(phase) {
-  DraggableManager.cleanup(); // Limpa listeners de arrasto anteriores
+  DraggableManager.cleanup();
 
   const phraseData = GENIUS_PHRASES[phase];
   const board = document.getElementById("game-board");
@@ -49,30 +49,36 @@ function initGeniusGame(phase) {
 function computerTurn() {
   geniusState.turn = "computer";
   const phraseContainer = document.getElementById("genius-phrase");
+  if (!phraseContainer) return; // Verificação de segurança
+
   let displayIndex = 0;
   const displayInterval = setInterval(() => {
     if (displayIndex >= geniusState.phrase.length) {
       clearInterval(displayInterval);
       setTimeout(() => {
         geniusState.turn = "player";
-        document.getElementById("game-message").textContent =
-          "Sua vez! Complete a frase.";
+        const gameMessage = document.getElementById("game-message");
+        if (gameMessage) gameMessage.textContent = "Sua vez! Complete a frase.";
         renderPlayerTurn();
       }, 1000);
       return;
     }
     const currentWords = geniusState.phrase.slice(0, displayIndex + 1);
-    phraseContainer.innerHTML = currentWords
-      .map((wordData, idx) => {
-        const symbol = GRAMMAR_CLASSES.find((gc) => gc.id === wordData.classId);
-        return `<div class="flex flex-col items-center justify-end h-24 text-center">
-                <span class="px-1 text-lg">${wordData.word}</span>
-                <div class="w-12 h-12 p-1 ${
-                  idx === displayIndex ? "animate-pulse-symbol" : ""
-                }">${symbol.symbol("w-full h-full")}</div>
-              </div>`;
-      })
-      .join("");
+    if (phraseContainer) {
+      phraseContainer.innerHTML = currentWords
+        .map((wordData, idx) => {
+          const symbol = GRAMMAR_CLASSES.find(
+            (gc) => gc.id === wordData.classId
+          );
+          return `<div class="flex flex-col items-center justify-end h-24 text-center">
+                    <span class="px-1 text-lg">${wordData.word}</span>
+                    <div class="w-12 h-12 p-1 ${
+                      idx === displayIndex ? "animate-pulse-symbol" : ""
+                    }">${symbol.symbol("w-full h-full")}</div>
+                </div>`;
+        })
+        .join("");
+    }
     GameAudio.play("flip");
     displayIndex++;
   }, 1000);
@@ -80,6 +86,8 @@ function computerTurn() {
 
 function renderPlayerTurn() {
   const phraseContainer = document.getElementById("genius-phrase");
+  if (!phraseContainer) return; // Verificação de segurança
+
   phraseContainer.innerHTML = geniusState.phrase
     .map(
       (wordData, index) => `
@@ -90,44 +98,50 @@ function renderPlayerTurn() {
     )
     .join("");
 
+  // Habilita o modo 'clone' para o jogo Genius
   DraggableManager.makeDraggable(
     "#genius-symbols-bank .draggable",
-    handleGeniusDrop
+    handleGeniusDrop,
+    { mode: "clone" }
   );
 }
 
-function handleGeniusDrop(symbolEl, targetEl, placeholder, unlockCallback) {
-  const droppedSymbolId = parseInt(symbolEl.dataset.id);
+function handleGeniusDrop(clonedEl, targetEl, placeholder, unlockCallback) {
+  const droppedSymbolId = parseInt(clonedEl.dataset.id);
   const isCorrect =
     targetEl && parseInt(targetEl.dataset.correctId) === droppedSymbolId;
 
   if (isCorrect) {
     GameAudio.play("match");
-    placeholder.remove();
     const targetRect = targetEl.getBoundingClientRect();
-    Object.assign(symbolEl.style, {
+    Object.assign(clonedEl.style, {
       transition: "all 0.3s ease-out",
       left: `${
-        targetRect.left + (targetRect.width - symbolEl.offsetWidth) / 2
+        targetRect.left + (targetRect.width - clonedEl.offsetWidth) / 2
       }px`,
       top: `${
-        targetRect.top + (targetRect.height - symbolEl.offsetHeight) / 2
+        targetRect.top + (targetRect.height - clonedEl.offsetHeight) / 2
       }px`,
       transform: "scale(0.8)",
     });
 
     setTimeout(() => {
-      targetEl.replaceWith(symbolEl);
-      Object.assign(symbolEl.style, {
-        position: "static",
-        left: "",
-        top: "",
-        zIndex: "",
-        transform: "",
-        width: "",
-        height: "",
-      });
-      symbolEl.classList.remove("draggable");
+      // Verifica se o alvo ainda existe antes de o substituir
+      if (document.body.contains(targetEl)) {
+        targetEl.replaceWith(clonedEl);
+        Object.assign(clonedEl.style, {
+          position: "static",
+          left: "",
+          top: "",
+          zIndex: "",
+          transform: "",
+          width: "",
+          height: "",
+        });
+        clonedEl.classList.remove("draggable");
+      } else if (document.body.contains(clonedEl)) {
+        clonedEl.remove(); // Remove o clone se o alvo desapareceu
+      }
       unlockCallback();
     }, 300);
 
@@ -143,22 +157,14 @@ function handleGeniusDrop(symbolEl, targetEl, placeholder, unlockCallback) {
       AppState.currentGame.errors++;
       updateGameUI();
     }
-    const placeholderRect = placeholder.getBoundingClientRect();
-    Object.assign(symbolEl.style, {
+    // Anima o desaparecimento do clone incorreto
+    Object.assign(clonedEl.style, {
       transition: "all 0.3s ease-in-out",
-      left: `${placeholderRect.left}px`,
-      top: `${placeholderRect.top}px`,
-      transform: "scale(1)",
+      transform: "scale(0.5)",
+      opacity: "0",
     });
     setTimeout(() => {
-      placeholder.replaceWith(symbolEl);
-      Object.assign(symbolEl.style, {
-        position: "static",
-        left: "",
-        top: "",
-        zIndex: "",
-        transform: "",
-      });
+      if (document.body.contains(clonedEl)) clonedEl.remove();
       unlockCallback();
     }, 300);
   }
