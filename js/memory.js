@@ -34,12 +34,26 @@ function initMemoryGame(phase) {
   let gridCols = "grid-cols-4";
   if (phase === 2) gridCols = "grid-cols-3 sm:grid-cols-4";
   if (phase === 3) gridCols = "grid-cols-4 sm:grid-cols-5";
+
+  // A linha que define o 'card-front' foi alterada para incluir a imagem da logo.
   board.innerHTML = `<div class="grid ${gridCols} gap-2 sm:gap-4 w-full">${items
     .map(
-      (item, index) =>
-        `<div class="card w-full aspect-square perspective-1000" data-index="${index}" onclick="handleMemoryClick(this)"><div class="card-inner relative w-full h-full"><div class="card-front absolute w-full h-full bg-teal-500 rounded-lg flex items-center justify-center text-4xl text-white font-bold">?</div><div class="card-back absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 text-center font-bold text-xs sm:text-sm md:text-base">${item.content}</div></div></div>`
+      (item, index) => `
+    <div class="card w-full aspect-square perspective-1000" data-index="${index}" onclick="handleMemoryClick(this)">
+        <div class="card-inner relative w-full h-full">
+            <div class="card-front absolute w-full h-full bg-white border-2 border-teal-100 rounded-lg flex items-center justify-center p-2">
+                <!-- 
+                  IMPORTANTE: Altere o 'src' abaixo para o caminho da sua logo.
+                  Exemplo: src="./assets/logo.png" 
+                -->
+                <img src="https://placehold.co/100x100/14b8a6/ffffff?text=Logo" alt="Verso da Carta" class="w-full h-full object-contain">
+            </div>
+            <div class="card-back absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 text-center font-bold text-xs sm:text-sm md:text-base">${item.content}</div>
+        </div>
+    </div>`
     )
     .join("")}</div>`;
+
   const cards = board.querySelectorAll(".card");
   cards.forEach((card) => card.classList.add("flipped"));
   document.getElementById("game-message").textContent = "Memorize as cartas!";
