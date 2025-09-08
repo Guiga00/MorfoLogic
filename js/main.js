@@ -90,35 +90,35 @@ let geniusSequenceInterval = null; // Para ser acessível globalmente
 // --- DADOS DOS JOGOS ---
 const GENIUS_PHRASES = {
   1: [
-    { word: "Encontramos", classId: 4 }, // Verbo
-    { word: "o", classId: 2 }, // Artigo
-    { word: "tesouro", classId: 1 }, // Substantivo
-    { word: "perdido.", classId: 3 }, // Adjetivo
+    { word: "Encontramos", classId: 4 },
+    { word: "o", classId: 2 },
+    { word: "tesouro", classId: 1 },
+    { word: "perdido.", classId: 3 },
   ],
   2: [
-    { word: "Meu", classId: 5 }, // Pronome
-    { word: "lanche", classId: 1 }, // Substantivo
-    { word: "favorito", classId: 3 }, // Adjetivo
-    { word: "é", classId: 4 }, // Verbo
-    { word: "suco", classId: 1 }, // Substantivo
-    { word: "e", classId: 8 }, // Conjunção
-    { word: "bolo", classId: 1 }, // Substantivo
-    { word: "de", classId: 7 }, // Preposição
-    { word: "chocolate.", classId: 1 }, // Substantivo (ou Adjetivo, dependendo da análise)
+    { word: "Meu", classId: 5 },
+    { word: "lanche", classId: 1 },
+    { word: "favorito", classId: 3 },
+    { word: "é", classId: 4 },
+    { word: "suco", classId: 1 },
+    { word: "e", classId: 8 },
+    { word: "bolo", classId: 1 },
+    { word: "de", classId: 7 },
+    { word: "chocolate.", classId: 1 },
   ],
   3: [
-    { word: "Oba!", classId: 9 }, // Interjeição
-    { word: "As", classId: 2 }, // Artigo
-    { word: "minhas", classId: 5 }, // Pronome
-    { word: "duas", classId: 10 }, // Numeral
-    { word: "bonecas", classId: 1 }, // Substantivo
-    { word: "novas", classId: 3 }, // Adjetivo
-    { word: "e", classId: 8 }, // Conjunção
-    { word: "perfumadas", classId: 3 }, // Adjetivo
-    { word: "chegaram", classId: 4 }, // Verbo
-    { word: "hoje", classId: 6 }, // Advérbio
-    { word: "em", classId: 7 }, // Preposição
-    { word: "casa!", classId: 1 }, // Substantivo
+    { word: "Oba!", classId: 9 },
+    { word: "As", classId: 2 },
+    { word: "minhas", classId: 5 },
+    { word: "duas", classId: 10 },
+    { word: "bonecas", classId: 1 },
+    { word: "novas", classId: 3 },
+    { word: "e", classId: 8 },
+    { word: "perfumadas", classId: 3 },
+    { word: "chegaram", classId: 4 },
+    { word: "hoje", classId: 6 },
+    { word: "em", classId: 7 },
+    { word: "casa!", classId: 1 },
   ],
 };
 
@@ -211,6 +211,7 @@ function startSessionTimer() {
 }
 
 function goBackToLogin(isExpired = false) {
+  DraggableManager.cleanup(); // Limpa listeners de arrasto
   if (isExpired) closeModal(document.getElementById("session-expired-modal"));
   AppState.currentUser = null;
   AppState.generalScore = 0;
@@ -225,6 +226,7 @@ function goBackToLogin(isExpired = false) {
 }
 
 function goToGameSelection() {
+  DraggableManager.cleanup(); // Limpa listeners de arrasto
   closeModal(document.getElementById("phase-end-modal"));
   document.getElementById("general-score").textContent = AppState.generalScore;
   clearInterval(geniusSequenceInterval);
@@ -257,15 +259,22 @@ function getClassesForPhase(phase) {
     memory: [4, 7, 10], // Corresponde a Fase 1, 2 e 3 do doc
     ligar: [4, 7, 10], // Jogo "Tempo" usa a mesma lógica de classes
   };
-  const classIds = counts.memory[phase - 1];
-
-  // Retorna um subconjunto de GRAMMAR_CLASSES
-  // Para garantir que as classes certas sejam pegas, o ideal seria mapear por ID.
-  // Mas para simplificar, vamos pegar os primeiros 'classIds' elementos.
-  return GRAMMAR_CLASSES.slice(0, classIds);
+  const classCount = counts.memory[phase - 1] || 10;
+  // Esta lógica seleciona as classes gramaticais corretas com base no protótipo.
+  // Fase 1: substantivo, adjetivo, artigo e numeral (IDs 1, 3, 2, 10)
+  // Fase 2: adiciona pronome, verbo, advérbio (IDs 5, 4, 6)
+  // Fase 3: adiciona preposição, conjunção, interjeição (IDs 7, 8, 9)
+  const phaseClasses = {
+    1: [1, 3, 2, 10],
+    2: [1, 3, 2, 10, 5, 4, 6],
+    3: [1, 3, 2, 10, 5, 4, 6, 7, 8, 9],
+  };
+  const idsToInclude = phaseClasses[phase] || phaseClasses[3];
+  return GRAMMAR_CLASSES.filter((gc) => idsToInclude.includes(gc.id));
 }
 
 function startGame(type, phase) {
+  DraggableManager.cleanup(); // Garante que listeners antigos foram removidos
   closeModal(document.getElementById("phase-selection-modal"));
   AppState.currentGame = { type, phase, score: 0, errors: 0 };
   updateGameUI();
@@ -284,6 +293,7 @@ function startGame(type, phase) {
 }
 
 function restartPhase() {
+  DraggableManager.cleanup(); // Garante que listeners antigos foram removidos
   startGame(AppState.currentGame.type, AppState.currentGame.phase);
 }
 
@@ -325,9 +335,7 @@ function showPhaseEndModal(completed = true) {
     modalScore.textContent = `Sua pontuação final foi: ${currentScore} pontos.`;
     modalBonus.textContent =
       type === "genius"
-        ? `Você acertou ${geniusState.playerSequence.length - 1} de ${
-            geniusState.sequence.length
-          } palavras.`
+        ? `Você acertou ${geniusState.correctlyPlaced} de ${geniusState.phrase.length} palavras.`
         : "";
   }
   AppState.generalScore += currentScore;
