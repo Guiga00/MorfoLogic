@@ -28,9 +28,6 @@ const DraggableManager = {
 
   cleanup() {
     if (this.scrollInterval) clearInterval(this.scrollInterval);
-    document.querySelectorAll(".draggable").forEach((el) => {
-      // A melhor abordagem para remover listeners de forma segura é reiniciar o HTML do jogo.
-    });
     document.removeEventListener("mousemove", this._dragMove);
     document.removeEventListener("touchmove", this._dragMove);
     document.removeEventListener("mouseup", this._dragEnd);
@@ -49,8 +46,8 @@ const DraggableManager = {
 
     const el = e.currentTarget;
     const isTouchEvent = e.type.startsWith("touch");
-    const startX = isTouchEvent ? e.touches[0].clientX : e.clientX;
-    const startY = isTouchEvent ? e.touches[0].clientY : e.clientY;
+    const startX = isTouchEvent ? e.touches[0].pageX : e.pageX;
+    const startY = isTouchEvent ? e.touches[0].pageY : e.pageY;
 
     if (this.config.mode === "clone") {
       this.originalEl = el;
@@ -67,21 +64,23 @@ const DraggableManager = {
 
     Object.assign(this.draggedEl.style, {
       position: "absolute",
-      left: `${rect.left + window.scrollX}px`,
-      top: `${rect.top + window.scrollY}px`,
+      left: "0px",
+      top: "0px",
       width: `${rect.width}px`,
       height: `${rect.height}px`,
       zIndex: "1000",
       cursor: "grabbing",
-      transform: "scale(1.1)",
     });
     this.draggedEl.classList.add("dragging");
 
+    // Centraliza o elemento no cursor/dedo
     this.offsetX = this.draggedEl.offsetWidth / 2;
     this.offsetY = this.draggedEl.offsetHeight / 2;
 
-    this.draggedEl.style.left = `${startX - this.offsetX}px`;
-    this.draggedEl.style.top = `${startY - this.offsetY}px`;
+    // Define a posição inicial correta usando transform e coordenadas da página
+    this.draggedEl.style.transform = `translate(${startX - this.offsetX}px, ${
+      startY - this.offsetY
+    }px) scale(1.1)`;
 
     this._dragMove = this._dragMove.bind(this);
     this._dragEnd = this._dragEnd.bind(this);
@@ -95,22 +94,25 @@ const DraggableManager = {
     if (!this.draggedEl) return;
     e.preventDefault();
     const isTouchEvent = e.type.startsWith("touch");
-    const moveX = isTouchEvent ? e.touches[0].clientX : e.clientX;
-    const moveY = isTouchEvent ? e.touches[0].clientY : e.clientY;
+    const moveX = isTouchEvent ? e.touches[0].pageX : e.pageX;
+    const moveY = isTouchEvent ? e.touches[0].pageY : e.pageY;
 
-    this.draggedEl.style.left = `${moveX - this.offsetX}px`;
-    this.draggedEl.style.top = `${moveY - this.offsetY}px`;
+    this.draggedEl.style.transform = `translate(${moveX - this.offsetX}px, ${
+      moveY - this.offsetY
+    }px) scale(1.1)`;
 
+    // A lógica de scroll usa clientY, que é relativo à janela de visualização
+    const clientY = isTouchEvent ? e.touches[0].clientY : e.clientY;
     const scrollZone = window.innerHeight * 0.15;
     const scrollSpeed = 10;
 
-    if (moveY < scrollZone) {
+    if (clientY < scrollZone) {
       if (!this.scrollInterval) {
         this.scrollInterval = setInterval(() => {
           window.scrollBy(0, -scrollSpeed);
         }, 16);
       }
-    } else if (moveY > window.innerHeight - scrollZone) {
+    } else if (clientY > window.innerHeight - scrollZone) {
       if (!this.scrollInterval) {
         this.scrollInterval = setInterval(() => {
           window.scrollBy(0, scrollSpeed);
@@ -137,9 +139,10 @@ const DraggableManager = {
     document.removeEventListener("mouseup", this._dragEnd);
     document.removeEventListener("touchend", this._dragEnd);
 
-    this.draggedEl.style.display = "none";
     const endX = e.clientX || e.changedTouches[0].clientX;
     const endY = e.clientY || e.changedTouches[0].clientY;
+
+    this.draggedEl.style.display = "none";
     const dropTarget = document
       .elementFromPoint(endX, endY)
       ?.closest(".target");

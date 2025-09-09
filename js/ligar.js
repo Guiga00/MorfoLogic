@@ -25,12 +25,15 @@ function initLigarGame(phase) {
             .join("")}</div>
           <div id="ligar-symbols-bank" class="flex flex-row flex-wrap items-center justify-center gap-4 w-full max-w-xs">${symbols
             .map(
-              (s) =>
-                `<div class="draggable w-16 h-16 p-1 bg-white rounded-lg shadow cursor-grab active:cursor-grabbing" data-id="${
-                  s.id
-                }">${s.symbol("w-full h-full pointer-events-none")}</div>`
+              (s) => `
+            <div class="genius-symbol draggable w-16 h-16 p-1 bg-white rounded-lg shadow cursor-grab active:cursor-grabbing" data-id="${
+              s.id
+            }">
+                ${s.symbol("w-full h-full pointer-events-none")}
+            </div>`
             )
-            .join("")}</div>
+            .join("")}
+          </div>
       </div>`;
   document.getElementById("game-message").textContent =
     "Arraste cada símbolo para sua classe.";
