@@ -1,19 +1,19 @@
 /**
  * Módulo Utilitário de Arrastar e Soltar (Drag and Drop)
  * Versão Robusta: Gerencia a criação, movimento e limpeza de elementos arrastáveis.
- * Inclui um mecanismo de bloqueio para prevenir bugs de cliques rápidos.
+ * Inclui um mecanismo de bloqueio e auto-scroll da página.
  */
 const DraggableManager = {
   draggedEl: null,
   placeholder: null,
-  originalEl: null, // Referência ao elemento original no modo clone
+  originalEl: null,
   offsetX: 0,
   offsetY: 0,
   onDropCallback: null,
-  isLocked: false, // Trava para evitar cliques múltiplos
-  config: { mode: "move" }, // 'move' ou 'clone'
+  isLocked: false,
+  scrollInterval: null,
+  config: { mode: "move" },
 
-  // Adiciona os listeners de início de arrasto
   makeDraggable(selector, onDrop, config = { mode: "move" }) {
     this.cleanup();
     this.config = config;
@@ -26,11 +26,10 @@ const DraggableManager = {
     this.onDropCallback = onDrop;
   },
 
-  // Remove todos os listeners para prevenir vazamentos entre jogos
   cleanup() {
+    if (this.scrollInterval) clearInterval(this.scrollInterval);
     document.querySelectorAll(".draggable").forEach((el) => {
-      el.removeEventListener("mousedown", this.dragStart);
-      el.removeEventListener("touchstart", this.dragStart);
+      // A melhor abordagem para remover listeners de forma segura é reiniciar o HTML do jogo.
     });
     document.removeEventListener("mousemove", this._dragMove);
     document.removeEventListener("touchmove", this._dragMove);
@@ -40,23 +39,23 @@ const DraggableManager = {
     this.placeholder = null;
     this.originalEl = null;
     this.isLocked = false;
+    this.scrollInterval = null;
   },
 
   dragStart(e) {
-    // Se já houver um item sendo arrastado ou se a trava estiver ativa, ignora
     if (this.draggedEl || this.isLocked) return;
     e.preventDefault();
-
-    // Ativa a trava
     this.isLocked = true;
 
     const el = e.currentTarget;
+    const isTouchEvent = e.type.startsWith("touch");
+    const startX = isTouchEvent ? e.touches[0].clientX : e.clientX;
+    const startY = isTouchEvent ? e.touches[0].clientY : e.clientY;
 
     if (this.config.mode === "clone") {
       this.originalEl = el;
-      this.draggedEl = el.cloneNode(true); // O elemento arrastado é um clone
+      this.draggedEl = el.cloneNode(true);
     } else {
-      // modo 'move'
       this.draggedEl = el;
       this.placeholder = document.createElement("div");
       this.placeholder.className = "w-16 h-16";
@@ -68,8 +67,8 @@ const DraggableManager = {
 
     Object.assign(this.draggedEl.style, {
       position: "absolute",
-      left: `${rect.left}px`,
-      top: `${rect.top}px`,
+      left: `${rect.left + window.scrollX}px`,
+      top: `${rect.top + window.scrollY}px`,
       width: `${rect.width}px`,
       height: `${rect.height}px`,
       zIndex: "1000",
@@ -81,10 +80,8 @@ const DraggableManager = {
     this.offsetX = this.draggedEl.offsetWidth / 2;
     this.offsetY = this.draggedEl.offsetHeight / 2;
 
-    const moveX = e.clientX || e.touches[0].clientX;
-    const moveY = e.clientY || e.touches[0].clientY;
-    this.draggedEl.style.left = `${moveX - this.offsetX}px`;
-    this.draggedEl.style.top = `${moveY - this.offsetY}px`;
+    this.draggedEl.style.left = `${startX - this.offsetX}px`;
+    this.draggedEl.style.top = `${startY - this.offsetY}px`;
 
     this._dragMove = this._dragMove.bind(this);
     this._dragEnd = this._dragEnd.bind(this);
@@ -97,14 +94,43 @@ const DraggableManager = {
   _dragMove(e) {
     if (!this.draggedEl) return;
     e.preventDefault();
-    const moveX = e.clientX || e.touches[0].clientX;
-    const moveY = e.clientY || e.touches[0].clientY;
+    const isTouchEvent = e.type.startsWith("touch");
+    const moveX = isTouchEvent ? e.touches[0].clientX : e.clientX;
+    const moveY = isTouchEvent ? e.touches[0].clientY : e.clientY;
+
     this.draggedEl.style.left = `${moveX - this.offsetX}px`;
     this.draggedEl.style.top = `${moveY - this.offsetY}px`;
+
+    const scrollZone = window.innerHeight * 0.15;
+    const scrollSpeed = 10;
+
+    if (moveY < scrollZone) {
+      if (!this.scrollInterval) {
+        this.scrollInterval = setInterval(() => {
+          window.scrollBy(0, -scrollSpeed);
+        }, 16);
+      }
+    } else if (moveY > window.innerHeight - scrollZone) {
+      if (!this.scrollInterval) {
+        this.scrollInterval = setInterval(() => {
+          window.scrollBy(0, scrollSpeed);
+        }, 16);
+      }
+    } else {
+      if (this.scrollInterval) {
+        clearInterval(this.scrollInterval);
+        this.scrollInterval = null;
+      }
+    }
   },
 
   _dragEnd(e) {
     if (!this.draggedEl) return;
+
+    if (this.scrollInterval) {
+      clearInterval(this.scrollInterval);
+      this.scrollInterval = null;
+    }
 
     document.removeEventListener("mousemove", this._dragMove);
     document.removeEventListener("touchmove", this._dragMove);
@@ -120,7 +146,6 @@ const DraggableManager = {
     this.draggedEl.style.display = "";
 
     if (this.onDropCallback) {
-      // A função de callback agora é responsável por destravar (this.unlock())
       this.onDropCallback(
         this.draggedEl,
         dropTarget,
@@ -128,7 +153,6 @@ const DraggableManager = {
         this.unlock.bind(this)
       );
     } else {
-      // Se não houver callback, destrava imediatamente
       this.unlock();
     }
 
@@ -138,7 +162,6 @@ const DraggableManager = {
     this.originalEl = null;
   },
 
-  // Nova função para liberar a trava
   unlock() {
     this.isLocked = false;
   },
