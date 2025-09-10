@@ -20,61 +20,61 @@ const GRAMMAR_CLASSES = [
     id: 1,
     name: "Substantivo",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><polygon points="50,10 90,90 10,90" fill="#262626"/></svg>`,
+      `<img src="./assets/img/substantivo.svg" alt="Substantivo" class="${c}" />`,
   },
   {
     id: 4,
     name: "Verbo",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#ef4444"/></svg>`,
+      `<img src="./assets/img/verbo.svg" alt="Verbo" class="${c}" />`,
   },
   {
     id: 3,
     name: "Adjetivo",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><polygon points="50,25 80,85 20,85" fill="#0891b2"/></svg>`,
+      `<img src="./assets/img/adjetivo.svg" alt="Adjetivo" class="${c}" />`,
   },
   {
     id: 2,
     name: "Artigo",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><polygon points="50,40 70,80 30,80" fill="#67e8f9"/></svg>`,
+      `<img src="./assets/img/artigo.svg" alt="Artigo" class="${c}" />`,
   },
   {
     id: 5,
     name: "Pronome",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><polygon points="50,10 75,90 25,90" fill="#a855f7"/></svg>`,
+      `<img src="./assets/img/pronome.svg" alt="Pronome" class="${c}" />`,
   },
   {
     id: 10,
     name: "Numeral",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><rect x="10" y="45" width="80" height="15" rx="7" fill="#38bdf8"/></svg>`,
+      `<img src="./assets/img/numeral.svg" alt="Numeral" class="${c}" />`,
   },
   {
     id: 6,
     name: "Advérbio",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><circle cx="50" cy="50" r="25" fill="#f97316"/></svg>`,
+      `<img src="./assets/img/adverbio.svg" alt="Advérbio" class="${c}" />`,
   },
   {
     id: 8,
     name: "Conjunção",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><rect x="20" y="45" width="60" height="10" rx="5" fill="#ec4899"/></svg>`,
+      `<img src="./assets/img/conjuncao.svg" alt="Conjunção" class="${c}" />`,
   },
   {
     id: 7,
     name: "Preposição",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><path d="M10 60 A 40 40 0 0 1 90 60" stroke="#22c55e" stroke-width="15" fill="none" stroke-linecap="round"/></svg>`,
+      `<img src="./assets/img/preposicao.svg" alt="Preposição" class="${c}" />`,
   },
   {
     id: 9,
     name: "Interjeição",
     symbol: (c) =>
-      `<svg class="${c}" viewBox="0 0 100 100"><g fill="#f59e0b"><rect x="45" y="10" width="10" height="50" rx="5"/><circle cx="50" cy="75" r="8"/></g></svg>`,
+      `<img src="./assets/img/interjeicao.svg" alt="Interjeição" class="${c}" />`,
   },
 ];
 

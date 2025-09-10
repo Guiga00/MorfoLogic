@@ -81,9 +81,22 @@ function initMemoryGame(phase) {
   document.getElementById("game-message").textContent = "Memorize as cartas!";
   setTimeout(() => {
     cards.forEach((card) => card.classList.remove("flipped"));
-    memoryState.lockBoard = false;
-    document.getElementById("game-message").textContent = "Encontre os pares!";
+    // Adiciona animação de embaralhamento
+    shuffleAnimation(cards, () => {
+      memoryState.lockBoard = false;
+      document.getElementById("game-message").textContent =
+        "Encontre os pares!";
+    });
   }, previewTime);
+
+  // Função de animação simples de embaralhamento
+  function shuffleAnimation(cards, callback) {
+    cards.forEach((card) => card.classList.add("shuffling"));
+    setTimeout(() => {
+      cards.forEach((card) => card.classList.remove("shuffling"));
+      if (typeof callback === "function") callback();
+    }, 1000); // duração da animação em ms
+  }
 }
 
 // Função auxiliar para criar o HTML de uma carta (evita repetição)

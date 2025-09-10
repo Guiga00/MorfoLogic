@@ -6,12 +6,11 @@
     forte ou mais fraca. (0.0 = invisível, 1.0 = total)
     =================================================
   */
-  --symbol-hint-opacity: 0.2;
+  --symbol-hint-opacity: 0.1;
 }
 
 body {
   font-family: "Nunito", sans-serif;
-  /* Previne o zoom por "double tap" em dispositivos móveis */
   touch-action: manipulation;
 }
 .card-inner {
@@ -33,12 +32,37 @@ body {
   filter: brightness(1.2) drop-shadow(0 0 15px #facc15);
   transform: scale(1.05);
 }
-/* Animações de Fade-in e Fade-out */
 .fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }
 .fade-out {
   animation: fadeOut 0.3s ease-in forwards;
+}
+
+/* Animação simples de embaralhamento das cartas */
+.card.shuffling {
+  animation: shuffleCard 1s ease;
+}
+
+@keyframes shuffleCard {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  20% {
+    transform: translate(-5px, 8px) rotate(-3deg);
+  }
+  40% {
+    transform: translate(7px, -6px) rotate(2deg);
+  }
+  60% {
+    transform: translate(-8px, 5px) rotate(4deg);
+  }
+  80% {
+    transform: translate(6px, -7px) rotate(-2deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
 }
 @keyframes fadeIn {
   from {
@@ -61,13 +85,15 @@ body {
   }
 }
 
-/* Estilo para o brilho amarelo no acerto do jogo da memória */
+/* --- ESTILOS DO JOGO DA MEMÓRIA --- */
+.card {
+  /* Adiciona transição suave para o movimento de embaralhar */
+  transition: top 0.8s ease-in-out, left 0.8s ease-in-out;
+}
 .card-matched .card-back {
   box-shadow: 0 0 15px 3px rgba(250, 204, 21, 0.7);
   border: 2px solid #facc15;
 }
-
-/* --- Dica do Jogo da Memória --- */
 .card-name-symbol-bg {
   opacity: var(--symbol-hint-opacity);
   z-index: 0;
@@ -75,15 +101,13 @@ body {
 
 /* --- Estilos para Drag and Drop --- */
 .draggable {
-  /* Impede que o navegador assuma o controle de gestos de toque (scroll, zoom) */
   touch-action: none;
 }
 .dragging {
   opacity: 0.7;
   cursor: grabbing;
-  transition: none !important; /* Desabilita transições durante o arrasto para um movimento fluido */
+  transition: none !important;
 }
-/* Animação de pulsação para o símbolo no computador */
 .animate-pulse-symbol {
   animation: pulse-grow 1s infinite alternate;
 }
