@@ -92,8 +92,9 @@ const USERS = {
   professor: "admin",
   diretora: "admin",
 };
+// TEMPO DE SESSÃO (EM MINUTOS) basta alterar o para o tempo desejado, ex: 15, 30, 60.
 const SESSION_DURATION_MINUTES = 15;
-let geniusSequenceInterval = null; // Para ser acessível globalmente
+let geniusSequenceInterval = null;
 
 // --- DADOS DOS JOGOS ---
 const GENIUS_PHRASES = {
