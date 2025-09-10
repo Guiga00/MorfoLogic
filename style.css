@@ -53,6 +53,24 @@ body::after {
   pointer-events: none;
 }
 
+/* =================================================== */
+/* == AJUSTE PARA O TÍTULO DA PÁGINA NA VERSÃO MOBILE == */
+/* =================================================== */
+.page-title {
+  /* No mobile, força o alinhamento à esquerda e adiciona um padding */
+  text-align: left;
+  padding-left: 40px;
+}
+
+/* Em telas maiores (desktops e tablets) */
+@media (min-width: 768px) {
+  .page-title {
+    /* Restaura o alinhamento central e remove o padding */
+    text-align: center;
+    padding-left: 0;
+  }
+}
+
 /* Ajustes para mobile */
 @media (max-width: 768px) {
   body::after {

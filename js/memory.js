@@ -1,26 +1,177 @@
 /**
  * Módulo do Minijogo da Memória
  * Contém toda a lógica de funcionamento do Jogo da Memória.
+ * VERSÃO CORRIGIDA E COMPLETA
  */
 let memoryState = {};
 
+// Função auxiliar para embaralhar arrays (Fisher-Yates)
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+// Função para criar o HTML de uma única carta
+function createCardHTML(item, index) {
+  let cardBackContent;
+  if (item.type === "name") {
+    const grammarClass = GRAMMAR_CLASSES.find((gc) => gc.id === item.id);
+    cardBackContent = `
+      <div class="relative w-full h-full flex items-center justify-center">
+        <div class="absolute inset-0 p-1 sm:p-2 card-name-symbol-bg">
+          ${grammarClass.symbol("w-full h-full")}
+        </div>
+        <span class="relative z-10">${item.name}</span>
+      </div>`;
+  } else {
+    cardBackContent = item.content;
+  }
+
+  return `
+    <div class="card w-full aspect-square perspective-1000" data-index="${index}">
+      <div class="card-inner relative w-full h-full">
+        <div class="card-front absolute w-full h-full bg-white border-2 border-teal-100 rounded-lg flex items-center justify-center p-2">
+          <img src="https://placehold.co/100x100/14b8a6/ffffff?text=Logo" alt="Verso da Carta" class="w-full h-full object-contain">
+        </div>
+        <div class="card-back absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 text-center font-bold text-xs sm:text-sm md:text-base">
+          ${cardBackContent}
+        </div>
+      </div>
+    </div>`;
+}
+
+// Função para gerar o HTML completo do tabuleiro (VERSÃO CORRIGIDA)
+function generateBoardHTML(items, phase) {
+  let gridLayoutHTML = "";
+
+  switch (phase) {
+    case 1:
+      // Fase 1: 8 cartas. Usa 4 colunas para manter o tamanho da carta consistente.
+      const phase1Cards = items
+        .map((item, index) => createCardHTML(item, index))
+        .join("");
+      gridLayoutHTML = `<div class="grid grid-cols-4 gap-2 sm:gap-4 w-full">${phase1Cards}</div>`;
+      break;
+
+    case 2:
+      // Fase 2: 14 cartas. Estrutura customizada que serve de base para o tamanho.
+      const first12 = items
+        .slice(0, 12)
+        .map((item, index) => createCardHTML(item, index))
+        .join("");
+      const last2 = items
+        .slice(12)
+        .map((item, index) => {
+          return `<div class="w-full">${createCardHTML(
+            item,
+            index + 12
+          )}</div>`;
+        })
+        .join("");
+
+      gridLayoutHTML = `
+        <div class="flex flex-col items-center w-full">
+          <div class="grid grid-cols-4 gap-2 sm:gap-4 w-full">${first12}</div>
+          <div class="flex justify-center gap-2 sm:gap-4 w-1/2 mt-2 sm:mt-4">
+            ${last2}
+          </div>
+        </div>`;
+      break;
+
+    case 3:
+    default:
+      // Fase 3: 20 cartas. Usa 4 colunas para manter o tamanho.
+      const phase3Cards = items
+        .map((item, index) => createCardHTML(item, index))
+        .join("");
+      gridLayoutHTML = `<div class="grid grid-cols-4 gap-2 sm:gap-4 w-full">${phase3Cards}</div>`;
+      break;
+  }
+
+  // Envolve o layout de todas as fases em um contêiner com max-w-lg para unificar o tamanho.
+  return `<div class="w-full max-w-lg mx-auto">${gridLayoutHTML}</div>`;
+}
+
+/**
+ * ANIMAÇÃO DE EMBARALHAMENTO (TÉCNICA FLIP)
+ */
+function shuffleAnimation(cards, items, callback) {
+  const initialPositions = new Map();
+  cards.forEach((card) => {
+    initialPositions.set(card, card.getBoundingClientRect());
+  });
+
+  shuffleArray(items);
+
+  const parent = cards[0].parentElement;
+  items.forEach((item) => {
+    const cardElement = Array.from(cards).find(
+      (c) => c.dataset.index == item.originalIndex
+    );
+    parent.appendChild(cardElement);
+  });
+
+  cards.forEach((card) => {
+    const initialRect = initialPositions.get(card);
+    const finalRect = card.getBoundingClientRect();
+    const deltaX = initialRect.left - finalRect.left;
+    const deltaY = initialRect.top - finalRect.top;
+    card.style.transition = "none";
+    card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+  });
+
+  void parent.offsetWidth;
+
+  cards.forEach((card) => {
+    card.style.transition =
+      "transform 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55)";
+    card.style.transform = "";
+    card.style.zIndex = 100;
+  });
+
+  setTimeout(() => {
+    cards.forEach((card) => {
+      card.style.transition = "";
+      card.style.zIndex = "";
+    });
+    if (typeof callback === "function") callback();
+  }, 750);
+}
+
+/**
+ * Função principal de inicialização do jogo
+ */
 function initMemoryGame(phase) {
   const classes = getClassesForPhase(phase);
   const board = document.getElementById("game-board");
   AppState.currentGame.score = 100;
   updateGameUI();
-  const items = [...classes, ...classes]
-    .map((item, i) => ({
-      id: item.id,
-      name: item.name,
-      content:
-        i < classes.length
-          ? item.name
-          : item.symbol("w-full h-full p-1 sm:p-2"),
-      type: i < classes.length ? "name" : "symbol",
+
+  // Gera os pares lado a lado (Nome, Símbolo, Nome, Símbolo, ...)
+  const items = classes.flatMap((classItem, index) => {
+    const originalNameIndex = index * 2;
+    const originalSymbolIndex = index * 2 + 1;
+    const nameCard = {
+      id: classItem.id,
+      name: classItem.name,
+      content: classItem.name,
+      type: "name",
       matched: false,
-    }))
-    .sort(() => Math.random() - 0.5);
+      originalIndex: originalNameIndex,
+    };
+    const symbolCard = {
+      id: classItem.id,
+      name: classItem.name,
+      content: classItem.symbol("w-full h-full p-1 sm:p-2"),
+      type: "symbol",
+      matched: false,
+      originalIndex: originalSymbolIndex,
+    };
+    return [nameCard, symbolCard];
+  });
+
   memoryState = {
     items,
     firstPick: null,
@@ -30,112 +181,46 @@ function initMemoryGame(phase) {
     totalPairs: classes.length,
   };
 
+  board.innerHTML = generateBoardHTML(items, phase);
+  const cards = board.querySelectorAll(".card");
+
+  cards.forEach((card) => {
+    card.addEventListener("click", () => handleMemoryClick(card));
+  });
+
+  cards.forEach((card) => card.classList.add("flipped"));
+  document.getElementById("game-message").textContent = "Memorize os pares!";
+
   const previewTime = phase === 1 ? 10000 : 15000;
 
-  let boardHTML = "";
-
-  // Lógica para gerar o layout de grade responsivo por fase
-  switch (phase) {
-    case 1: // Fase 1: 8 cartas. Layout 2x4 no celular, 4x2 no desktop.
-      boardHTML = `<div class="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 w-full max-w-md">
-        ${items.map((item, index) => createCardHTML(item, index)).join("")}
-      </div>`;
-      break;
-
-    case 2: // Fase 2: 14 cartas. Layout 4x4 com última fileira centralizada no celular.
-      const first12 = items.slice(0, 12);
-      const last2 = items.slice(12);
-      boardHTML = `
-        <div class="w-full max-w-lg flex flex-col items-center">
-          <div class="grid grid-cols-4 gap-2 sm:gap-4 w-full">
-            ${first12
-              .map((item, index) => createCardHTML(item, index))
-              .join("")}
-          </div>
-          <div class="flex justify-center gap-2 sm:gap-4 w-full mt-2 sm:mt-4">
-            ${last2
-              .map((item, index) => {
-                // Adiciona uma div wrapper para controlar o tamanho
-                return `<div class="w-1/4 px-1 sm:px-2">${createCardHTML(
-                  item,
-                  index + 12
-                )}</div>`;
-              })
-              .join("")}
-          </div>
-        </div>`;
-      break;
-
-    case 3: // Fase 3: 20 cartas. Layout 4x5 no celular, 5x4 no desktop.
-    default:
-      boardHTML = `<div class="grid grid-cols-4 sm:grid-cols-5 gap-2 sm:gap-4 w-full max-w-xl">
-        ${items.map((item, index) => createCardHTML(item, index)).join("")}
-      </div>`;
-      break;
-  }
-
-  board.innerHTML = boardHTML;
-
-  const cards = board.querySelectorAll(".card");
-  cards.forEach((card) => card.classList.add("flipped"));
-  document.getElementById("game-message").textContent = "Memorize as cartas!";
   setTimeout(() => {
     cards.forEach((card) => card.classList.remove("flipped"));
-    // Adiciona animação de embaralhamento
-    shuffleAnimation(cards, () => {
-      memoryState.lockBoard = false;
-      document.getElementById("game-message").textContent =
-        "Encontre os pares!";
-    });
-  }, previewTime);
+    document.getElementById("game-message").textContent = "Embaralhando...";
 
-  // Função de animação simples de embaralhamento
-  function shuffleAnimation(cards, callback) {
-    cards.forEach((card) => card.classList.add("shuffling"));
     setTimeout(() => {
-      cards.forEach((card) => card.classList.remove("shuffling"));
-      if (typeof callback === "function") callback();
-    }, 1000); // duração da animação em ms
-  }
-}
-
-// Função auxiliar para criar o HTML de uma carta (evita repetição)
-function createCardHTML(item, index) {
-  let cardBackContent;
-  if (item.type === "name") {
-    const grammarClass = GRAMMAR_CLASSES.find((gc) => gc.id === item.id);
-    cardBackContent = `
-            <div class="relative w-full h-full flex items-center justify-center">
-                <div class="absolute inset-0 p-1 sm:p-2 card-name-symbol-bg">
-                    ${grammarClass.symbol("w-full h-full")}
-                </div>
-                <span class="relative z-10">${item.name}</span>
-            </div>
-        `;
-  } else {
-    cardBackContent = item.content;
-  }
-
-  return `
-    <div class="card w-full aspect-square perspective-1000" data-index="${index}" onclick="handleMemoryClick(this)">
-        <div class="card-inner relative w-full h-full">
-            <div class="card-front absolute w-full h-full bg-white border-2 border-teal-100 rounded-lg flex items-center justify-center p-2">
-                <img src="https://placehold.co/100x100/14b8a6/ffffff?text=Logo" alt="Verso da Carta" class="w-full h-full object-contain">
-            </div>
-            <div class="card-back absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 text-center font-bold text-xs sm:text-sm md:text-base">
-                ${cardBackContent}
-            </div>
-        </div>
-    </div>`;
+      shuffleAnimation(cards, memoryState.items, () => {
+        memoryState.lockBoard = false;
+        document.getElementById("game-message").textContent =
+          "Encontre os pares!";
+      });
+    }, 500);
+  }, previewTime);
 }
 
 function handleMemoryClick(cardElement) {
   if (memoryState.lockBoard) return;
-  const index = cardElement.dataset.index;
-  const item = memoryState.items[index];
-  if (cardElement.classList.contains("flipped") || item.matched) return;
+
+  const originalIndex = parseInt(cardElement.dataset.index, 10);
+  const item = memoryState.items.find(
+    (it) => it.originalIndex === originalIndex
+  );
+
+  if (!item || cardElement.classList.contains("flipped") || item.matched)
+    return;
+
   GameAudio.play("flip");
   cardElement.classList.add("flipped");
+
   if (!memoryState.firstPick) {
     memoryState.firstPick = { el: cardElement, item: item };
   } else {
@@ -150,6 +235,7 @@ function checkForMemoryMatch() {
   const isMatch =
     firstPick.item.id === secondPick.item.id &&
     firstPick.item.type !== secondPick.item.type;
+
   if (isMatch) {
     GameAudio.play("match");
     memoryState.matches++;
