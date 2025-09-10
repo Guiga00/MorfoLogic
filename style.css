@@ -7,12 +7,68 @@
     =================================================
   */
   --symbol-hint-opacity: 0.1;
+  --notebook-paper-color: #fdfdfd; /* Cor do papel do caderno */
+  --notebook-line-color: #e0e0e0; /* Cor das linhas do caderno */
+  --notebook-margin-color: #ff8a80; /* Cor da margem vermelha */
 }
 
 body {
   font-family: "Nunito", sans-serif;
   touch-action: manipulation;
+  background-color: var(--notebook-paper-color);
+  position: relative;
+  overflow-x: hidden; /* Evita scroll horizontal indesejado */
+  min-height: 100vh; /* Garante que o fundo cubra a altura total */
 }
+
+/* Fundo: Linhas Horizontais */
+body::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--notebook-line-color) 0px,
+    var(--notebook-line-color) 1px,
+    transparent 1px,
+    transparent 30px /* Espaçamento entre as linhas */
+  );
+  z-index: -2; /* Fica atrás do conteúdo */
+  pointer-events: none; /* Permite interações com o conteúdo */
+}
+
+/* Fundo: Linha Vertical (Margem) */
+body::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 60px; /* Posição da margem */
+  width: 2px;
+  height: 100%;
+  background-color: var(--notebook-margin-color);
+  z-index: -1; /* Fica atrás do conteúdo, mas à frente das linhas horizontais */
+  pointer-events: none;
+}
+
+/* Ajustes para mobile */
+@media (max-width: 768px) {
+  body::after {
+    left: 30px; /* Margem mais estreita em mobile */
+  }
+  body::before {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--notebook-line-color) 0px,
+      var(--notebook-line-color) 1px,
+      transparent 1px,
+      transparent 25px /* Espaçamento ajustado para mobile */
+    );
+  }
+}
+
 .card-inner {
   transform-style: preserve-3d;
   transition: transform 0.6s;
@@ -38,32 +94,6 @@ body {
 .fade-out {
   animation: fadeOut 0.3s ease-in forwards;
 }
-
-/* Animação simples de embaralhamento das cartas */
-.card.shuffling {
-  animation: shuffleCard 1s ease;
-}
-
-@keyframes shuffleCard {
-  0% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  20% {
-    transform: translate(-5px, 8px) rotate(-3deg);
-  }
-  40% {
-    transform: translate(7px, -6px) rotate(2deg);
-  }
-  60% {
-    transform: translate(-8px, 5px) rotate(4deg);
-  }
-  80% {
-    transform: translate(6px, -7px) rotate(-2deg);
-  }
-  100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-}
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -87,7 +117,6 @@ body {
 
 /* --- ESTILOS DO JOGO DA MEMÓRIA --- */
 .card {
-  /* Adiciona transição suave para o movimento de embaralhar */
   transition: top 0.8s ease-in-out, left 0.8s ease-in-out;
 }
 .card-matched .card-back {
