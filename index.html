@@ -31,9 +31,7 @@
         id="login-screen"
         class="text-center bg-white p-8 rounded-2xl shadow-lg fade-in"
       >
-        <h1
-          class="page-title text-4xl md:text-5xl font-extrabold text-teal-600 mb-2"
-        >
+        <h1 class="page-title text-4xl md:text-5xl font-extrabold mb-2">
           MorfoLogic
         </h1>
         <p class="text-stone-500 mb-8">
@@ -44,20 +42,20 @@
             type="text"
             id="username"
             placeholder="Digite seu usuário"
-            class="w-full px-4 py-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-teal-500 focus:outline-none transition"
+            class="w-full px-4 py-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-[#4a81e3] focus:outline-none transition"
             required
           />
           <input
             type="password"
             id="password"
             placeholder="Digite sua senha"
-            class="w-full px-4 py-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-teal-500 focus:outline-none transition"
+            class="w-full px-4 py-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-[#4a81e3] focus:outline-none transition"
             required
           />
           <button
             id="login-button"
             type="submit"
-            class="w-full bg-teal-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-teal-700 transition-transform hover:scale-105"
+            class="w-full bg-[#386ccc] text-white font-bold py-3 px-4 rounded-lg hover:bg-[#2a529f] transition-transform hover:scale-105"
           >
             Entrar
           </button>
@@ -69,16 +67,14 @@
         id="static-screen"
         class="hidden text-center bg-white p-8 rounded-2xl shadow-lg"
       >
-        <h1
-          class="page-title text-3xl md:text-4xl font-bold text-stone-700 mb-4"
-        >
+        <h1 class="page-title text-3xl md:text-4xl font-bold mb-4">
           Bem-vindo(a)!
         </h1>
         <p class="text-stone-500 mb-6">
           Esta é uma área reservada para administração.
         </p>
         <svg
-          class="mx-auto w-32 h-32 md:w-48 md:h-48 text-teal-500"
+          class="mx-auto w-32 h-32 md:w-48 md:h-48 text-[#386ccc]"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -102,14 +98,12 @@
       <div id="game-selection-screen" class="hidden">
         <header class="flex justify-between items-center mb-8">
           <div>
-            <h1
-              class="page-title text-3xl md:text-4xl font-extrabold text-teal-600"
-            >
+            <h1 class="page-title text-3xl md:text-4xl font-extrabold">
               Selecione um Minijogo
             </h1>
-            <p class="page-title text-stone-500">
+            <p class="mobile-indented-text text-stone-500">
               Sua pontuação geral é:
-              <span id="general-score" class="font-bold text-teal-700">0</span>
+              <span id="general-score" class="font-bold text-[#2a529f]">0</span>
             </p>
           </div>
           <button
@@ -173,10 +167,10 @@
           <div>
             <h2
               id="game-title"
-              class="page-title text-2xl md:text-3xl font-bold text-teal-600"
+              class="page-title text-2xl md:text-3xl font-bold md:text-left"
             ></h2>
             <p
-              class="page-title text-stone-500 text-sm md:text-base flex items-center"
+              class="mobile-indented-text text-stone-500 text-sm md:text-base flex items-center"
             >
               Fase <span id="game-phase" class="mr-2"></span> |
               <span
@@ -185,16 +179,16 @@
               ></span>
             </p>
           </div>
-          <div>
+          <div class="flex items-center">
             <button
               onclick="restartPhase()"
-              class="bg-stone-200 text-stone-600 font-bold py-2 px-4 rounded-lg hover:bg-stone-300 transition mr-2 text-sm md:text-base"
+              class="bg-stone-200 text-stone-600 font-bold rounded-lg hover:bg-stone-300 transition mr-2 py-1 px-2 md:py-2 md:px-4 text-xs md:text-sm"
             >
               Reiniciar
             </button>
             <button
               onclick="goToGameSelection()"
-              class="bg-teal-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-teal-700 transition text-sm md:text-base"
+              class="bg-[#386ccc] text-white font-bold rounded-lg hover:bg-[#2a529f] transition py-1 px-2 md:py-2 md:px-4 text-xs md:text-sm"
             >
               Voltar
             </button>
@@ -256,7 +250,7 @@
         <div class="flex flex-col sm:flex-row gap-4">
           <button
             id="modal-next-phase"
-            class="flex-1 bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition"
+            class="flex-1 bg-[#386ccc] text-white font-bold py-3 rounded-lg hover:bg-[#2a529f] transition"
           >
             Próxima Fase
           </button>
@@ -286,7 +280,7 @@
         </p>
         <button
           onclick="goBackToLogin(true)"
-          class="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition"
+          class="w-full bg-[#386ccc] text-white font-bold py-3 rounded-lg hover:bg-[#2a529f] transition"
         >
           OK
         </button>

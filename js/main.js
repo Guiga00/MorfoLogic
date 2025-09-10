@@ -254,7 +254,7 @@ function openPhaseSelectionModal(gameType) {
   for (let i = 1; i <= 3; i++) {
     const isUnlocked = i <= maxPhaseUnlocked;
     buttonsContainer.innerHTML += isUnlocked
-      ? `<button onclick="startGame('${gameType}', ${i})" class="bg-teal-500 text-white font-bold py-4 md:py-6 rounded-lg text-lg md:text-xl hover:bg-teal-600 transition">Nível ${i}</button>`
+      ? `<button onclick="startGame('${gameType}', ${i})" class="bg-[#386ccc] text-white font-bold py-4 md:py-6 rounded-lg text-lg md:text-xl hover:bg-[#2a529f] transition">Nível ${i}</button>`
       : `<div class="bg-stone-300 text-stone-500 font-bold py-4 md:py-6 rounded-lg text-lg md:text-xl cursor-not-allowed flex items-center justify-center gap-2"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" /></svg>Nível ${i}</div>`;
   }
   showModal("phase-selection-modal");

@@ -54,24 +54,32 @@ body::after {
 }
 
 /* =================================================== */
-/* == AJUSTE PARA O TÍTULO DA PÁGINA NA VERSÃO MOBILE == */
+/* == AJUSTE PARA O TÍTULO DA PÁGINA E SUBTÍTULOS   == */
 /* =================================================== */
+
+/* Estilo Padrão (Desktop) */
 .page-title {
-  /* No mobile, força o alinhamento à esquerda e adiciona um padding */
-  text-align: left;
-  padding-left: 40px;
+  color: #386ccc;
+  text-align: center;
+  padding-left: 0;
 }
 
-/* Em telas maiores (desktops e tablets) */
-@media (min-width: 768px) {
+.mobile-indented-text {
+  padding-left: 0;
+}
+
+/* Ajustes para Mobile (telas com até 767px de largura) */
+@media (max-width: 767px) {
   .page-title {
-    /* Restaura o alinhamento central e remove o padding */
-    text-align: center;
-    padding-left: 0;
+    text-align: left;
+    padding-left: 40px;
+  }
+  .mobile-indented-text {
+    padding-left: 40px;
   }
 }
 
-/* Ajustes para mobile */
+/* Ajustes gerais para mobile */
 @media (max-width: 768px) {
   body::after {
     left: 30px; /* Margem mais estreita em mobile */
