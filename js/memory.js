@@ -1,7 +1,7 @@
 /**
  * Módulo do Minijogo da Memória
  * Contém toda a lógica de funcionamento do Jogo da Memória.
- * VERSÃO CORRIGIDA E COMPLETA
+ * VERSÃO COM SISTEMA DE ESTRELAS IMPLEMENTADO
  */
 let memoryState = {};
 
@@ -42,21 +42,18 @@ function createCardHTML(item, index) {
     </div>`;
 }
 
-// Função para gerar o HTML completo do tabuleiro (VERSÃO CORRIGIDA)
+// Função para gerar o HTML completo do tabuleiro
 function generateBoardHTML(items, phase) {
   let gridLayoutHTML = "";
 
   switch (phase) {
     case 1:
-      // Fase 1: 8 cartas. Usa 4 colunas para manter o tamanho da carta consistente.
       const phase1Cards = items
         .map((item, index) => createCardHTML(item, index))
         .join("");
       gridLayoutHTML = `<div class="grid grid-cols-4 gap-2 sm:gap-4 w-full">${phase1Cards}</div>`;
       break;
-
     case 2:
-      // Fase 2: 14 cartas. Estrutura customizada que serve de base para o tamanho.
       const first12 = items
         .slice(0, 12)
         .map((item, index) => createCardHTML(item, index))
@@ -79,18 +76,14 @@ function generateBoardHTML(items, phase) {
           </div>
         </div>`;
       break;
-
     case 3:
     default:
-      // Fase 3: 20 cartas. Usa 4 colunas para manter o tamanho.
       const phase3Cards = items
         .map((item, index) => createCardHTML(item, index))
         .join("");
       gridLayoutHTML = `<div class="grid grid-cols-4 gap-2 sm:gap-4 w-full">${phase3Cards}</div>`;
       break;
   }
-
-  // Envolve o layout de todas as fases em um contêiner com max-w-lg para unificar o tamanho.
   return `<div class="w-full max-w-lg mx-auto">${gridLayoutHTML}</div>`;
 }
 
@@ -140,16 +133,45 @@ function shuffleAnimation(cards, items, callback) {
   }, 750);
 }
 
+// Função que gerencia a remoção de estrelas
+function removeStar() {
+  if (AppState.currentGame.stars > 0) {
+    AppState.currentGame.stars--;
+    updateGameUI();
+  }
+}
+
+// Inicia o cronômetro para penalidade de tempo
+function startTimePenaltyTimer() {
+  if (AppState.currentGame.timer) {
+    clearInterval(AppState.currentGame.timer);
+  }
+
+  let minutesPassed = 0;
+  const ONE_MINUTE = 60000;
+
+  AppState.currentGame.timer = setInterval(() => {
+    const elapsedTime = Date.now() - AppState.currentGame.startTime;
+
+    if (elapsedTime > (minutesPassed + 1) * ONE_MINUTE) {
+      minutesPassed++;
+      removeStar();
+    }
+  }, 1000);
+}
+
 /**
  * Função principal de inicialização do jogo
  */
 function initMemoryGame(phase) {
   const classes = getClassesForPhase(phase);
   const board = document.getElementById("game-board");
-  AppState.currentGame.score = 100;
+
+  AppState.currentGame.stars = 3;
+  AppState.currentGame.errors = 0;
+  AppState.currentGame.startTime = Date.now();
   updateGameUI();
 
-  // Gera os pares lado a lado (Nome, Símbolo, Nome, Símbolo, ...)
   const items = classes.flatMap((classItem, index) => {
     const originalNameIndex = index * 2;
     const originalSymbolIndex = index * 2 + 1;
@@ -202,13 +224,14 @@ function initMemoryGame(phase) {
         memoryState.lockBoard = false;
         document.getElementById("game-message").textContent =
           "Encontre os pares!";
+        startTimePenaltyTimer();
       });
     }, 500);
   }, previewTime);
 }
 
 function handleMemoryClick(cardElement) {
-  if (memoryState.lockBoard) return;
+  if (memoryState.lockBoard || AppState.currentGame.stars === 0) return;
 
   const originalIndex = parseInt(cardElement.dataset.index, 10);
   const item = memoryState.items.find(
@@ -245,17 +268,35 @@ function checkForMemoryMatch() {
     secondPick.el.classList.add("card-matched");
     resetMemoryTurn();
     if (memoryState.matches === memoryState.totalPairs) {
-      setTimeout(() => showPhaseEndModal(), 500);
+      if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
+      setTimeout(() => showPhaseEndModal(true), 500); // Sucesso
     }
   } else {
     GameAudio.play("error");
-    AppState.currentGame.score = Math.max(0, AppState.currentGame.score - 5);
     AppState.currentGame.errors++;
-    updateGameUI();
+
+    // Penalidade a cada 10 pares errados
+    if (
+      AppState.currentGame.errors > 0 &&
+      AppState.currentGame.errors % 10 === 0
+    ) {
+      removeStar();
+    }
+
+    if (AppState.currentGame.stars === 0) {
+      document.getElementById("game-message").textContent =
+        "Você perdeu todas as estrelas!";
+      if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
+      setTimeout(() => showPhaseEndModal(false), 1500); // Falha
+    }
+
     setTimeout(() => {
-      firstPick.el.classList.remove("flipped");
-      secondPick.el.classList.remove("flipped");
-      resetMemoryTurn();
+      if (AppState.currentGame.stars > 0) {
+        // Não vira a carta se o jogo já acabou
+        firstPick.el.classList.remove("flipped");
+        secondPick.el.classList.remove("flipped");
+        resetMemoryTurn();
+      }
     }, 1500);
   }
 }
@@ -263,5 +304,7 @@ function checkForMemoryMatch() {
 function resetMemoryTurn() {
   memoryState.firstPick = null;
   memoryState.secondPick = null;
-  memoryState.lockBoard = false;
+  if (AppState.currentGame.stars > 0) {
+    memoryState.lockBoard = false;
+  }
 }

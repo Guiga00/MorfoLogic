@@ -146,6 +146,19 @@ body::after {
   z-index: 0;
 }
 
+/* --- Estilos para o Sistema de Estrelas --- */
+#game-score-display svg {
+  width: 1.25rem; /* 20px */
+  height: 1.25rem; /* 20px */
+  margin-left: 0.25rem; /* 4px */
+}
+.star-full {
+  color: #facc15; /* Tailwind's amber-400 */
+}
+.star-empty {
+  color: #d6d3d1; /* Tailwind's stone-300 */
+}
+
 /* --- Estilos para Drag and Drop --- */
 .draggable {
   touch-action: none;

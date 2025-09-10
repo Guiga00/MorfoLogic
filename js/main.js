@@ -12,7 +12,15 @@ const AppState = {
   sessionTimer: null,
   gameActive: false,
   progress: { memory: 0, genius: 0, ligar: 0 },
-  currentGame: { type: null, phase: 1, score: 0, errors: 0 },
+  currentGame: {
+    type: null,
+    phase: 1,
+    score: 0, // Usado por Genius e Ligar
+    stars: 0, // Usado pelo Memória
+    errors: 0,
+    startTime: 0,
+    timer: null, // Para o cronômetro de estrelas
+  },
 };
 
 const GRAMMAR_CLASSES = [
@@ -211,7 +219,8 @@ function startSessionTimer() {
 }
 
 function goBackToLogin(isExpired = false) {
-  DraggableManager.cleanup(); // Limpa listeners de arrasto
+  DraggableManager.cleanup();
+  if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
   if (isExpired) closeModal(document.getElementById("session-expired-modal"));
   AppState.currentUser = null;
   AppState.generalScore = 0;
@@ -226,7 +235,8 @@ function goBackToLogin(isExpired = false) {
 }
 
 function goToGameSelection() {
-  DraggableManager.cleanup(); // Limpa listeners de arrasto
+  DraggableManager.cleanup();
+  if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
   closeModal(document.getElementById("phase-end-modal"));
   document.getElementById("general-score").textContent = AppState.generalScore;
   clearInterval(geniusSequenceInterval);
@@ -256,8 +266,8 @@ function closePhaseSelectionModal() {
 
 function getClassesForPhase(phase) {
   const counts = {
-    memory: [4, 7, 10], // Corresponde a Fase 1, 2 e 3 do doc
-    ligar: [4, 7, 10], // Jogo "Tempo" usa a mesma lógica de classes
+    memory: [4, 7, 10],
+    ligar: [4, 7, 10],
   };
   const classCount = counts.memory[phase - 1] || 10;
   const phaseClasses = {
@@ -270,9 +280,18 @@ function getClassesForPhase(phase) {
 }
 
 function startGame(type, phase) {
-  DraggableManager.cleanup(); // Garante que listeners antigos foram removidos
+  DraggableManager.cleanup();
+  if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
   closeModal(document.getElementById("phase-selection-modal"));
-  AppState.currentGame = { type, phase, score: 0, errors: 0 };
+  AppState.currentGame = {
+    type,
+    phase,
+    score: 0,
+    stars: 0,
+    errors: 0,
+    startTime: 0,
+    timer: null,
+  };
   updateGameUI();
   navigate("game-screen");
   switch (type) {
@@ -289,62 +308,97 @@ function startGame(type, phase) {
 }
 
 function restartPhase() {
-  DraggableManager.cleanup(); // Garante que listeners antigos foram removidos
+  DraggableManager.cleanup();
   startGame(AppState.currentGame.type, AppState.currentGame.phase);
 }
 
-function updateGameUI() {
-  const titles = { memory: "Memória", genius: "Genius", ligar: "Tempo" };
-  document.getElementById("game-title").textContent =
-    titles[AppState.currentGame.type];
-  document.getElementById("game-phase").textContent =
-    AppState.currentGame.phase;
-  document.getElementById("game-score").textContent =
-    AppState.currentGame.score;
-  document.getElementById("game-message").textContent = "";
+function renderStars(count) {
+  const starFull = `<svg class="star-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.868 2.884c.321-.662 1.134-.662 1.456 0l1.96 4.022a1 1 0 00.95.69h4.438c.732 0 1.042.986.534 1.455l-3.59 2.604a1 1 0 00-.364 1.118l1.37 4.162c.287.87-.695 1.636-1.476 1.157l-3.95-2.871a1 1 0 00-1.176 0l-3.95 2.87c-.78.58-1.763.27-1.475-1.157l1.37-4.162a1 1 0 00-.364-1.118L2.05 9.055c-.508-.47-.198-1.455.534-1.455h4.438a1 1 0 00.95-.69l1.96-4.022z" clip-rule="evenodd" /></svg>`;
+  const starEmpty = `<svg class="star-empty" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.868 2.884c.321-.662 1.134-.662 1.456 0l1.96 4.022a1 1 0 00.95.69h4.438c.732 0 1.042.986.534 1.455l-3.59 2.604a1 1 0 00-.364 1.118l1.37 4.162c.287.87-.695 1.636-1.476 1.157l-3.95-2.871a1 1 0 00-1.176 0l-3.95 2.87c-.78.58-1.763.27-1.475-1.157l1.37-4.162a1 1 0 00-.364-1.118L2.05 9.055c-.508-.47-.198-1.455.534-1.455h4.438a1 1 0 00.95-.69l1.96-4.022z" clip-rule="evenodd" /></svg>`;
+  let html = "";
+  for (let i = 0; i < 3; i++) {
+    html += i < count ? starFull : starEmpty;
+  }
+  return html;
 }
 
-function showPhaseEndModal(completed = true) {
-  const { score, errors, phase, type } = AppState.currentGame;
+function updateGameUI() {
+  const { type, phase, score, stars } = AppState.currentGame;
+  const titles = { memory: "Memória", genius: "Genius", ligar: "Tempo" };
+  document.getElementById("game-title").textContent = titles[type];
+  document.getElementById("game-phase").textContent = phase;
+  document.getElementById("game-message").textContent = "";
+
+  const scoreDisplay = document.getElementById("game-score-display");
+  if (type === "memory") {
+    scoreDisplay.innerHTML = `Estrelas: ${renderStars(stars)}`;
+  } else {
+    scoreDisplay.innerHTML = `Pontos: <span class="font-bold">${score}</span>`;
+  }
+}
+
+function showPhaseEndModal(isSuccess = true) {
+  const { stars, errors, phase, type, score } = AppState.currentGame;
   const isLastPhase = phase === 3;
+
   const modalTitle = document.getElementById("modal-title");
   const modalScore = document.getElementById("modal-score");
   const modalBonus = document.getElementById("modal-bonus");
   const modalNext = document.getElementById("modal-next-phase");
-  let currentScore = score;
 
-  if (completed) {
+  let pointsEarned = 0;
+
+  if (isSuccess) {
     GameAudio.play("success");
     modalTitle.textContent = `Fase ${phase} Concluída!`;
-    if (errors === 0) {
-      currentScore += 20;
-      modalBonus.textContent = "Bônus de +20 pontos por nenhum erro!";
+
+    if (type === "memory") {
+      pointsEarned = stars * 10; // Ex: 3 estrelas = 30 pontos
+      modalScore.textContent = `Você conseguiu ${stars} estrela(s), ganhando ${pointsEarned} pontos.`;
+      if (stars === 3) {
+        pointsEarned += 20; // Bônus por 3 estrelas (similar ao "nenhum erro")
+        modalBonus.textContent =
+          "Bônus de +20 pontos pela performance perfeita!";
+      } else {
+        modalBonus.textContent = "";
+      }
     } else {
-      modalBonus.textContent = "";
+      // Para Genius e Ligar
+      pointsEarned = score;
+      modalScore.textContent = `Sua pontuação foi: ${pointsEarned} pontos.`;
+      if (errors === 0 && (type === "ligar" || type === "genius")) {
+        pointsEarned += 20;
+        modalBonus.textContent = "Bônus de +20 pontos por nenhum erro!";
+      } else {
+        modalBonus.textContent = "";
+      }
     }
-    modalScore.textContent = `Sua pontuação foi: ${currentScore} pontos.`;
-    if (phase > (AppState.progress[type] || 0)) {
+
+    if (phase >= (AppState.progress[type] || 0)) {
       AppState.progress[type] = phase;
     }
   } else {
+    // Jogo falhou (0 estrelas no Memória ou outra condição)
     modalTitle.textContent = `Fim de Jogo`;
-    modalScore.textContent = `Sua pontuação final foi: ${currentScore} pontos.`;
-    modalBonus.textContent =
-      type === "genius"
-        ? `Você acertou ${geniusState.correctlyPlaced} de ${geniusState.phrase.length} palavras.`
-        : "";
+    if (type === "memory") {
+      modalScore.textContent = `Você não conseguiu estrelas suficientes.`;
+    } else {
+      modalScore.textContent = `Sua pontuação final foi: ${score} pontos.`;
+    }
+    modalBonus.textContent = "";
   }
-  AppState.generalScore += currentScore;
+
+  AppState.generalScore += pointsEarned;
   saveData();
 
-  if (isLastPhase && completed) {
+  if (isLastPhase && isSuccess) {
     modalNext.textContent = "Voltar ao Menu";
     modalNext.onclick = goToGameSelection;
-  } else if (!completed) {
+  } else if (!isSuccess) {
     modalNext.textContent = "Tentar Novamente";
     modalNext.onclick = () => {
       closeModal(document.getElementById("phase-end-modal"));
-      startGame(type, phase);
+      restartPhase();
     };
   } else {
     modalNext.textContent = "Próxima Fase";
