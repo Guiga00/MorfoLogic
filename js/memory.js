@@ -1,7 +1,6 @@
 /**
  * Módulo do Minijogo da Memória
  * Contém toda a lógica de funcionamento do Jogo da Memória.
- * VERSÃO COM SISTEMA DE ESTRELAS IMPLEMENTADO
  */
 let memoryState = {};
 
@@ -30,9 +29,9 @@ function createCardHTML(item, index) {
   }
 
   return `
-    <div class="card w-full aspect-square perspective-1000" data-index="${index}">
+    <div class="card perspective-1000" data-index="${index}">
       <div class="card-inner relative w-full h-full">
-        <div class="card-front absolute w-full h-full bg-white border-2 border-teal-100 rounded-lg flex items-center justify-center p-2">
+        <div class="card-front absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2">
           <img src="https://placehold.co/100x100/14b8a6/ffffff?text=Logo" alt="Verso da Carta" class="w-full h-full object-contain">
         </div>
         <div class="card-back absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 text-center font-bold text-xs sm:text-sm md:text-base">
@@ -42,49 +41,14 @@ function createCardHTML(item, index) {
     </div>`;
 }
 
-// Função para gerar o HTML completo do tabuleiro
+// Função para gerar o HTML do tabuleiro, agora muito mais simples
 function generateBoardHTML(items, phase) {
-  let gridLayoutHTML = "";
-
-  switch (phase) {
-    case 1:
-      const phase1Cards = items
-        .map((item, index) => createCardHTML(item, index))
-        .join("");
-      gridLayoutHTML = `<div class="grid grid-cols-4 gap-2 sm:gap-4 w-full">${phase1Cards}</div>`;
-      break;
-    case 2:
-      const first12 = items
-        .slice(0, 12)
-        .map((item, index) => createCardHTML(item, index))
-        .join("");
-      const last2 = items
-        .slice(12)
-        .map((item, index) => {
-          return `<div class="w-full">${createCardHTML(
-            item,
-            index + 12
-          )}</div>`;
-        })
-        .join("");
-
-      gridLayoutHTML = `
-        <div class="flex flex-col items-center w-full">
-          <div class="grid grid-cols-4 gap-2 sm:gap-4 w-full">${first12}</div>
-          <div class="flex justify-center gap-2 sm:gap-4 w-1/2 mt-2 sm:mt-4">
-            ${last2}
-          </div>
-        </div>`;
-      break;
-    case 3:
-    default:
-      const phase3Cards = items
-        .map((item, index) => createCardHTML(item, index))
-        .join("");
-      gridLayoutHTML = `<div class="grid grid-cols-4 gap-2 sm:gap-4 w-full">${phase3Cards}</div>`;
-      break;
-  }
-  return `<div class="w-full max-w-lg mx-auto">${gridLayoutHTML}</div>`;
+  const allCardsHTML = items
+    .map((item) => createCardHTML(item, item.originalIndex))
+    .join("");
+  // A classe de fase controla o layout via CSS
+  const phaseClass = `memory-board-phase-${phase}`;
+  return `<div class="memory-board-container ${phaseClass}">${allCardsHTML}</div>`;
 }
 
 /**
@@ -103,7 +67,9 @@ function shuffleAnimation(cards, items, callback) {
     const cardElement = Array.from(cards).find(
       (c) => c.dataset.index == item.originalIndex
     );
-    parent.appendChild(cardElement);
+    if (cardElement) {
+      parent.appendChild(cardElement);
+    }
   });
 
   cards.forEach((card) => {
@@ -204,6 +170,7 @@ function initMemoryGame(phase) {
   };
 
   board.innerHTML = generateBoardHTML(items, phase);
+
   const cards = board.querySelectorAll(".card");
 
   cards.forEach((card) => {
@@ -275,7 +242,6 @@ function checkForMemoryMatch() {
     GameAudio.play("error");
     AppState.currentGame.errors++;
 
-    // Penalidade a cada 10 pares errados
     if (
       AppState.currentGame.errors > 0 &&
       AppState.currentGame.errors % 10 === 0
@@ -292,7 +258,6 @@ function checkForMemoryMatch() {
 
     setTimeout(() => {
       if (AppState.currentGame.stars > 0) {
-        // Não vira a carta se o jogo já acabou
         firstPick.el.classList.remove("flipped");
         secondPick.el.classList.remove("flipped");
         resetMemoryTurn();
