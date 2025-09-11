@@ -4,8 +4,8 @@
     == CONTROLE O TAMANHO E ESPAÇAMENTO DOS CARDS AQUI ==
     =================================================
   */
-  --card-size-mobile: 80px;
-  --card-gap-mobile: 4px; /* Espaçamento no mobile */
+  --card-size-mobile: 75px;
+  --card-gap-mobile: 8px; /* Espaçamento no mobile */
 
   --card-size-desktop: 100px;
   --card-gap-desktop: 15px; /* Espaçamento no desktop */
