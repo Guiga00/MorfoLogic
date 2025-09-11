@@ -1,19 +1,19 @@
 :root {
   /*
     =================================================
-    == CONTROLE O TAMANHO DOS CARDS DO JOGO DA MEMÓRIA AQUI ==
-    Valores ajustados para caber em telas menores.
+    == CONTROLE O TAMANHO DOS CARDS AQUI ==
     =================================================
   */
-  --card-fixed-size: 75px; /* Alterado de 80px para 75px */
-  --card-gap: 6px; /* Alterado de 8px para 6px */
+  --card-size-mobile: 75px;
+  --card-size-desktop: 100px;
+  --card-gap: 12px;
 
   /*
     =================================================
     == CONTROLE A COR DO CONTORNO DOS CARDS AQUI ==
     =================================================
   */
-  --card-border-color: #386ccc; /* Cor padrão do contorno */
+  --card-border-color: #386ccc;
 
   --symbol-hint-opacity: 0.1;
   --notebook-paper-color: #fdfdfd;
@@ -49,7 +49,7 @@ body::before {
   pointer-events: none;
 }
 
-/* Fundo: Linha Vertical (Margem) */
+/* Fundo: Linha Vertical (Margem) - Padrão Desktop */
 body::after {
   content: "";
   position: absolute;
@@ -62,7 +62,7 @@ body::after {
   pointer-events: none;
 }
 
-/* AJUSTE PARA O TÍTULO DA PÁGINA E SUBTÍTULOS */
+/* Títulos - Padrão Desktop */
 .page-title {
   color: #386ccc;
   text-align: center;
@@ -71,21 +71,38 @@ body::after {
 .mobile-indented-text {
   padding-left: 0;
 }
-@media (max-width: 767px) {
-  .page-title {
-    text-align: left;
-    padding-left: 40px;
-  }
-  .mobile-indented-text {
-    padding-left: 40px;
-  }
+
+/* --- ESTILOS DO JOGO DA MEMÓRIA (DESKTOP) --- */
+.memory-board-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--card-gap);
+  max-width: 100%;
+}
+.memory-board-container .card {
+  width: var(--card-size-desktop);
+  height: var(--card-size-desktop);
+  flex-shrink: 0;
+}
+.memory-board-phase-1 {
+  width: calc(4 * var(--card-size-desktop) + 3 * var(--card-gap));
+}
+.memory-board-phase-2,
+.memory-board-phase-3 {
+  width: calc(4 * var(--card-size-desktop) + 3 * var(--card-gap));
 }
 
-/* Ajustes gerais para mobile */
-@media (max-width: 768px) {
+/* =================================================== */
+/* == AJUSTES GERAIS PARA MOBILE (Até 767px)         == */
+/* =================================================== */
+@media (max-width: 767px) {
+  /* Ajusta a linha vertical do fundo */
   body::after {
     left: 30px;
   }
+
+  /* Ajusta o espaçamento das linhas horizontais */
   body::before {
     background-image: repeating-linear-gradient(
       to bottom,
@@ -95,8 +112,33 @@ body::after {
       transparent 25px
     );
   }
+
+  /* Ajusta o alinhamento dos títulos */
+  .page-title {
+    text-align: left;
+    padding-left: 40px;
+  }
+  .mobile-indented-text {
+    padding-left: 40px;
+  }
+
+  /* Ajusta o tamanho das cartas do Jogo da Memória */
+  .memory-board-container .card {
+    width: var(--card-size-mobile);
+    height: var(--card-size-mobile);
+  }
+
+  /* Ajusta a largura do contêiner do tabuleiro para o mobile */
+  .memory-board-phase-1 {
+    width: calc(2 * var(--card-size-mobile) + 1 * var(--card-gap));
+  }
+  .memory-board-phase-2,
+  .memory-board-phase-3 {
+    width: calc(4 * var(--card-size-mobile) + 3 * var(--card-gap));
+  }
 }
 
+/* --- ESTILOS GERAIS (Aplicados a ambos) --- */
 .card-inner {
   transform-style: preserve-3d;
   transition: transform 0.6s;
@@ -108,7 +150,6 @@ body::after {
 .card-back {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  /* **** NOVA REGRA APENAS PARA A BORDA **** */
   border: 2px solid var(--card-border-color);
 }
 .card-back {
@@ -145,31 +186,6 @@ body::after {
   }
 }
 
-/* --- NOVOS ESTILOS DO JOGO DA MEMÓRIA --- */
-.memory-board-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--card-gap);
-  max-width: 100%;
-}
-.memory-board-container .card {
-  width: var(--card-fixed-size);
-  height: var(--card-fixed-size);
-  flex-shrink: 0;
-}
-.memory-board-phase-1 {
-  width: calc(2 * var(--card-fixed-size) + 1 * var(--card-gap));
-}
-@media (min-width: 768px) {
-  .memory-board-phase-1 {
-    width: calc(4 * var(--card-fixed-size) + 3 * var(--card-gap));
-  }
-}
-.memory-board-phase-2,
-.memory-board-phase-3 {
-  width: calc(4 * var(--card-fixed-size) + 3 * var(--card-gap));
-}
 .card-matched .card-back {
   box-shadow: 0 0 15px 3px rgba(250, 204, 21, 0.7);
   border: 2px solid #facc15;
@@ -178,8 +194,6 @@ body::after {
   opacity: var(--symbol-hint-opacity);
   z-index: 0;
 }
-
-/* --- Estilos para o Sistema de Estrelas --- */
 #game-score-display svg {
   width: 1.25rem;
   height: 1.25rem;
@@ -191,8 +205,6 @@ body::after {
 .star-empty {
   color: #d6d3d1;
 }
-
-/* --- Estilos para Drag and Drop --- */
 .draggable {
   touch-action: none;
 }
