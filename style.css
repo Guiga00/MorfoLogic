@@ -99,7 +99,7 @@ body::after {
 /* =================================================== */
 @media (max-width: 767px) {
   body::after {
-    left: 20px;
+    left: 10px;
   }
   body::before {
     background-image: repeating-linear-gradient(
