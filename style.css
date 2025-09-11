@@ -1,6 +1,15 @@
 :root {
-  --card-fixed-size: 80px;
-  --card-gap: 4px;
+  /*
+    =================================================
+    == CONTROLE O TAMANHO E ESPAÇAMENTO DOS CARDS AQUI ==
+    =================================================
+  */
+  --card-size-mobile: 80px;
+  --card-gap-mobile: 5px; /* Espaçamento no mobile */
+
+  --card-size-desktop: 100px;
+  --card-gap-desktop: 15px; /* Espaçamento no desktop */
+
   --card-border-color: #386ccc;
   --symbol-hint-opacity: 0.1;
   --notebook-paper-color: #fdfdfd;
@@ -17,7 +26,7 @@ body {
   min-height: 100vh;
 }
 
-/* Fundo: Linhas Horizontais */
+/* Fundo: Linhas Horizontais e Verticais */
 body::before {
   content: "";
   position: absolute;
@@ -35,8 +44,6 @@ body::before {
   z-index: -2;
   pointer-events: none;
 }
-
-/* Fundo: Linha Vertical (Margem) */
 body::after {
   content: "";
   position: absolute;
@@ -49,34 +56,7 @@ body::after {
   pointer-events: none;
 }
 
-/* --- ESTILOS DO JOGO DA MEMÓRIA --- */
-.memory-board-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--card-gap);
-  /* **** ALTERAÇÃO AQUI: adicionado para garantir a centralização **** */
-  margin: 0 auto;
-}
-.memory-board-container .card {
-  width: var(--card-fixed-size);
-  height: var(--card-fixed-size);
-  flex-shrink: 0;
-}
-.memory-board-phase-1 {
-  width: calc(2 * var(--card-fixed-size) + 1 * var(--card-gap));
-}
-@media (min-width: 768px) {
-  .memory-board-phase-1 {
-    width: calc(4 * var(--card-fixed-size) + 3 * var(--card-gap));
-  }
-}
-.memory-board-phase-2,
-.memory-board-phase-3 {
-  width: calc(4 * var(--card-fixed-size) + 3 * var(--card-gap));
-}
-
-/* ... (resto do CSS) ... */
+/* Títulos - Padrão Desktop */
 .page-title {
   color: #386ccc;
   text-align: center;
@@ -85,14 +65,39 @@ body::after {
 .mobile-indented-text {
   padding-left: 0;
 }
+
+/* --- ESTILOS DO JOGO DA MEMÓRIA --- */
+
+/* Contêiner principal do tabuleiro */
+.memory-board-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Layout Padrão (Mobile) */
+.memory-board-container {
+  gap: var(--card-gap-mobile);
+}
+.memory-board-container .card {
+  width: var(--card-size-mobile);
+  height: var(--card-size-mobile);
+  flex-shrink: 0;
+}
+.memory-board-phase-1 {
+  width: calc(2 * var(--card-size-mobile) + 1 * var(--card-gap-mobile));
+}
+.memory-board-phase-2,
+.memory-board-phase-3 {
+  width: calc(4 * var(--card-size-mobile) + 3 * var(--card-gap-mobile));
+}
+
+/* =================================================== */
+/* == AJUSTES GERAIS PARA MOBILE (Até 767px)         == */
+/* =================================================== */
 @media (max-width: 767px) {
-  .page-title {
-    text-align: left;
-    padding-left: 15px;
-  }
-  .mobile-indented-text {
-    padding-left: 15px;
-  }
   body::after {
     left: 20px;
   }
@@ -105,7 +110,39 @@ body::after {
       transparent 25px
     );
   }
+  .page-title {
+    text-align: left;
+    padding-left: 15px;
+  }
+  .mobile-indented-text {
+    padding-left: 15px;
+  }
 }
+
+/* ===================================================== */
+/* == AJUSTES GERAIS PARA DESKTOP (768px ou mais)      == */
+/* ===================================================== */
+@media (min-width: 768px) {
+  /* Sobrescreve o tamanho e espaçamento para o valor de desktop */
+  .memory-board-container {
+    gap: var(--card-gap-desktop);
+  }
+  .memory-board-container .card {
+    width: var(--card-size-desktop);
+    height: var(--card-size-desktop);
+  }
+
+  /* Recalcula a largura dos contêineres com base nos novos valores de desktop */
+  .memory-board-phase-1 {
+    width: calc(4 * var(--card-size-desktop) + 3 * var(--card-gap-desktop));
+  }
+  .memory-board-phase-2,
+  .memory-board-phase-3 {
+    width: calc(4 * var(--card-size-desktop) + 3 * var(--card-gap-desktop));
+  }
+}
+
+/* --- ESTILOS GERAIS (Aplicados a ambos) --- */
 .card-inner {
   transform-style: preserve-3d;
   transition: transform 0.6s;

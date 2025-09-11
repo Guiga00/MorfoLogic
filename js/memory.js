@@ -52,7 +52,7 @@ function generateBoardHTML(items, phase) {
 }
 
 /**
- * ANIMAÇÃO DE EMBARALHAMENTO (TÉCNICA FLIP)
+ * ANIMAÇÃO DE EMBARALHAMENTO (TÉCNICA FLIP COM "EMPATE FORÇADO")
  */
 function shuffleAnimation(cards, items, callback) {
   const initialPositions = new Map();
@@ -75,17 +75,23 @@ function shuffleAnimation(cards, items, callback) {
   cards.forEach((card) => {
     const initialRect = initialPositions.get(card);
     const finalRect = card.getBoundingClientRect();
-    const deltaX = initialRect.left - finalRect.left;
-    const deltaY = initialRect.top - finalRect.top;
+    let deltaX = initialRect.left - finalRect.left;
+    let deltaY = initialRect.top - finalRect.top;
+
+    const randomX = (Math.random() - 0.5) * 50;
+    const randomY = (Math.random() - 0.5) * 50;
+
     card.style.transition = "none";
-    card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+    card.style.transform = `translate(${deltaX + randomX}px, ${
+      deltaY + randomY
+    }px)`;
   });
 
   void parent.offsetWidth;
 
   cards.forEach((card) => {
-    card.style.transition =
-      "transform 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55)";
+    // **** ALTERAÇÃO AQUI: Curva de animação mais suave e maior duração ****
+    card.style.transition = "transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1.0)";
     card.style.transform = "";
     card.style.zIndex = 100;
   });
@@ -96,7 +102,7 @@ function shuffleAnimation(cards, items, callback) {
       card.style.zIndex = "";
     });
     if (typeof callback === "function") callback();
-  }, 750);
+  }, 850); // Aumentado para corresponder à nova duração
 }
 
 // Função que gerencia a remoção de estrelas
