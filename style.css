@@ -1,6 +1,6 @@
 :root {
   --card-fixed-size: 80px;
-  --card-gap: 5px;
+  --card-gap: 4px;
   --card-border-color: #386ccc;
   --symbol-hint-opacity: 0.1;
   --notebook-paper-color: #fdfdfd;
