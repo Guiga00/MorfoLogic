@@ -1,20 +1,7 @@
 :root {
-  /*
-    =================================================
-    == CONTROLE O TAMANHO DOS CARDS AQUI ==
-    =================================================
-  */
-  --card-size-mobile: 75px;
-  --card-size-desktop: 100px;
-  --card-gap: 12px;
-
-  /*
-    =================================================
-    == CONTROLE A COR DO CONTORNO DOS CARDS AQUI ==
-    =================================================
-  */
+  --card-fixed-size: 80px;
+  --card-gap: 8px;
   --card-border-color: #386ccc;
-
   --symbol-hint-opacity: 0.1;
   --notebook-paper-color: #fdfdfd;
   --notebook-line-color: #e0e0e0;
@@ -49,7 +36,7 @@ body::before {
   pointer-events: none;
 }
 
-/* Fundo: Linha Vertical (Margem) - Padrão Desktop */
+/* Fundo: Linha Vertical (Margem) */
 body::after {
   content: "";
   position: absolute;
@@ -62,7 +49,34 @@ body::after {
   pointer-events: none;
 }
 
-/* Títulos - Padrão Desktop */
+/* --- ESTILOS DO JOGO DA MEMÓRIA --- */
+.memory-board-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--card-gap);
+  /* **** ALTERAÇÃO AQUI: adicionado para garantir a centralização **** */
+  margin: 0 auto;
+}
+.memory-board-container .card {
+  width: var(--card-fixed-size);
+  height: var(--card-fixed-size);
+  flex-shrink: 0;
+}
+.memory-board-phase-1 {
+  width: calc(2 * var(--card-fixed-size) + 1 * var(--card-gap));
+}
+@media (min-width: 768px) {
+  .memory-board-phase-1 {
+    width: calc(4 * var(--card-fixed-size) + 3 * var(--card-gap));
+  }
+}
+.memory-board-phase-2,
+.memory-board-phase-3 {
+  width: calc(4 * var(--card-fixed-size) + 3 * var(--card-gap));
+}
+
+/* ... (resto do CSS) ... */
 .page-title {
   color: #386ccc;
   text-align: center;
@@ -71,38 +85,17 @@ body::after {
 .mobile-indented-text {
   padding-left: 0;
 }
-
-/* --- ESTILOS DO JOGO DA MEMÓRIA (DESKTOP) --- */
-.memory-board-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--card-gap);
-  max-width: 100%;
-}
-.memory-board-container .card {
-  width: var(--card-size-desktop);
-  height: var(--card-size-desktop);
-  flex-shrink: 0;
-}
-.memory-board-phase-1 {
-  width: calc(4 * var(--card-size-desktop) + 3 * var(--card-gap));
-}
-.memory-board-phase-2,
-.memory-board-phase-3 {
-  width: calc(4 * var(--card-size-desktop) + 3 * var(--card-gap));
-}
-
-/* =================================================== */
-/* == AJUSTES GERAIS PARA MOBILE (Até 767px)         == */
-/* =================================================== */
 @media (max-width: 767px) {
-  /* Ajusta a linha vertical do fundo */
-  body::after {
-    left: 30px;
+  .page-title {
+    text-align: left;
+    padding-left: 15px;
   }
-
-  /* Ajusta o espaçamento das linhas horizontais */
+  .mobile-indented-text {
+    padding-left: 15px;
+  }
+  body::after {
+    left: 20px;
+  }
   body::before {
     background-image: repeating-linear-gradient(
       to bottom,
@@ -112,33 +105,7 @@ body::after {
       transparent 25px
     );
   }
-
-  /* Ajusta o alinhamento dos títulos */
-  .page-title {
-    text-align: left;
-    padding-left: 40px;
-  }
-  .mobile-indented-text {
-    padding-left: 40px;
-  }
-
-  /* Ajusta o tamanho das cartas do Jogo da Memória */
-  .memory-board-container .card {
-    width: var(--card-size-mobile);
-    height: var(--card-size-mobile);
-  }
-
-  /* Ajusta a largura do contêiner do tabuleiro para o mobile */
-  .memory-board-phase-1 {
-    width: calc(2 * var(--card-size-mobile) + 1 * var(--card-gap));
-  }
-  .memory-board-phase-2,
-  .memory-board-phase-3 {
-    width: calc(4 * var(--card-size-mobile) + 3 * var(--card-gap));
-  }
 }
-
-/* --- ESTILOS GERAIS (Aplicados a ambos) --- */
 .card-inner {
   transform-style: preserve-3d;
   transition: transform 0.6s;
@@ -185,7 +152,6 @@ body::after {
     transform: scale(0.98);
   }
 }
-
 .card-matched .card-back {
   box-shadow: 0 0 15px 3px rgba(250, 204, 21, 0.7);
   border: 2px solid #facc15;
