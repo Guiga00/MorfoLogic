@@ -4,14 +4,14 @@
     == CONTROLE O TAMANHO E ESPAÇAMENTO DOS CARDS AQUI ==
     =================================================
   */
-  --card-size-mobile: 65px;
+  --card-size-mobile: 72px;
   --card-gap-mobile: 8px; /* Espaçamento no mobile */
 
   --card-size-desktop: 100px;
   --card-gap-desktop: 15px; /* Espaçamento no desktop */
 
   --card-border-color: #386ccc;
-  --symbol-hint-opacity: 0.1;
+  --symbol-hint-opacity: 0.2;
   --notebook-paper-color: #fdfdfd;
   --notebook-line-color: #e0e0e0;
   --notebook-margin-color: #ff8a80;
