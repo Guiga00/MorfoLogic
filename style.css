@@ -1,19 +1,15 @@
 :root {
   /*
     =================================================
-    == CONTROLE O TAMANHO DOS CARDS DO JOGO DA MEMÓRIA AQUI ==
+    == CONTROLE O TAMANHO DOS CARDS AQUI ==
+    Altere os valores abaixo para o tamanho desejado.
     =================================================
   */
-  --card-fixed-size: 80px;
-  --card-gap: 8px; /* Espaçamento entre as cartas */
+  --card-size-mobile: 80px; /* Tamanho padrão para mobile */
+  --card-size-desktop: 100px; /* Tamanho para desktop */
+  --card-gap: 12px; /* Espaçamento entre as cartas */
 
-  /*
-    =================================================
-    == CONTROLE A COR DO CONTORNO DOS CARDS AQUI ==
-    =================================================
-  */
-  --card-border-color: #386ccc; /* Cor padrão do contorno (teal-500) */
-
+  --card-border-color: #386ccc;
   --symbol-hint-opacity: 0.1;
   --notebook-paper-color: #fdfdfd;
   --notebook-line-color: #e0e0e0;
@@ -53,7 +49,7 @@ body::after {
   content: "";
   position: absolute;
   top: 0;
-  left: 60px; /* Posição padrão (desktop) */
+  left: 60px;
   width: 2px;
   height: 100%;
   background-color: var(--notebook-margin-color);
@@ -79,22 +75,19 @@ body::after {
   gap: var(--card-gap);
   max-width: 100%;
 }
+
+/* Tamanho Padrão (Mobile) */
 .memory-board-container .card {
-  width: var(--card-fixed-size);
-  height: var(--card-fixed-size);
+  width: var(--card-size-mobile);
+  height: var(--card-size-mobile);
   flex-shrink: 0;
 }
-/* Layout Desktop */
-@media (min-width: 768px) {
-  .memory-board-phase-1 {
-    width: calc(4 * var(--card-fixed-size) + 3 * var(--card-gap));
-  }
+.memory-board-phase-1 {
+  width: calc(2 * var(--card-size-mobile) + 1 * var(--card-gap));
 }
-
-/* Layout Fase 2 e 3: 4 colunas em todas as telas */
 .memory-board-phase-2,
 .memory-board-phase-3 {
-  width: calc(4 * var(--card-fixed-size) + 3 * var(--card-gap));
+  width: calc(4 * var(--card-size-mobile) + 3 * var(--card-gap));
 }
 
 /* =================================================== */
@@ -103,7 +96,7 @@ body::after {
 @media (max-width: 767px) {
   /* Move a linha vertical do fundo para a esquerda */
   body::after {
-    left: 20px; /* Posição da margem no mobile */
+    left: 20px;
   }
 
   /* Ajusta o espaçamento das linhas horizontais */
@@ -125,10 +118,25 @@ body::after {
   .mobile-indented-text {
     padding-left: 40px;
   }
+}
 
-  /* Layout Fase 1 do Jogo da Memória no Mobile */
+/* ===================================================== */
+/* == AJUSTES GERAIS PARA DESKTOP (768px ou mais)      == */
+/* ===================================================== */
+@media (min-width: 768px) {
+  /* Sobrescreve o tamanho das cartas para o valor de desktop */
+  .memory-board-container .card {
+    width: var(--card-size-desktop);
+    height: var(--card-size-desktop);
+  }
+
+  /* Recalcula a largura dos contêineres com base no novo tamanho das cartas */
   .memory-board-phase-1 {
-    width: calc(2 * var(--card-fixed-size) + 1 * var(--card-gap));
+    width: calc(4 * var(--card-size-desktop) + 3 * var(--card-gap));
+  }
+  .memory-board-phase-2,
+  .memory-board-phase-3 {
+    width: calc(4 * var(--card-size-desktop) + 3 * var(--card-gap));
   }
 }
 
