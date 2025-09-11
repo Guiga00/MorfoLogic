@@ -60,7 +60,7 @@ body::after {
 /* AJUSTE PARA O TÍTULO DA PÁGINA E SUBTÍTULOS */
 .page-title {
   color: #386ccc;
-  text-align: center;
+  text-align: left;
   padding-left: 0;
 }
 .mobile-indented-text {
@@ -96,7 +96,7 @@ body::after {
 @media (max-width: 767px) {
   /* Move a linha vertical do fundo para a esquerda */
   body::after {
-    left: 20px;
+    left: 15px;
   }
 
   /* Ajusta o espaçamento das linhas horizontais */
@@ -113,10 +113,10 @@ body::after {
   /* Desloca os títulos e subtítulos */
   .page-title {
     text-align: left;
-    padding-left: 40px;
+    padding-left: 15px;
   }
   .mobile-indented-text {
-    padding-left: 40px;
+    padding-left: 15px;
   }
 }
 
