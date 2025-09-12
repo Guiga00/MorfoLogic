@@ -1,9 +1,8 @@
 /**
  * Módulo de Autenticação
- * Cuida exclusivamente da lógica de login.
- * O 'DOMContentLoaded' garante que o código só rode após o HTML estar pronto.
  */
-document.addEventListener("DOMContentLoaded", () => {
+
+function initAuth() {
   const loginForm = document.getElementById("login-form");
   if (!loginForm) return;
 
@@ -19,19 +18,18 @@ document.addEventListener("DOMContentLoaded", () => {
         AppState.currentUser = username;
         loadData(username);
         AppState.gameActive = true;
-        document.getElementById("general-score").textContent =
-          AppState.generalScore;
         startSessionTimer();
         navigate("game-selection-screen");
-        errorEl.textContent = "";
       } else if (userType === "admin") {
         AppState.currentUser = username;
         navigate("static-screen");
-        errorEl.textContent = "";
       }
     } else {
       errorEl.textContent = "Usuário ou senha inválidos.";
       GameAudio.play("error");
     }
   });
-});
+}
+
+// O DOMContentLoaded é removido, pois o main.js agora controla a inicialização.
+document.addEventListener("DOMContentLoaded", initAuth);

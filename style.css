@@ -1,47 +1,13 @@
 :root {
-  /*
-    =================================================
-    == VARIÁVEIS PRINCIPAIS DO TEMA ==
-    =================================================
-  */
-
-  /* Tamanhos e espaçamentos dos cards */
-  --card-size-mobile: 72px; /* Tamanho padrão das cartas em dispositivos móveis */
-  --card-gap-mobile: 8px; /* Espaçamento entre cartas em dispositivos móveis */
-  --card-size-desktop: 100px; /* Tamanho padrão das cartas em desktops */
-  --card-gap-desktop: 15px; /* Espaçamento entre cartas em desktops */
-
-  /* Bordas e destaques */
-  --card-border-color: #386ccc; /* Azul vibrante */
-  --card-match-border-color: #facc15; /* Amarelo vibrante */
-  --card-match-glow: rgba(
-    250,
-    204,
-    21,
-    0.7
-  ); /* Amarelo vibrante com transparência */
-
-  /* Cores do fundo estilo caderno */
-  --notebook-paper-color: #fdfdfd; /* Cor do papel */
-  --notebook-line-color: #e0e0e0; /* Cor das linhas */
-  --notebook-margin-color: #ff8a80; /* Cor da margem */
-
-  /* Efeitos visuais */
-  --symbol-hint-opacity: 0.2; /* Opacidade do símbolo de dica */
-  --symbol-lit-shadow: 0 0 15px #facc15; /* Sombra do símbolo iluminado */
-  --symbol-lit-scale: 1.05; /* Escala do símbolo iluminado */
-
-  /* Animações */
-  --fade-scale: 0.98;
-  --pulse-scale-min: 0.9;
-  --pulse-scale-max: 1.1;
-  --pulse-opacity-min: 0.7;
-  --pulse-opacity-max: 1;
-
-  /* Ícones e estrelas */
-  --icon-size: 1.25rem; /* Tamanho dos ícones */
-  --star-full: #facc15;
-  --star-empty: #d6d3d1;
+  --card-size-mobile: 80px;
+  --card-gap-mobile: 4px;
+  --card-size-desktop: 100px;
+  --card-gap-desktop: 12px;
+  --card-border-color: #386ccc;
+  --symbol-hint-opacity: 0.1;
+  --notebook-paper-color: #fdfdfd;
+  --notebook-line-color: #e0e0e0;
+  --notebook-margin-color: #ff8a80;
 }
 
 body {
@@ -53,7 +19,6 @@ body {
   min-height: 100vh;
 }
 
-/* Fundo: Linhas Horizontais e Verticais */
 body::before {
   content: "";
   position: absolute;
@@ -83,9 +48,8 @@ body::after {
   pointer-events: none;
 }
 
-/* Títulos */
 .page-title {
-  color: var(--card-border-color);
+  color: #386ccc;
   text-align: center;
   padding-left: 0;
 }
@@ -93,38 +57,27 @@ body::after {
   padding-left: 0;
 }
 
-/* --- JOGO DA MEMÓRIA --- */
-
-/* Contêiner principal */
 .memory-board-container {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
   justify-content: center;
   max-width: 100%;
-  margin: 0 auto;
-  gap: var(--card-gap-mobile);
 }
 .memory-board-container .card {
-  width: var(--card-size-mobile);
-  height: var(--card-size-mobile);
-  flex-shrink: 0;
+  width: var(--card-size-desktop);
+  height: var(--card-size-desktop);
 }
-
-/* Larguras por fase (Mobile) */
-.memory-board-phase-1 {
-  width: calc(2 * var(--card-size-mobile) + 1 * var(--card-gap-mobile));
+.memory-board-container {
+  gap: var(--card-gap-desktop);
 }
+.memory-board-phase-1,
 .memory-board-phase-2,
 .memory-board-phase-3 {
-  width: calc(4 * var(--card-size-mobile) + 3 * var(--card-gap-mobile));
+  grid-template-columns: repeat(4, var(--card-size-desktop));
 }
 
-/* =================================================== */
-/* == MOBILE (até 767px)                             == */
-/* =================================================== */
 @media (max-width: 767px) {
   body::after {
-    left: 10px;
+    left: 15px;
   }
   body::before {
     background-image: repeating-linear-gradient(
@@ -142,27 +95,22 @@ body::after {
   .mobile-indented-text {
     padding-left: 15px;
   }
-}
-
-/* =================================================== */
-/* == DESKTOP (768px ou mais)                        == */
-/* =================================================== */
-@media (min-width: 768px) {
-  .memory-board-container {
-    gap: var(--card-gap-desktop);
-  }
   .memory-board-container .card {
-    width: var(--card-size-desktop);
-    height: var(--card-size-desktop);
+    width: var(--card-size-mobile);
+    height: var(--card-size-mobile);
   }
-  .memory-board-phase-1,
+  .memory-board-container {
+    gap: var(--card-gap-mobile);
+  }
+  .memory-board-phase-1 {
+    grid-template-columns: repeat(2, var(--card-size-mobile));
+  }
   .memory-board-phase-2,
   .memory-board-phase-3 {
-    width: calc(4 * var(--card-size-desktop) + 3 * var(--card-gap-desktop));
+    grid-template-columns: repeat(4, var(--card-size-mobile));
   }
 }
 
-/* --- ESTILOS GERAIS DAS CARTAS --- */
 .card-inner {
   transform-style: preserve-3d;
   transition: transform 0.6s;
@@ -179,19 +127,9 @@ body::after {
 .card-back {
   transform: rotateY(180deg);
 }
-.card-matched .card-back {
-  box-shadow: 0 0 15px 3px var(--card-match-glow);
-  border: 2px solid var(--card-match-border-color);
-}
-.card-name-symbol-bg {
-  opacity: var(--symbol-hint-opacity);
-  z-index: 0;
-}
-
-/* Efeitos e animações */
 .genius-symbol.lit {
-  filter: brightness(1.2) drop-shadow(var(--symbol-lit-shadow));
-  transform: scale(var(--symbol-lit-scale));
+  filter: brightness(1.2) drop-shadow(0 0 15px #facc15);
+  transform: scale(1.05);
 }
 .fade-in {
   animation: fadeIn 0.3s ease-out forwards;
@@ -202,7 +140,7 @@ body::after {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(var(--fade-scale));
+    transform: scale(0.98);
   }
   to {
     opacity: 1;
@@ -216,37 +154,28 @@ body::after {
   }
   to {
     opacity: 0;
-    transform: scale(var(--fade-scale));
+    transform: scale(0.98);
   }
 }
-.animate-pulse-symbol {
-  animation: pulse-grow 1s infinite alternate;
+.card-matched .card-back {
+  box-shadow: 0 0 15px 3px rgba(250, 204, 21, 0.7);
+  border: 2px solid #facc15;
 }
-@keyframes pulse-grow {
-  from {
-    transform: scale(var(--pulse-scale-min));
-    opacity: var(--pulse-opacity-min);
-  }
-  to {
-    transform: scale(var(--pulse-scale-max));
-    opacity: var(--pulse-opacity-max);
-  }
+.card-name-symbol-bg {
+  opacity: var(--symbol-hint-opacity);
+  z-index: 0;
 }
-
-/* Ícones e estrelas */
 #game-score-display svg {
-  width: var(--icon-size);
-  height: var(--icon-size);
+  width: 1.25rem;
+  height: 1.25rem;
   margin-left: 0.25rem;
 }
 .star-full {
-  color: var(--star-full);
+  color: #facc15;
 }
 .star-empty {
-  color: var(--star-empty);
+  color: #d6d3d1;
 }
-
-/* Drag and drop */
 .draggable {
   touch-action: none;
 }
@@ -254,4 +183,17 @@ body::after {
   opacity: 0.7;
   cursor: grabbing;
   transition: none !important;
+}
+.animate-pulse-symbol {
+  animation: pulse-grow 1s infinite alternate;
+}
+@keyframes pulse-grow {
+  from {
+    transform: scale(0.9);
+    opacity: 0.7;
+  }
+  to {
+    transform: scale(1.1);
+    opacity: 1;
+  }
 }

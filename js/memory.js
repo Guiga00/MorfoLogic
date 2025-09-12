@@ -1,10 +1,8 @@
 /**
  * Módulo do Minijogo da Memória
- * Contém toda a lógica de funcionamento do Jogo da Memória.
  */
 let memoryState = {};
 
-// Função auxiliar para embaralhar arrays (Fisher-Yates)
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -12,7 +10,6 @@ function shuffleArray(array) {
   }
 }
 
-// Função para criar o HTML de uma única carta
 function createCardHTML(item, index) {
   let cardBackContent;
   if (item.type === "name") {
@@ -41,19 +38,14 @@ function createCardHTML(item, index) {
     </div>`;
 }
 
-// Função para gerar o HTML do tabuleiro, agora muito mais simples
 function generateBoardHTML(items, phase) {
   const allCardsHTML = items
     .map((item) => createCardHTML(item, item.originalIndex))
     .join("");
-  // A classe de fase controla o layout via CSS
   const phaseClass = `memory-board-phase-${phase}`;
   return `<div class="memory-board-container ${phaseClass}">${allCardsHTML}</div>`;
 }
 
-/**
- * ANIMAÇÃO DE EMBARALHAMENTO (TÉCNICA FLIP COM "EMPATE FORÇADO")
- */
 function shuffleAnimation(cards, items, callback) {
   const initialPositions = new Map();
   cards.forEach((card) => {
@@ -75,23 +67,17 @@ function shuffleAnimation(cards, items, callback) {
   cards.forEach((card) => {
     const initialRect = initialPositions.get(card);
     const finalRect = card.getBoundingClientRect();
-    let deltaX = initialRect.left - finalRect.left;
-    let deltaY = initialRect.top - finalRect.top;
-
-    const randomX = (Math.random() - 0.5) * 50;
-    const randomY = (Math.random() - 0.5) * 50;
-
+    const deltaX = initialRect.left - finalRect.left;
+    const deltaY = initialRect.top - finalRect.top;
     card.style.transition = "none";
-    card.style.transform = `translate(${deltaX + randomX}px, ${
-      deltaY + randomY
-    }px)`;
+    card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
   });
 
   void parent.offsetWidth;
 
   cards.forEach((card) => {
-    // **** ALTERAÇÃO AQUI: Curva de animação mais suave e maior duração ****
-    card.style.transition = "transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1.0)";
+    card.style.transition =
+      "transform 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55)";
     card.style.transform = "";
     card.style.zIndex = 100;
   });
@@ -102,10 +88,9 @@ function shuffleAnimation(cards, items, callback) {
       card.style.zIndex = "";
     });
     if (typeof callback === "function") callback();
-  }, 850); // Aumentado para corresponder à nova duração
+  }, 750);
 }
 
-// Função que gerencia a remoção de estrelas
 function removeStar() {
   if (AppState.currentGame.stars > 0) {
     AppState.currentGame.stars--;
@@ -113,7 +98,6 @@ function removeStar() {
   }
 }
 
-// Inicia o cronômetro para penalidade de tempo
 function startTimePenaltyTimer() {
   if (AppState.currentGame.timer) {
     clearInterval(AppState.currentGame.timer);
@@ -132,9 +116,6 @@ function startTimePenaltyTimer() {
   }, 1000);
 }
 
-/**
- * Função principal de inicialização do jogo
- */
 function initMemoryGame(phase) {
   const classes = getClassesForPhase(phase);
   const board = document.getElementById("game-board");
