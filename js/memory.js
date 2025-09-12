@@ -1,9 +1,9 @@
-// Variáveis globais do timer
 let memoryTimerInterval = null;
 let memoryTimerEnd = null;
 let memoryTimerPaused = false;
 let memoryTimerRemaining = 0;
 
+// Variáveis globais do timer
 function updateMemoryTimer() {
   let remaining;
   if (memoryTimerPaused) {
@@ -25,6 +25,7 @@ function updateMemoryTimer() {
     memoryState.lockBoard = true;
   }
 }
+
 function startMemoryTimer(minutes) {
   clearInterval(memoryTimerInterval);
   memoryTimerPaused = false;

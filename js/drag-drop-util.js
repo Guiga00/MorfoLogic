@@ -1,8 +1,3 @@
-/**
- * Módulo Utilitário de Arrastar e Soltar (Drag and Drop)
- * Versão Robusta: Gerencia a criação, movimento e limpeza de elementos arrastáveis.
- * Inclui um mecanismo de bloqueio e auto-scroll da página.
- */
 const DraggableManager = {
   draggedEl: null,
   placeholder: null,
@@ -14,6 +9,11 @@ const DraggableManager = {
   scrollInterval: null,
   config: { mode: "move" },
 
+  /**
+   * Módulo Utilitário de Arrastar e Soltar (Drag and Drop)
+   * Versão Robusta: Gerencia a criação, movimento e limpeza de elementos arrastáveis.
+   * Inclui um mecanismo de bloqueio e auto-scroll da página.
+   */
   makeDraggable(selector, onDrop, config = { mode: "move" }) {
     this.cleanup();
     this.config = config;

@@ -1,10 +1,11 @@
-/**
- * Arquivo Central de Configuração do Jogo
- * Contém todos os parâmetros para os minijogos, fases, pontuação, etc.
- */
-
+// ...existing code...
 const GameConfig = {
+  /**
+   * Arquivo Central de Configuração do Jogo
+   * Contém todos os parâmetros para os minijogos, fases, pontuação, etc.
+   */
   // Configurações globais ou de áudio podem vir aqui no futuro
+  // ...existing code...
 
   memory: {
     // Parâmetros específicos do Jogo da Memória
