@@ -1,4 +1,3 @@
-// === CONTROLES DO NOVO LAYOUT ===
 // Variáveis globais do timer
 let memoryTimerInterval = null;
 let memoryTimerEnd = null;
@@ -33,6 +32,7 @@ function startMemoryTimer(minutes) {
   updateMemoryTimer();
   memoryTimerInterval = setInterval(updateMemoryTimer, 1000);
 }
+
 function pauseMemoryTimer() {
   if (!memoryTimerPaused) {
     memoryTimerPaused = true;
@@ -50,7 +50,7 @@ function resumeMemoryTimer() {
   }
 }
 
-// CONTROLES DO NOVO LAYOUT
+// CONTROLES DO LAYOUT
 document.addEventListener("DOMContentLoaded", () => {
   // Mute/Unmute
   const muteBtn = document.getElementById("memory-mute-btn");
@@ -304,19 +304,21 @@ function initMemoryGame(phase) {
   cards.forEach((card) => card.classList.add("flipped"));
   document.getElementById("game-message").textContent = "Memorize os pares!";
 
-  // Busca tempo da fase no GameConfig
-  const config =
-    window.GameConfig && GameConfig.memory && GameConfig.memory.levels
-      ? GameConfig.memory.levels.find((l) => l.phase === phase)
-      : null;
-  const timerMinutes = config ? config.timerMinutes : 3;
-  const previewTime = config ? config.previewTime : phase === 1 ? 10000 : 15000;
+  // Função para buscar tempo e preview da fase
+  function getPhaseConfig(phase) {
+    if (window.GameConfig && GameConfig.memory && GameConfig.memory.levels) {
+      const config = GameConfig.memory.levels.find(
+        (l) => Number(l.phase) === Number(phase)
+      );
+      if (config) return config;
+    }
+    // Fallback
+    return { timerMinutes: 3, previewTime: phase === 1 ? 10000 : 15000 };
+  }
 
-  // Timer começa assim que entra na fase
-  startMemoryTimer(timerMinutes);
-  // Força atualização visual do timer imediatamente
-  setTimeout(updateMemoryTimer, 50);
+  const { timerMinutes, previewTime } = getPhaseConfig(phase);
 
+  // Timer só começa após embaralhamento
   setTimeout(() => {
     cards.forEach((card) => card.classList.remove("flipped"));
     document.getElementById("game-message").textContent = "Embaralhando...";
@@ -326,6 +328,8 @@ function initMemoryGame(phase) {
         memoryState.lockBoard = false;
         document.getElementById("game-message").textContent =
           "Encontre os pares!";
+        startMemoryTimer(timerMinutes);
+        setTimeout(updateMemoryTimer, 50);
         startTimePenaltyTimer();
       });
     }, 500);
