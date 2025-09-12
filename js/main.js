@@ -303,10 +303,12 @@ function renderStars(count) {
 function updateGameUI() {
   const { type, phase, score, stars } = AppState.currentGame;
   const titles = { memory: "Memória", genius: "Genius", ligar: "Tempo" };
+  // Atualiza título e fase no novo header
   const gameTitleEl = document.getElementById("game-title");
-  if (gameTitleEl) gameTitleEl.textContent = titles[type];
-  const gamePhaseEl = document.getElementById("game-phase");
-  if (gamePhaseEl) gamePhaseEl.textContent = phase;
+  if (gameTitleEl) gameTitleEl.textContent = titles[type] || "Jogo";
+  const gamePhaseLabelEl = document.getElementById("memory-phase-label");
+  if (gamePhaseLabelEl)
+    gamePhaseLabelEl.innerHTML = `Fase <span id="game-phase">${phase}</span>`;
   const gameMessageEl = document.getElementById("game-message");
   if (gameMessageEl) gameMessageEl.textContent = "";
   const scoreDisplay = document.getElementById("game-score-display");

@@ -15,6 +15,7 @@ const GameConfig = {
         classIds: [1, 3, 2, 10], // substantivo, adjetivo, artigo, numeral
         previewTime: 10000, // 10 segundos
         pointsMultiplier: 1, // Exemplo para pontuação futura
+        timerMinutes: 3, // Tempo da fase 1
       },
       {
         phase: 2,
@@ -22,6 +23,7 @@ const GameConfig = {
         classIds: [1, 3, 2, 10, 5, 4, 6], // + pronome, verbo, advérbio
         previewTime: 15000, // 15 segundos
         pointsMultiplier: 1.5,
+        timerMinutes: 5, // Tempo da fase 2
       },
       {
         phase: 3,
@@ -29,6 +31,7 @@ const GameConfig = {
         classIds: [1, 3, 2, 10, 5, 4, 6, 7, 8, 9], // + preposição, conjunção, interjeição
         previewTime: 15000, // 15 segundos
         pointsMultiplier: 2,
+        timerMinutes: 7, // Tempo da fase 3
       },
     ],
   },

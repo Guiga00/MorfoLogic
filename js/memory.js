@@ -1,3 +1,140 @@
+// === CONTROLES DO NOVO LAYOUT ===
+// Variáveis globais do timer
+let memoryTimerInterval = null;
+let memoryTimerEnd = null;
+let memoryTimerPaused = false;
+let memoryTimerRemaining = 0;
+
+function updateMemoryTimer() {
+  let remaining;
+  if (memoryTimerPaused) {
+    remaining = memoryTimerRemaining;
+  } else {
+    remaining = Math.max(0, memoryTimerEnd - Date.now());
+  }
+  const min = Math.floor(remaining / 60000);
+  const sec = Math.floor((remaining % 60000) / 1000);
+  const timerEl = document.getElementById("memory-timer");
+  if (timerEl) {
+    timerEl.textContent = `${min.toString().padStart(2, "0")}:${sec
+      .toString()
+      .padStart(2, "0")}`;
+  }
+  if (!memoryTimerPaused && remaining <= 0) {
+    clearInterval(memoryTimerInterval);
+    if (typeof showPhaseEndModal === "function") showPhaseEndModal(false);
+    memoryState.lockBoard = true;
+  }
+}
+function startMemoryTimer(minutes) {
+  clearInterval(memoryTimerInterval);
+  memoryTimerPaused = false;
+  memoryTimerEnd = Date.now() + minutes * 60000;
+  updateMemoryTimer();
+  memoryTimerInterval = setInterval(updateMemoryTimer, 1000);
+}
+function pauseMemoryTimer() {
+  if (!memoryTimerPaused) {
+    memoryTimerPaused = true;
+    memoryTimerRemaining = Math.max(0, memoryTimerEnd - Date.now());
+    clearInterval(memoryTimerInterval);
+    updateMemoryTimer();
+  }
+}
+function resumeMemoryTimer() {
+  if (memoryTimerPaused) {
+    memoryTimerPaused = false;
+    memoryTimerEnd = Date.now() + memoryTimerRemaining;
+    updateMemoryTimer();
+    memoryTimerInterval = setInterval(updateMemoryTimer, 1000);
+  }
+}
+
+// CONTROLES DO NOVO LAYOUT
+document.addEventListener("DOMContentLoaded", () => {
+  // Mute/Unmute
+  const muteBtn = document.getElementById("memory-mute-btn");
+  const muteIcon = document.getElementById("memory-mute-icon");
+  let isMuted = false;
+  muteBtn.addEventListener("click", () => {
+    isMuted = !isMuted;
+    muteIcon.innerHTML = isMuted ? "&#128263;" : "&#128266;";
+    document.querySelectorAll("audio").forEach((a) => (a.muted = isMuted));
+    if (window.AppState) AppState.globalMuted = isMuted;
+  });
+
+  const closeBtn = document.getElementById("memory-close-btn");
+  const volumeSlider = document.getElementById("memory-volume"); // Volume control
+  const playPauseBtn = document.getElementById("memory-playpause-btn");
+  const playPauseIcon = document.getElementById("memory-playpause-icon");
+  const playPauseLabel = document.getElementById("memory-playpause-label");
+
+  // Timer de sessão global (AppState.sessionEndTime)
+  let sessionTimerInterval;
+
+  // Volume geral (conectado ao controle global)
+  volumeSlider.addEventListener("input", (e) => {
+    const vol = Number(e.target.value) / 100;
+    if (window.setGlobalVolume) {
+      setGlobalVolume(vol);
+    } else {
+      document.querySelectorAll("audio").forEach((a) => (a.volume = vol));
+    }
+    if (window.AppState) {
+      AppState.globalVolume = vol;
+    }
+  });
+  // Sincroniza slider com volume global
+  if (window.AppState && typeof AppState.globalVolume === "number") {
+    volumeSlider.value = Math.round(AppState.globalVolume * 100);
+  }
+
+  // Botão de fechar
+  closeBtn.addEventListener("click", () => {
+    if (typeof goToGameSelection === "function") {
+      goToGameSelection();
+    } else {
+      document.getElementById("game-screen").classList.add("hidden");
+      document
+        .getElementById("game-selection-screen")
+        .classList.remove("hidden");
+    }
+    clearInterval(sessionTimerInterval);
+  });
+
+  // Play/Pause do minigame
+  let isPaused = false;
+  playPauseBtn.addEventListener("click", () => {
+    isPaused = !isPaused;
+    if (isPaused) {
+      playPauseIcon.innerHTML = "&#9658;"; // Play
+      memoryState.lockBoard = true;
+      pauseMemoryTimer();
+      clearInterval(sessionTimerInterval);
+      // Pausa pontuação (timer de penalidade)
+      if (AppState.currentGame && AppState.currentGame.timer) {
+        clearInterval(AppState.currentGame.timer);
+      }
+    } else {
+      playPauseIcon.innerHTML = "&#10073;&#10073;"; // Pause
+      memoryState.lockBoard = false;
+      resumeMemoryTimer();
+      startSessionTimer();
+      // Retoma pontuação (timer de penalidade)
+      if (typeof startTimePenaltyTimer === "function") {
+        startTimePenaltyTimer();
+      }
+    }
+  });
+
+  // Inicia timer ao entrar no minigame
+  if (
+    document.getElementById("game-screen") &&
+    !document.getElementById("game-screen").classList.contains("hidden")
+  ) {
+    startSessionTimer();
+  }
+});
 /**
  * Módulo do Minijogo da Memória
  */
@@ -167,7 +304,18 @@ function initMemoryGame(phase) {
   cards.forEach((card) => card.classList.add("flipped"));
   document.getElementById("game-message").textContent = "Memorize os pares!";
 
-  const previewTime = phase === 1 ? 10000 : 15000;
+  // Busca tempo da fase no GameConfig
+  const config =
+    window.GameConfig && GameConfig.memory && GameConfig.memory.levels
+      ? GameConfig.memory.levels.find((l) => l.phase === phase)
+      : null;
+  const timerMinutes = config ? config.timerMinutes : 3;
+  const previewTime = config ? config.previewTime : phase === 1 ? 10000 : 15000;
+
+  // Timer começa assim que entra na fase
+  startMemoryTimer(timerMinutes);
+  // Força atualização visual do timer imediatamente
+  setTimeout(updateMemoryTimer, 50);
 
   setTimeout(() => {
     cards.forEach((card) => card.classList.remove("flipped"));
