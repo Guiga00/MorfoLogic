@@ -1,3 +1,28 @@
+#game-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  pointer-events: none;
+}
+
+#game-screen.paused::before {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+#game-screen.paused .memory-board-container.preview-mode .card.flipped .card-inner {
+  transform: rotateY(0deg);
+}
+
 /* MENU SUPERIOR DO MINIGAME DE MEMÓRIA */
 #memory-top-menu {
   border-bottom: 1px solid #e0e0e0;
@@ -5,6 +30,7 @@
   position: relative;
   z-index: 10;
 }
+
 #memory-close-btn {
   background: none;
   border: none;
@@ -15,9 +41,11 @@
   color: #dc2626;
   transition: color 0.2s;
 }
+
 #memory-close-btn:hover {
   color: #b91c1c;
 }
+
 #game-title,
 #memory-phase-label {
   text-align: center !important;
@@ -25,10 +53,12 @@
   margin-left: auto;
   margin-right: auto;
 }
+
 #memory-timer {
   min-width: 60px;
   text-align: center;
 }
+
 #memory-volume {
   vertical-align: middle;
   accent-color: #386ccc;
@@ -43,14 +73,20 @@
   width: 100%;
   z-index: 100;
 }
+
 #memory-playpause-btn {
-  min-width: 120px;
+  min-width: 154px;
   font-size: 1.1rem;
   transition: background 0.2s;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
+
 #memory-playpause-btn:active {
   background: #e6ffe6;
 }
+
 :root {
   --card-size-mobile: 80px;
   --card-gap-mobile: 4px;
@@ -79,16 +115,15 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    var(--notebook-line-color) 0px,
-    var(--notebook-line-color) 1px,
-    transparent 1px,
-    transparent 30px
-  );
+  background-image: repeating-linear-gradient(to bottom,
+      var(--notebook-line-color) 0px,
+      var(--notebook-line-color) 1px,
+      transparent 1px,
+      transparent 30px);
   z-index: -2;
   pointer-events: none;
 }
+
 body::after {
   content: "";
   position: absolute;
@@ -106,6 +141,7 @@ body::after {
   text-align: center;
   padding-left: 0;
 }
+
 .mobile-indented-text {
   padding-left: 0;
 }
@@ -115,13 +151,44 @@ body::after {
   justify-content: center;
   max-width: 100%;
 }
+
 .memory-board-container .card {
   width: var(--card-size-desktop);
   height: var(--card-size-desktop);
 }
+
 .memory-board-container {
   gap: var(--card-gap-desktop);
 }
+
+/* Styles for the new preview layout */
+.memory-board-container.preview-mode {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  /* The large space between the two columns */
+}
+
+.preview-mode .memory-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  /* The space between pairs in the same column */
+}
+
+.preview-mode .card-pair {
+  display: flex;
+  gap: 4px;
+  /* The small space between a name card and its symbol */
+}
+
+/* Hide columns and pairs when not in preview mode */
+.memory-board-container:not(.preview-mode) .memory-column,
+.memory-board-container:not(.preview-mode) .card-pair {
+  display: contents;
+  /* This makes the containers "disappear" so the grid layout works on the cards inside */
+}
+
 .memory-board-phase-1,
 .memory-board-phase-2,
 .memory-board-phase-3 {
@@ -132,32 +199,37 @@ body::after {
   body::after {
     left: 15px;
   }
+
   body::before {
-    background-image: repeating-linear-gradient(
-      to bottom,
-      var(--notebook-line-color) 0px,
-      var(--notebook-line-color) 1px,
-      transparent 1px,
-      transparent 25px
-    );
+    background-image: repeating-linear-gradient(to bottom,
+        var(--notebook-line-color) 0px,
+        var(--notebook-line-color) 1px,
+        transparent 1px,
+        transparent 25px);
   }
+
   .page-title {
     text-align: left;
     padding-left: 15px;
   }
+
   .mobile-indented-text {
     padding-left: 15px;
   }
+
   .memory-board-container .card {
     width: var(--card-size-mobile);
     height: var(--card-size-mobile);
   }
+
   .memory-board-container {
     gap: var(--card-gap-mobile);
   }
+
   .memory-board-phase-1 {
     grid-template-columns: repeat(2, var(--card-size-mobile));
   }
+
   .memory-board-phase-2,
   .memory-board-phase-3 {
     grid-template-columns: repeat(4, var(--card-size-mobile));
@@ -168,83 +240,103 @@ body::after {
   transform-style: preserve-3d;
   transition: transform 0.6s;
 }
+
 .card.flipped .card-inner {
   transform: rotateY(180deg);
 }
+
 .card-front,
 .card-back {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   border: 2px solid var(--card-border-color);
 }
+
 .card-back {
   transform: rotateY(180deg);
 }
+
 .genius-symbol.lit {
   filter: brightness(1.2) drop-shadow(0 0 15px #facc15);
   transform: scale(1.05);
 }
+
 .fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }
+
 .fade-out {
   animation: fadeOut 0.3s ease-in forwards;
 }
+
 @keyframes fadeIn {
   from {
     opacity: 0;
     transform: scale(0.98);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
   }
 }
+
 @keyframes fadeOut {
   from {
     opacity: 1;
     transform: scale(1);
   }
+
   to {
     opacity: 0;
     transform: scale(0.98);
   }
 }
+
 .card-matched .card-back {
   box-shadow: 0 0 15px 3px rgba(250, 204, 21, 0.7);
   border: 2px solid #facc15;
 }
+
 .card-name-symbol-bg {
   opacity: var(--symbol-hint-opacity);
   z-index: 0;
 }
+
 #game-score-display svg {
   width: 1.25rem;
   height: 1.25rem;
   margin-left: 0.25rem;
 }
+
 .star-full {
   color: #facc15;
 }
+
 .star-empty {
   color: #d6d3d1;
 }
+
 .draggable {
   touch-action: none;
 }
+
 .dragging {
   opacity: 0.7;
   cursor: grabbing;
   transition: none !important;
 }
+
 .animate-pulse-symbol {
   animation: pulse-grow 1s infinite alternate;
 }
+
 @keyframes pulse-grow {
   from {
     transform: scale(0.9);
     opacity: 0.7;
   }
+
   to {
     transform: scale(1.1);
     opacity: 1;

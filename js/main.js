@@ -24,13 +24,13 @@ const GRAMMAR_CLASSES = [
     id: 1,
     name: "Substantivo",
     symbol: (c) =>
-      `<img src="./assets/img/substantivo.svg" alt="Substantivo" class="${c}" />`,
+      `<img src="./assets/img/Substantivo.svg" alt="Substantivo" class="${c}" />`,
   },
   {
     id: 4,
     name: "Verbo",
     symbol: (c) =>
-      `<img src="./assets/img/verbo.svg" alt="Verbo" class="${c}" />`,
+      `<img src="./assets/img/Verbo.svg" alt="Verbo" class="${c}" />`,
   },
   {
     id: 3,
@@ -42,13 +42,13 @@ const GRAMMAR_CLASSES = [
     id: 2,
     name: "Artigo",
     symbol: (c) =>
-      `<img src="./assets/img/artigo.svg" alt="Artigo" class="${c}" />`,
+      `<img src="./assets/img/Artigo.svg" alt="Artigo" class="${c}" />`,
   },
   {
     id: 5,
     name: "Pronome",
     symbol: (c) =>
-      `<img src="./assets/img/pronome.svg" alt="Pronome" class="${c}" />`,
+      `<img src="./assets/img/Pronome.svg" alt="Pronome" class="${c}" />`,
   },
   {
     id: 10,
@@ -60,25 +60,25 @@ const GRAMMAR_CLASSES = [
     id: 6,
     name: "Advérbio",
     symbol: (c) =>
-      `<img src="./assets/img/adverbio.svg" alt="Advérbio" class="${c}" />`,
+      `<img src="./assets/img/Adverbio.svg" alt="Advérbio" class="${c}" />`,
   },
   {
     id: 8,
     name: "Conjunção",
     symbol: (c) =>
-      `<img src="./assets/img/conjuncao.svg" alt="Conjunção" class="${c}" />`,
+      `<img src="./assets/img/Conjuncao.svg" alt="Conjunção" class="${c}" />`,
   },
   {
     id: 7,
     name: "Preposição",
     symbol: (c) =>
-      `<img src="./assets/img/preposicao.svg" alt="Preposição" class="${c}" />`,
+      `<img src="./assets/img/Preposicao.svg" alt="Preposição" class="${c}" />`,
   },
   {
     id: 9,
     name: "Interjeição",
     symbol: (c) =>
-      `<img src="./assets/img/interjeicao.svg" alt="Interjeição" class="${c}" />`,
+      `<img src="./assets/img/Interjeicao.svg" alt="Interjeição" class="${c}" />`,
   },
 ];
 const USERS = {
