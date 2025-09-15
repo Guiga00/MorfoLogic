@@ -26,7 +26,7 @@
   <body
     class="bg-stone-100 text-stone-800 flex items-center justify-center min-h-screen"
   >
-    <div id="app" class="w-full max-w-4xl mx-auto p-4">
+    <div id="app" class="w-full max-w-4xl mx-auto p-4 grid">
       <div
         id="login-screen"
         class="text-center bg-white p-8 rounded-2xl shadow-lg fade-in"
@@ -240,10 +240,11 @@
           id="game-message"
           class="text-center text-lg md:text-xl font-semibold mt-4 h-8"
         ></div>
-        <!-- MENU INFERIOR DO MINIGAME -->
+      </div>
+      <!-- MENU INFERIOR DO MINIGAME -->
         <div
           id="memory-bottom-menu"
-          class="fixed left-0 bottom-0 w-full bg-green-600 flex items-center justify-center py-3 z-50"
+          class="hidden fixed left-0 bottom-0 w-full bg-green-600 flex items-center justify-center py-3 z-50"
           style="position: fixed; left: 0; bottom: 0; width: 100%"
         >
           <button
@@ -254,7 +255,6 @@
             <span id="memory-playpause-label">Pausar</span>
           </button>
         </div>
-      </div>
     </div>
 
     <div

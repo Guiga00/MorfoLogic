@@ -158,28 +158,78 @@ function loadData(username) {
   }
 }
 
+// function navigate(screenId) {
+//   if (
+//     !AppState.gameActive &&
+//     !screenId.startsWith("login") &&
+//     !screenId.startsWith("static")
+//   )
+//     return;
+//   const currentScreen = document.getElementById(AppState.currentScreen);
+//   const nextScreen = document.getElementById(screenId);
+//   if (currentScreen && currentScreen !== nextScreen) {
+//     currentScreen.classList.add("fade-out");
+//     setTimeout(() => {
+//       currentScreen.classList.add("hidden");
+//       currentScreen.classList.remove("fade-out");
+//       nextScreen.classList.remove("hidden");
+//       nextScreen.classList.add("fade-in");
+//       setTimeout(() => nextScreen.classList.remove("fade-in"), 300);
+//     }, 300);
+//   } else if (nextScreen) {
+//     nextScreen.classList.remove("hidden");
+//   }
+//   AppState.currentScreen = screenId;
+// }
+
 function navigate(screenId) {
-  if (
-    !AppState.gameActive &&
-    !screenId.startsWith("login") &&
-    !screenId.startsWith("static")
-  )
-    return;
-  const currentScreen = document.getElementById(AppState.currentScreen);
-  const nextScreen = document.getElementById(screenId);
-  if (currentScreen && currentScreen !== nextScreen) {
-    currentScreen.classList.add("fade-out");
-    setTimeout(() => {
-      currentScreen.classList.add("hidden");
-      currentScreen.classList.remove("fade-out");
-      nextScreen.classList.remove("hidden");
-      nextScreen.classList.add("fade-in");
-      setTimeout(() => nextScreen.classList.remove("fade-in"), 300);
-    }, 300);
-  } else if (nextScreen) {
-    nextScreen.classList.remove("hidden");
-  }
-  AppState.currentScreen = screenId;
+    const currentScreen = document.getElementById(AppState.currentScreen);
+    const nextScreen = document.getElementById(screenId);
+    const bottomMenu = document.getElementById('memory-bottom-menu');
+
+    // --- Outgoing Animations ---
+    if (currentScreen && currentScreen !== nextScreen) {
+        currentScreen.classList.add("fade-out");
+        // If we are leaving the game screen, start the menu's fade-out animation
+        if (currentScreen.id === 'game-screen') {
+            bottomMenu.classList.remove('menu-fade-in'); // Clean up old class
+            bottomMenu.classList.add('menu-fade-out');
+        }
+
+        // --- Wait for animations to finish ---
+        setTimeout(() => {
+            currentScreen.classList.add("hidden");
+            currentScreen.classList.remove("fade-out");
+            // Hide the menu completely after its animation is done
+            if (currentScreen.id === 'game-screen') {
+                bottomMenu.classList.add('hidden');
+            }
+
+            // --- Incoming Animations ---
+            if (nextScreen) {
+                nextScreen.classList.remove("hidden");
+                nextScreen.classList.add("fade-in");
+                // If we are entering the game screen, start the menu's fade-in animation
+                if (nextScreen.id === 'game-screen') {
+                    bottomMenu.classList.remove('hidden', 'menu-fade-out'); // Clean up and show
+                    bottomMenu.classList.add('menu-fade-in');
+                }
+                setTimeout(() => nextScreen.classList.remove("fade-in"), 300);
+            }
+        }, 300); // This duration must match your CSS animation time
+
+    } else if (nextScreen) {
+        // This handles the very first navigation (e.g., from login)
+        nextScreen.classList.remove("hidden");
+        nextScreen.classList.add("fade-in");
+        if (nextScreen.id === 'game-screen') {
+            bottomMenu.classList.remove('hidden', 'menu-fade-out');
+            bottomMenu.classList.add('menu-fade-in');
+        }
+        setTimeout(() => nextScreen.classList.remove("fade-in"), 300);
+    }
+
+    AppState.currentScreen = screenId;
 }
 
 function showModal(modalId) {

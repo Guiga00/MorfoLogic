@@ -1,3 +1,8 @@
+#app>* {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+}
+
 #game-screen::before {
   content: '';
   position: absolute;
@@ -207,6 +212,8 @@ body::after {
         transparent 1px,
         transparent 25px);
   }
+  
+  
 
   .page-title {
     text-align: left;
@@ -224,6 +231,12 @@ body::after {
 
   .memory-board-container {
     gap: var(--card-gap-mobile);
+  }
+
+  .memory-board-preview-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px; /* Reduce the gap between the stacked columns */
   }
 
   .memory-board-phase-1 {
@@ -291,6 +304,36 @@ body::after {
     opacity: 0;
     transform: scale(0.98);
   }
+}
+
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDownFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+.menu-fade-in {
+  animation: slideUpFadeIn 0.3s ease-out forwards;
+}
+
+.menu-fade-out {
+  animation: slideDownFadeOut 0.3s ease-in forwards;
 }
 
 .card-matched .card-back {
