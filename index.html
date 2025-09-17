@@ -242,19 +242,26 @@
         ></div>
       </div>
       <!-- MENU INFERIOR DO MINIGAME -->
-        <div
-          id="memory-bottom-menu"
-          class="hidden fixed left-0 bottom-0 w-full bg-green-600 flex items-center justify-center py-3 z-50"
-          style="position: fixed; left: 0; bottom: 0; width: 100%"
+      <div
+        id="memory-bottom-menu"
+        class="hidden fixed left-0 bottom-0 w-full flex items-center justify-center py-3 z-50"
+        style="
+          background-color: #00327d;
+          position: fixed;
+          left: 0;
+          bottom: 0;
+          width: 100%;
+        "
+      >
+        <button
+          id="memory-playpause-btn"
+          class="bg-white font-bold rounded-full shadow-lg px-6 py-2 text-lg flex items-center gap-2 hover:bg-blue-100 transition focus:outline-none"
+          style="text-emphasis-color: #00327d"
         >
-          <button
-            id="memory-playpause-btn"
-            class="bg-white text-green-700 font-bold rounded-full shadow-lg px-6 py-2 text-lg flex items-center gap-2 hover:bg-green-100 transition focus:outline-none"
-          >
-            <span id="memory-playpause-icon">&#10074;&#10074;</span>
-            <span id="memory-playpause-label">Pausar</span>
-          </button>
-        </div>
+          <span id="memory-playpause-icon">&#10074;&#10074;</span>
+          <span id="memory-playpause-label">Pausar</span>
+        </button>
+      </div>
     </div>
 
     <div
