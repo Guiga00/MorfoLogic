@@ -17,6 +17,7 @@ const GameConfig = {
         previewTime: 10000, // 10 segundos
         pointsMultiplier: 1, // Exemplo para pontuação futura
         timerMinutes: 15, // Tempo da fase 1
+        difficultyFactor: 1, // Fator de dificuldade para lógica futura
       },
       {
         phase: 2,
@@ -25,6 +26,7 @@ const GameConfig = {
         previewTime: 15000, // 15 segundos
         pointsMultiplier: 1.5,
         timerMinutes: 15, // Tempo da fase 2
+        difficultyFactor: 1.5, // Fator de dificuldade para lógica futura
       },
       {
         phase: 3,
@@ -33,13 +35,22 @@ const GameConfig = {
         previewTime: 15000, // 15 segundos
         pointsMultiplier: 2,
         timerMinutes: 15, // Tempo da fase 3
+        difficultyFactor: 2, // Fator de dificuldade para lógica futura
       },
     ],
   },
   genius: {
-    // Configurações do Genius virão aqui no futuro
+    levels: [
+      { phase: 1, difficultyFactor: 1 },
+      { phase: 2, difficultyFactor: 1.5 },
+      { phase: 3, difficultyFactor: 2 },
+    ],
   },
   ligar: {
-    // Configurações do "Ligar" virão aqui no futuro
+    levels: [
+      { phase: 1, difficultyFactor: 1 },
+      { phase: 2, difficultyFactor: 1.5 },
+      { phase: 3, difficultyFactor: 2 },
+    ],
   },
 };

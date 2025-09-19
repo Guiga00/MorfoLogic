@@ -45,6 +45,7 @@ function initLigarGame(phase) {
 }
 
 function handleLigarDrop(symbolEl, targetEl, placeholder, unlockCallback) {
+  AppState.currentGame.clickCount++;
   const droppedSymbolId = parseInt(symbolEl.dataset.id);
   const isCorrect =
     targetEl &&
@@ -76,8 +77,8 @@ function handleLigarDrop(symbolEl, targetEl, placeholder, unlockCallback) {
       targetEl.dataset.completed = "true";
       symbolEl.remove();
 
-      AppState.currentGame.score +=
-        ligarState.errorsOnItem[droppedSymbolId] === 0 ? 10 : 5;
+      // AppState.currentGame.score +=
+      //   ligarState.errorsOnItem[droppedSymbolId] === 0 ? 10 : 5;
       ligarState.connections++;
       updateGameUI();
       if (ligarState.connections === ligarState.total)

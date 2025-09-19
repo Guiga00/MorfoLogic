@@ -16,6 +16,7 @@ const AppState = {
     stars: 0,
     errors: 0,
     startTime: 0,
+    clickCount: 0,
     timer: null,
   },
 };
@@ -183,53 +184,52 @@ function loadData(username) {
 // }
 
 function navigate(screenId) {
-    const currentScreen = document.getElementById(AppState.currentScreen);
-    const nextScreen = document.getElementById(screenId);
-    const bottomMenu = document.getElementById('memory-bottom-menu');
+  const currentScreen = document.getElementById(AppState.currentScreen);
+  const nextScreen = document.getElementById(screenId);
+  const bottomMenu = document.getElementById("memory-bottom-menu");
 
-    // --- Outgoing Animations ---
-    if (currentScreen && currentScreen !== nextScreen) {
-        currentScreen.classList.add("fade-out");
-        // If we are leaving the game screen, start the menu's fade-out animation
-        if (currentScreen.id === 'game-screen') {
-            bottomMenu.classList.remove('menu-fade-in'); // Clean up old class
-            bottomMenu.classList.add('menu-fade-out');
-        }
-
-        // --- Wait for animations to finish ---
-        setTimeout(() => {
-            currentScreen.classList.add("hidden");
-            currentScreen.classList.remove("fade-out");
-            // Hide the menu completely after its animation is done
-            if (currentScreen.id === 'game-screen') {
-                bottomMenu.classList.add('hidden');
-            }
-
-            // --- Incoming Animations ---
-            if (nextScreen) {
-                nextScreen.classList.remove("hidden");
-                nextScreen.classList.add("fade-in");
-                // If we are entering the game screen, start the menu's fade-in animation
-                if (nextScreen.id === 'game-screen') {
-                    bottomMenu.classList.remove('hidden', 'menu-fade-out'); // Clean up and show
-                    bottomMenu.classList.add('menu-fade-in');
-                }
-                setTimeout(() => nextScreen.classList.remove("fade-in"), 300);
-            }
-        }, 300); // This duration must match your CSS animation time
-
-    } else if (nextScreen) {
-        // This handles the very first navigation (e.g., from login)
-        nextScreen.classList.remove("hidden");
-        nextScreen.classList.add("fade-in");
-        if (nextScreen.id === 'game-screen') {
-            bottomMenu.classList.remove('hidden', 'menu-fade-out');
-            bottomMenu.classList.add('menu-fade-in');
-        }
-        setTimeout(() => nextScreen.classList.remove("fade-in"), 300);
+  // --- Outgoing Animations ---
+  if (currentScreen && currentScreen !== nextScreen) {
+    currentScreen.classList.add("fade-out");
+    // If we are leaving the game screen, start the menu's fade-out animation
+    if (currentScreen.id === "game-screen") {
+      bottomMenu.classList.remove("menu-fade-in"); // Clean up old class
+      bottomMenu.classList.add("menu-fade-out");
     }
 
-    AppState.currentScreen = screenId;
+    // --- Wait for animations to finish ---
+    setTimeout(() => {
+      currentScreen.classList.add("hidden");
+      currentScreen.classList.remove("fade-out");
+      // Hide the menu completely after its animation is done
+      if (currentScreen.id === "game-screen") {
+        bottomMenu.classList.add("hidden");
+      }
+
+      // --- Incoming Animations ---
+      if (nextScreen) {
+        nextScreen.classList.remove("hidden");
+        nextScreen.classList.add("fade-in");
+        // If we are entering the game screen, start the menu's fade-in animation
+        if (nextScreen.id === "game-screen") {
+          bottomMenu.classList.remove("hidden", "menu-fade-out"); // Clean up and show
+          bottomMenu.classList.add("menu-fade-in");
+        }
+        setTimeout(() => nextScreen.classList.remove("fade-in"), 300);
+      }
+    }, 300); // This duration must match your CSS animation time
+  } else if (nextScreen) {
+    // This handles the very first navigation (e.g., from login)
+    nextScreen.classList.remove("hidden");
+    nextScreen.classList.add("fade-in");
+    if (nextScreen.id === "game-screen") {
+      bottomMenu.classList.remove("hidden", "menu-fade-out");
+      bottomMenu.classList.add("menu-fade-in");
+    }
+    setTimeout(() => nextScreen.classList.remove("fade-in"), 300);
+  }
+
+  AppState.currentScreen = screenId;
 }
 
 function showModal(modalId) {
@@ -320,7 +320,8 @@ function startGame(type, phase) {
     score: 0,
     stars: 0,
     errors: 0,
-    startTime: 0,
+    startTime: Date.now(),
+    clickCount: 0,
     timer: null,
   };
   updateGameUI();
@@ -381,25 +382,48 @@ function showPhaseEndModal(isSuccess = true) {
   if (isSuccess) {
     GameAudio.play("success");
     modalTitle.textContent = `Fase ${phase} Concluída!`;
-    if (type === "memory") {
-      pointsEarned = stars * 10;
-      modalScore.textContent = `Você conseguiu ${stars} estrela(s), ganhando ${pointsEarned} pontos.`;
-      if (stars === 3) {
-        pointsEarned += 20;
-        modalBonus.textContent =
-          "Bônus de +20 pontos pela performance perfeita!";
-      } else {
-        modalBonus.textContent = "";
-      }
-    } else {
-      pointsEarned = score;
-      modalScore.textContent = `Sua pontuação foi: ${pointsEarned} pontos.`;
-      if (errors === 0 && (type === "ligar" || type === "genius")) {
-        pointsEarned += 20;
-        modalBonus.textContent = "Bônus de +20 pontos por nenhum erro!";
-      } else {
-        modalBonus.textContent = "";
-      }
+
+    //calcular dos pontos ganho (toda a lógica de pontuação é implementada aqui)
+    if (type === "memory" || type === "genius" || type === "ligar") {
+      const { type, phase, clickCount, startTime } = AppState.currentGame;
+
+      // 1. Calcular o tempo que passou em segundos
+      const endTime = Date.now();
+      const elapsedTimeInSeconds = (endTime - startTime) / 1000;
+
+      // 2. Buscar o Fator de Dificuldade
+      const gameLevelConfig = GameConfig[type].levels.find(
+        (level) => level.phase === phase
+      );
+      const difficultyFactor = gameLevelConfig
+        ? gameLevelConfig.difficultyFactor
+        : 1;
+
+      // 3. Calculo de pontuação
+      const basePoints = 100;
+      const initialScore = basePoints * difficultyFactor;
+      const timePenalty = elapsedTimeInSeconds * difficultyFactor;
+      const clickPenalty = clickCount * difficultyFactor;
+
+      let finalScore = initialScore - timePenalty - clickPenalty;
+      pointsEarned = Math.max(0, Math.round(finalScore)); // pontuação não seja negativa e arredonda
+
+      // Calcular os pontos ganhos (antigo)
+      // pointsEarned = stars * 10; // cálculo de pontos ganho da fase
+
+      //modal antigo para o pop up
+      //modal (pop up) de fim de fase com as estrelas e pontuação final
+
+      // 6. Atualizar o texto do modal com as novas informações
+      modalScore.textContent = `Sua pontuação final foi de ${pointsEarned} pontos!`;
+
+      modalBonus.innerHTML = `
+        <div style="text-align: left; display: inline-block;">
+          Pontuação Base: ${Math.round(initialScore)}<br>
+          Perda por Tempo: -${Math.round(timePenalty)}<br>
+          Perda por Cliques: -${Math.round(clickPenalty)}
+        </div>
+`;
     }
     if (phase >= (AppState.progress[type] || 0)) {
       AppState.progress[type] = phase;
@@ -413,6 +437,8 @@ function showPhaseEndModal(isSuccess = true) {
     }
     modalBonus.textContent = "";
   }
+
+  // Atualiza a pontuação geral e salva os dados
   AppState.generalScore += pointsEarned;
   saveData();
   if (isLastPhase && isSuccess) {
