@@ -2,15 +2,7 @@
  * js/memory.js
  */
 
-let memoryTimerInterval = null;
-let memoryTimerEnd = null;
-let memoryTimerPaused = false;
-let memoryTimerRemaining = 0;
-
-let previewTimerInterval = null;
-let previewTimerEnd = null;
-let previewTimerRemaining = 0;
-let previewTimerPaused = false;
+let memoryState = {};
 
 function formatTime(ms) {
   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
@@ -21,92 +13,60 @@ function formatTime(ms) {
     .padStart(2, '0')}`;
 }
 
-function updatePreviewTimer() {
-  let remaining;
-  if (previewTimerPaused) {
-    remaining = previewTimerRemaining;
-  } else {
-    remaining = Math.max(0, previewTimerEnd - Date.now());
-    previewTimerRemaining = remaining;
-  }
-  const timerEl = document.getElementById('game-timer'); // ID Genérico
-  if (timerEl) {
-    timerEl.textContent = formatTime(remaining);
-  }
-}
+// Objeto para criar e controlar temporizadores
+function createTimer(duration, onUpdate, onEnd) {
+  let timerId = null;
+  let remaining = duration;
+  let endTime = Date.now() + remaining;
+  let isPaused = false;
 
-function startPreviewTimer(duration) {
-  clearInterval(previewTimerInterval);
-  previewTimerPaused = false;
-  previewTimerEnd = Date.now() + duration;
-  previewTimerRemaining = duration;
-  updatePreviewTimer();
-  previewTimerInterval = setInterval(updatePreviewTimer, 100);
-}
+  function update() {
+    if (!isPaused) {
+      remaining = Math.max(0, endTime - Date.now());
+      onUpdate(remaining);
+      if (remaining <= 0) {
+        stop();
+        if (onEnd) onEnd();
+      }
+    }
+  }
 
-function pausePreviewTimer() {
-  if (!previewTimerPaused) {
-    previewTimerPaused = true;
-    clearInterval(previewTimerInterval);
+  function stop() {
+    clearInterval(timerId);
+    timerId = null;
   }
-}
 
-function resumePreviewTimer() {
-  if (previewTimerPaused) {
-    previewTimerPaused = false;
-    previewTimerEnd = Date.now() + previewTimerRemaining;
-    previewTimerInterval = setInterval(updatePreviewTimer, 100);
+  function pause() {
+    isPaused = true;
   }
-}
 
-function updateMemoryTimer() {
-  let remaining;
-  if (memoryTimerPaused) {
-    remaining = memoryTimerRemaining;
-  } else {
-    remaining = Math.max(0, memoryTimerEnd - Date.now());
+  function resume() {
+    isPaused = false;
+    endTime = Date.now() + remaining;
   }
-  const timerEl = document.getElementById('game-timer'); // ID Genérico
-  if (timerEl) {
-    timerEl.textContent = formatTime(remaining);
-  }
-  if (!memoryTimerPaused && remaining <= 0) {
-    clearInterval(memoryTimerInterval);
-    if (typeof showPhaseEndModal === 'function') showPhaseEndModal(false);
-    memoryState.lockBoard = true;
-  }
-}
 
-function startMemoryTimer(minutes) {
-  clearInterval(memoryTimerInterval);
-  memoryTimerPaused = false;
-  memoryTimerEnd = Date.now() + minutes * 60000;
-  updateMemoryTimer();
-  memoryTimerInterval = setInterval(updateMemoryTimer, 1000);
+  timerId = setInterval(update, 100);
+  update();
+
+  return { pause, resume, stop };
 }
 
 // Funções globais para serem chamadas pelo main.js
 window.pauseMemoryTimer = function () {
-  if (!memoryTimerPaused) {
-    memoryTimerPaused = true;
-    memoryTimerRemaining = Math.max(0, memoryTimerEnd - Date.now());
-    clearInterval(memoryTimerInterval);
-    updateMemoryTimer();
-    if (memoryState) memoryState.lockBoard = true;
-  }
+  if (memoryState.previewTimer) memoryState.previewTimer.pause();
+  if (memoryState.gameTimer) memoryState.gameTimer.pause();
+  memoryState.lockBoard = true;
 };
 
 window.resumeMemoryTimer = function () {
-  if (memoryTimerPaused) {
-    memoryTimerPaused = false;
-    memoryTimerEnd = Date.now() + memoryTimerRemaining;
-    updateMemoryTimer();
-    memoryTimerInterval = setInterval(updateMemoryTimer, 1000);
-    if (memoryState) memoryState.lockBoard = false;
+  if (memoryState.previewTimer) memoryState.previewTimer.resume();
+  if (memoryState.gameTimer) memoryState.gameTimer.resume();
+
+  // CORREÇÃO: Só destranca o tabuleiro se o jogo principal já tiver começado
+  if (memoryState.gameTimer) {
+    memoryState.lockBoard = false;
   }
 };
-
-let memoryState = {};
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -171,7 +131,6 @@ function generateBoardHTML(items, phase) {
 function shuffleAnimation(cards) {
   const boardContainer = document.querySelector('.memory-board-container');
   const initialPositions = new Map();
-
   cards.forEach((card) => {
     initialPositions.set(card, card.getBoundingClientRect());
   });
@@ -195,10 +154,8 @@ function shuffleAnimation(cards) {
   cards.forEach((card) => {
     const finalRect = card.getBoundingClientRect();
     const initialRect = initialPositions.get(card);
-
     const deltaX = initialRect.left - finalRect.left;
     const deltaY = initialRect.top - finalRect.top;
-
     card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
   });
 
@@ -223,12 +180,6 @@ function removeStar() {
 }
 
 function initMemoryGame(phase) {
-  clearInterval(memoryTimerInterval);
-  clearInterval(previewTimerInterval);
-  memoryTimerEnd = null;
-  previewTimerPaused = false;
-  memoryTimerPaused = false;
-
   const classes = getClassesForPhase(phase);
   const boardElement = document.getElementById('game-board');
 
@@ -266,6 +217,8 @@ function initMemoryGame(phase) {
     lockBoard: true,
     matches: 0,
     totalPairs: classes.length,
+    previewTimer: null,
+    gameTimer: null,
   };
 
   boardElement.innerHTML = generateBoardHTML(items, phase);
@@ -282,10 +235,7 @@ function initMemoryGame(phase) {
   const { timerMinutes, previewTime } =
     GameConfig.memory.levels.find((l) => l.phase === phase) || {};
 
-  startPreviewTimer(previewTime || 10000);
-
   function handlePreviewEnd() {
-    clearInterval(previewTimerInterval);
     cards.forEach((card) => card.classList.remove('flipped'));
     document.getElementById('game-message').textContent = 'Embaralhando...';
 
@@ -295,17 +245,35 @@ function initMemoryGame(phase) {
         memoryState.lockBoard = false;
         document.getElementById('game-message').textContent =
           'Encontre os pares!';
-        startMemoryTimer(timerMinutes || 3);
+        memoryState.gameTimer = createTimer(
+          (timerMinutes || 3) * 60000,
+          (remaining) => {
+            const timerEl = document.getElementById('game-timer');
+            if (timerEl) timerEl.textContent = formatTime(remaining);
+          },
+          () => {
+            memoryState.lockBoard = true;
+            showPhaseEndModal(false);
+          }
+        );
       }, 800);
     }, 600);
   }
 
-  const checkPreviewEndInterval = setInterval(() => {
-    if (previewTimerRemaining <= 0 && !previewTimerPaused) {
-      clearInterval(checkPreviewEndInterval);
-      handlePreviewEnd();
-    }
-  }, 100);
+  memoryState.previewTimer = createTimer(
+    previewTime || 10000,
+    (remaining) => {
+      const timerEl = document.getElementById('game-timer');
+      if (timerEl) timerEl.textContent = formatTime(remaining);
+    },
+    handlePreviewEnd
+  );
+
+  return function cleanupMemoryGame() {
+    if (memoryState.previewTimer) memoryState.previewTimer.stop();
+    if (memoryState.gameTimer) memoryState.gameTimer.stop();
+    memoryState = {}; // Limpa o estado
+  };
 }
 
 function handleMemoryClick(cardElement) {
@@ -346,8 +314,7 @@ function checkForMemoryMatch() {
     secondPick.el.classList.add('card-matched');
     resetMemoryTurn();
     if (memoryState.matches === memoryState.totalPairs) {
-      if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
-      clearInterval(memoryTimerInterval);
+      if (memoryState.gameTimer) memoryState.gameTimer.stop();
       setTimeout(() => showPhaseEndModal(true), 500);
     }
   } else {
@@ -362,7 +329,7 @@ function checkForMemoryMatch() {
     if (AppState.currentGame.stars === 0) {
       document.getElementById('game-message').textContent =
         'Você perdeu todas as estrelas!';
-      if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
+      if (memoryState.gameTimer) memoryState.gameTimer.stop();
       setTimeout(() => showPhaseEndModal(false), 1500);
     }
     setTimeout(() => {

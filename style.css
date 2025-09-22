@@ -16,6 +16,7 @@
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 99;
+  /* The overlay has a z-index of 99 */
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s, visibility 0.3s;
@@ -28,7 +29,7 @@
   pointer-events: auto;
 }
 
-/* --- ESTILOS GENÉRICOS DA TELA DE JOGO --- */
+/* --- GENERIC GAME SCREEN STYLES --- */
 #game-top-menu {
   border-bottom: 1px solid #e0e0e0;
   min-height: 48px;
@@ -61,17 +62,16 @@
   accent-color: #386ccc;
 }
 
-/* --- ANIMAÇÃO CORRIGIDA DO MENU INFERIOR --- */
 #game-bottom-menu {
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
-  /* O menu começa escondido e fora da tela para evitar o "teleporte" */
-  visibility: hidden;
+  transition: transform 0.3s ease-out;
   transform: translateY(100%);
+  z-index: 100;
+  /* THE FIX IS HERE: This ensures the menu is above the overlay */
 }
 
 #game-bottom-menu.menu-visible {
-  /* Quando visível, a animação de subida é aplicada */
-  animation: slideUp 0.3s ease-out forwards;
+  transform: translateY(0);
 }
 
 #game-playpause-btn {
@@ -87,7 +87,7 @@
   background: #d2f2ff;
 }
 
-/* --- ESTILOS DE FUNDO E GERAIS --- */
+/* --- BACKGROUND AND GENERAL STYLES --- */
 :root {
   --card-size-mobile: 80px;
   --card-gap-mobile: 4px;
@@ -147,7 +147,7 @@ body::after {
   padding-left: 0;
 }
 
-/* --- ESTILOS DO JOGO DA MEMÓRIA --- */
+/* --- MEMORY GAME STYLES --- */
 .memory-board-container {
   display: grid;
   justify-content: center;
@@ -268,10 +268,47 @@ body::after {
   z-index: 0;
 }
 
-/* --- ESTILOS DO JOGO GENIUS E DRAG-DROP --- */
-.genius-symbol.lit {
-  filter: brightness(1.2) drop-shadow(0 0 15px #facc15);
-  transform: scale(1.05);
+/* --- GENIUS GAME & DRAG-DROP STYLES --- */
+
+.symbol-placeholder {
+  background-color: transparent;
+  border-radius: 0.5rem;
+  transition: background-color 0.4s ease-in;
+}
+
+.symbol-placeholder>img {
+  transition: opacity 0.1s ease-in;
+  opacity: 1;
+}
+
+.symbol-placeholder.is-fading {
+  background-color: #e7e5e4;
+}
+
+.symbol-placeholder.is-fading>img {
+  opacity: 0;
+}
+
+#genius-phrase.rearranging>div {
+  transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.symbol-flying {
+  position: fixed;
+  width: 48px;
+  height: 48px;
+  z-index: 2000;
+  pointer-events: none;
+  transition: transform 1.2s ease-in-out, opacity 1.2s ease-in-out;
+  opacity: 1;
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 0.25rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+#genius-symbols-bank .genius-symbol {
+  transition: opacity 0.5s ease-in;
 }
 
 .draggable {
@@ -300,7 +337,7 @@ body::after {
   }
 }
 
-/* --- ANIMAÇÕES GERAIS --- */
+/* --- GENERAL ANIMATIONS --- */
 .fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }
@@ -331,49 +368,4 @@ body::after {
     opacity: 0;
     transform: scale(0.98);
   }
-}
-
-/* Keyframes para a animação de deslizar do menu inferior */
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    visibility: visible;
-  }
-
-  to {
-    transform: translateY(0);
-    visibility: visible;
-  }
-}
-
-/* --- NOVAS ANIMAÇÕES DO JOGO GENIUS --- */
-
-/* Transição suave para as palavras se reorganizando */
-#genius-phrase.rearranging > div {
-  transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-}
-
-/* Transição para o placeholder do símbolo desaparecer */
-.symbol-placeholder {
-  transition: opacity 1s ease;
-}
-
-/* Símbolo temporário que voa para o banco */
-.symbol-flying {
-  position: fixed;
-  width: 48px;
-  height: 48px;
-  z-index: 2000;
-  pointer-events: none;
-  transition: transform 1s ease-in-out, opacity 1s ease-in-out;
-  opacity: 1;
-  background-color: white;
-  border-radius: 0.5rem;
-  padding: 0.25rem;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-}
-
-/* Transição suave para os símbolos aparecerem no banco */
-#genius-symbols-bank .genius-symbol {
-  transition: opacity 0.5s ease-in;
 }

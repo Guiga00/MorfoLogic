@@ -91,7 +91,6 @@ const USERS = {
   diretora: 'admin',
 };
 const SESSION_DURATION_MINUTES = 15;
-let geniusSequenceInterval = null;
 const GENIUS_PHRASES = {
   1: [
     { word: 'Encontramos', classId: 4 },
@@ -164,7 +163,6 @@ function loadData(username) {
 function navigate(screenId) {
   const currentScreen = document.getElementById(AppState.currentScreen);
   const nextScreen = document.getElementById(screenId);
-  const bottomMenu = document.getElementById('game-bottom-menu');
 
   // Animação de saída
   if (currentScreen && currentScreen !== nextScreen) {
@@ -172,12 +170,11 @@ function navigate(screenId) {
       currentScreen.id === 'game-screen'
         ? currentScreen.querySelector('#game-content-wrapper')
         : currentScreen;
-
-    contentToAnimate.classList.add('fade-out');
+    if (contentToAnimate) contentToAnimate.classList.add('fade-out');
 
     setTimeout(() => {
       currentScreen.classList.add('hidden');
-      contentToAnimate.classList.remove('fade-out');
+      if (contentToAnimate) contentToAnimate.classList.remove('fade-out');
 
       // Animação de entrada
       if (nextScreen) {
@@ -187,18 +184,29 @@ function navigate(screenId) {
             : nextScreen;
 
         nextScreen.classList.remove('hidden');
-        nextContentToAnimate.classList.add('fade-in');
-        setTimeout(() => nextContentToAnimate.classList.remove('fade-in'), 300);
+        if (nextContentToAnimate) {
+          nextContentToAnimate.classList.add('fade-in');
+          setTimeout(
+            () => nextContentToAnimate.classList.remove('fade-in'),
+            300
+          );
+        }
       }
     }, 300);
   } else if (nextScreen) {
-    // Caso inicial (login)
     nextScreen.classList.remove('hidden');
-    nextScreen.classList.add('fade-in');
-    setTimeout(() => nextScreen.classList.remove('fade-in'), 300);
+    const nextContentToAnimate =
+      nextScreen.id === 'game-screen'
+        ? nextScreen.querySelector('#game-content-wrapper')
+        : nextScreen;
+    if (nextContentToAnimate) {
+      nextContentToAnimate.classList.add('fade-in');
+      setTimeout(() => nextContentToAnimate.classList.remove('fade-in'), 300);
+    }
   }
 
   // Controlo do menu inferior
+  const bottomMenu = document.getElementById('game-bottom-menu');
   if (bottomMenu) {
     if (screenId === 'game-screen') {
       bottomMenu.classList.add('menu-visible');
@@ -229,6 +237,7 @@ function startSessionTimer() {
     SESSION_DURATION_MINUTES * 60 * 1000
   );
 }
+
 function goBackToLogin(isExpired = false) {
   DraggableManager.cleanup();
   if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
@@ -238,7 +247,6 @@ function goBackToLogin(isExpired = false) {
   AppState.progress = { memory: 0, genius: 0, ligar: 0 };
   AppState.gameActive = false;
   clearTimeout(AppState.sessionTimer);
-  clearInterval(geniusSequenceInterval);
   document.getElementById('username').value = '';
   document.getElementById('password').value = '';
   document.getElementById('login-error').textContent = '';
@@ -248,11 +256,9 @@ function goToGameSelection() {
   DraggableManager.cleanup();
   if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
   closeModal(document.getElementById('phase-end-modal'));
-  const scoreEl = document.getElementById('general-score');
-  if (scoreEl) {
-    scoreEl.textContent = AppState.generalScore;
-  }
-  clearInterval(geniusSequenceInterval);
+  if (document.getElementById('general-score'))
+    document.getElementById('general-score').textContent =
+      AppState.generalScore;
   navigate('game-selection-screen');
 }
 function openPhaseSelectionModal(gameType) {
@@ -370,6 +376,7 @@ function startGame(type, phase) {
 }
 function restartPhase() {
   DraggableManager.cleanup();
+  if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
   startGame(AppState.currentGame.type, AppState.currentGame.phase);
 }
 
