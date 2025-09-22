@@ -3,6 +3,7 @@
  */
 
 function TopMenuComponent() {
+  // Menu superior com controle de volume, timer e botão de fechar
   return `
     <div id="game-top-menu" class="flex items-center justify-between bg-white rounded-t-2xl shadow-lg px-4 py-2 mb-2">
       <div class="flex items-center gap-2">
@@ -23,6 +24,7 @@ function TopMenuComponent() {
 }
 
 function BottomMenuComponent() {
+  // Menu inferior com botão de play/pause
   return `
     <div id="game-bottom-menu" class="fixed left-0 bottom-0 w-full flex items-center justify-center py-3 z-50"
          style="background-color: #00327d;">
@@ -36,6 +38,7 @@ function BottomMenuComponent() {
 }
 
 function GameScreenComponent(title, phase) {
+  // Componente principal da tela do jogo
   // O #game-content-wrapper agora envolve o conteúdo que deve ter o "fade".
   // O BottomMenuComponent fica fora.
   return `

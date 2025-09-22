@@ -1,11 +1,9 @@
-// ...existing code...
 const GameConfig = {
   /**
    * Arquivo Central de Configuração do Jogo
    * Contém todos os parâmetros para os minijogos, fases, pontuação, etc.
    */
   // Configurações globais ou de áudio podem vir aqui no futuro
-  // ...existing code...
 
   memory: {
     // Parâmetros específicos do Jogo da Memória
@@ -16,7 +14,7 @@ const GameConfig = {
         classIds: [1, 3, 2, 10], // substantivo, adjetivo, artigo, numeral
         previewTime: 10000, // 10 segundos
         pointsMultiplier: 1, // Exemplo para pontuação futura
-        timerMinutes: 15, // Tempo da fase 1
+        timerMinutes: 3, // Tempo da fase 1
         difficultyFactor: 1, // Fator de dificuldade para lógica futura
       },
       {
@@ -25,7 +23,7 @@ const GameConfig = {
         classIds: [1, 3, 2, 10, 5, 4, 6], // + pronome, verbo, advérbio
         previewTime: 15000, // 15 segundos
         pointsMultiplier: 1.5,
-        timerMinutes: 15, // Tempo da fase 2
+        timerMinutes: 5, // Tempo da fase 2
         difficultyFactor: 1.5, // Fator de dificuldade para lógica futura
       },
       {
@@ -34,7 +32,7 @@ const GameConfig = {
         classIds: [1, 3, 2, 10, 5, 4, 6, 7, 8, 9], // + preposição, conjunção, interjeição
         previewTime: 15000, // 15 segundos
         pointsMultiplier: 2,
-        timerMinutes: 15, // Tempo da fase 3
+        timerMinutes: 10, // Tempo da fase 3
         difficultyFactor: 2, // Fator de dificuldade para lógica futura
       },
     ],
