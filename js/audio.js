@@ -13,16 +13,16 @@ const GameAudio = {
     try {
       // **ADICIONE AQUI O CAMINHO PARA SEUS ARQUIVOS .MP3**
       this.audios = {
-        flip: new Audio(""),
-        match: new Audio(""),
-        error: new Audio(""),
-        success: new Audio(""),
-        genius: new Audio(""), // Som único para o Genius
+        flip: new Audio(''),
+        match: new Audio(''),
+        error: new Audio(''),
+        success: new Audio(''),
+        genius: new Audio(''), // Som único para o Genius
       };
       this.isInitialized = true;
-      console.log("Módulo de áudio preparado.");
+      console.log('Módulo de áudio preparado.');
     } catch (error) {
-      console.error("Erro ao preparar o áudio:", error);
+      console.error('Erro ao preparar o áudio:', error);
     }
   },
 

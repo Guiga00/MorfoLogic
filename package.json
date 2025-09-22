@@ -1,0 +1,28 @@
+{
+  "name": "morfologic",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Guiga00/MorfoLogic.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Guiga00/MorfoLogic/issues"
+  },
+  "homepage": "https://github.com/Guiga00/MorfoLogic#readme",
+  "devDependencies": {
+    "@eslint/css": "^0.11.1",
+    "@eslint/js": "^9.36.0",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "^16.4.0",
+    "prettier": "3.6.2"
+  }
+}
