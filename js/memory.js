@@ -137,20 +137,19 @@ function shuffleAnimation(cards) {
 
   boardContainer.classList.remove('preview-mode');
 
-  const columnsAndPairs = boardContainer.querySelectorAll(
-    '.memory-column, .card-pair'
-  );
-  columnsAndPairs.forEach((el) => {
-    while (el.firstChild) {
-      boardContainer.appendChild(el.firstChild);
-    }
-    el.remove();
+  // Limpa completamente o conteúdo do board para evitar duplicação
+  while (boardContainer.firstChild) {
+    boardContainer.removeChild(boardContainer.firstChild);
+  }
+
+  // Embaralha e reanexa os cards
+  const shuffledCards = Array.from(cards);
+  shuffleArray(shuffledCards);
+  shuffledCards.forEach((card) => {
+    boardContainer.appendChild(card);
   });
 
-  shuffleArray(Array.from(cards)).forEach((card) =>
-    boardContainer.appendChild(card)
-  );
-
+  // Animação de transição
   cards.forEach((card) => {
     const finalRect = card.getBoundingClientRect();
     const initialRect = initialPositions.get(card);
@@ -210,6 +209,10 @@ function initMemoryGame(phase) {
     ];
   });
 
+  // Limpa timers antigos antes de resetar o estado
+  if (memoryState.previewTimer) memoryState.previewTimer.stop();
+  if (memoryState.gameTimer) memoryState.gameTimer.stop();
+
   memoryState = {
     items,
     firstPick: null,
@@ -223,6 +226,12 @@ function initMemoryGame(phase) {
 
   boardElement.innerHTML = generateBoardHTML(items, phase);
 
+  // Remove event listeners antigos (se houver)
+  const oldCards = boardElement.querySelectorAll('.card');
+  oldCards.forEach((card) => {
+    card.replaceWith(card.cloneNode(true));
+  });
+
   const cards = boardElement.querySelectorAll('.card');
 
   cards.forEach((card) => {
@@ -231,6 +240,14 @@ function initMemoryGame(phase) {
 
   cards.forEach((card) => card.classList.add('flipped'));
   document.getElementById('game-message').textContent = 'Memorize os pares!';
+
+  // Reinicia o texto do cronômetro ao entrar na fase
+  const timerEl = document.getElementById('game-timer');
+  if (timerEl)
+    timerEl.textContent = formatTime(
+      (GameConfig.memory.levels.find((l) => l.phase === phase)?.timerMinutes ||
+        3) * 60000
+    );
 
   const { timerMinutes, previewTime } =
     GameConfig.memory.levels.find((l) => l.phase === phase) || {};
@@ -245,6 +262,11 @@ function initMemoryGame(phase) {
         memoryState.lockBoard = false;
         document.getElementById('game-message').textContent =
           'Encontre os pares!';
+
+        // Garante que não há múltiplos timers
+        if (memoryState.gameTimer) memoryState.gameTimer.stop();
+
+        // Sempre busca o elemento do timer após possíveis mudanças no DOM
         memoryState.gameTimer = createTimer(
           (timerMinutes || 3) * 60000,
           (remaining) => {
@@ -260,6 +282,9 @@ function initMemoryGame(phase) {
     }, 600);
   }
 
+  // Garante que o timer não será duplicado
+  if (memoryState.previewTimer) memoryState.previewTimer.stop();
+  if (memoryState.gameTimer) memoryState.gameTimer.stop();
   memoryState.previewTimer = createTimer(
     previewTime || 10000,
     (remaining) => {
