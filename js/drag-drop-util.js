@@ -41,10 +41,18 @@ const DraggableManager = {
 
   dragStart(e) {
     if (this.draggedEl || this.isLocked) return;
+    // Impede drag se o símbolo já está em uma dropzone concluída
+    const el = e.currentTarget;
+    if (
+      el.parentElement &&
+      el.parentElement.classList.contains('ligar-dropzone') &&
+      el.parentElement.dataset.completed === 'true'
+    ) {
+      return;
+    }
     e.preventDefault();
     this.isLocked = true;
 
-    const el = e.currentTarget;
     const isTouchEvent = e.type.startsWith('touch');
     const startX = isTouchEvent ? e.touches[0].pageX : e.pageX;
     const startY = isTouchEvent ? e.touches[0].pageY : e.pageY;

@@ -222,10 +222,24 @@ function showModal(modalId) {
   const modal = document.getElementById(modalId);
   if (!modal) return;
   modal.classList.remove('hidden');
+  // Se for o modal de fim de fase, desabilita interação dos cards do minigame Ligar
+  if (modalId === 'phase-end-modal') {
+    const gameScreen = document.getElementById('game-screen');
+    if (gameScreen) {
+      gameScreen.classList.add('paused');
+    }
+  }
 }
 function closeModal(modal) {
   if (!modal) return;
   modal.classList.add('hidden');
+  // Se for o modal de fim de fase, reabilita interação dos cards do minigame Ligar
+  if (modal.id === 'phase-end-modal') {
+    const gameScreen = document.getElementById('game-screen');
+    if (gameScreen) {
+      gameScreen.classList.remove('paused');
+    }
+  }
 }
 function startSessionTimer() {
   clearTimeout(AppState.sessionTimer);

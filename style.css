@@ -1,3 +1,127 @@
+/* Placeholder invisível para centralizar última linha na grid do minigame Ligar */
+.ligar-placeholder {
+  visibility: hidden !important;
+  pointer-events: none;
+}
+/* --- LIGAR MINIGAME STYLES --- */
+.ligar-board-grid {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 80px; /* Espaçamento padrão entre as duas colunas principais */
+  width: 100%;
+}
+
+/* Espaçamento customizado por fase */
+.ligar-board-grid.fase1 {
+  gap: 24px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.ligar-board-grid.fase2 {
+  gap: 60px;
+}
+.ligar-board-grid.fase3 {
+  gap: 100px;
+}
+
+/* MODIFICADO para usar Flexbox e centralizar a última linha */
+.ligar-col-grid {
+  display: grid;
+  justify-content: center;
+  align-content: start;
+  gap: 24px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Grid dinâmica para cada fase */
+.ligar-col-classes-fase1,
+.ligar-col-symbols-fase1 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.ligar-col-classes-fase2,
+.ligar-col-symbols-fase2 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.ligar-col-classes-fase3,
+.ligar-col-symbols-fase3 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* --- CONTROLE DE COLUNAS POR FASE (AGORA COM FLEXBOX) --- */
+/* A lógica aqui é definir uma largura máxima para o container, 
+   forçando a quebra de linha após o número desejado de itens.
+   Cálculo: (Nº de colunas * largura do item) + ((Nº de colunas - 1) * gap)
+   Assumindo a largura do .ligar-dropzone de 96px. */
+
+/* Fase 1 -> 2 colunas */
+.ligar-col-classes-fase1,
+.ligar-col-symbols-fase1 {
+  max-width: 150px; /* (2 * 96px) + 24px */
+}
+
+/* Fase 2 -> 3 colunas */
+.ligar-col-classes-fase2,
+.ligar-col-symbols-fase2 {
+  max-width: 150px; /* (3 * 96px) + (2 * 24px) */
+}
+
+/* Fase 3 -> 4 colunas */
+.ligar-col-classes-fase3,
+.ligar-col-symbols-fase3 {
+  max-width: 456px; /* (4 * 96px) + (3 * 24px) */
+}
+
+/* --- ESTILOS DOS ITENS  --- */
+.ligar-class-item,
+.ligar-symbol-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ligar-class-label {
+  margin-bottom: 8px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.ligar-dropzone {
+  background: #f5f5f5;
+  border: 2px dashed #60a5fa;
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.genius-symbol.draggable {
+  width: 64px;
+  height: 64px;
+  padding: 4px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: grab;
+  transition: box-shadow 0.2s;
+  z-index: 10;
+}
+#phase-end-modal {
+  z-index: 200 !important;
+  pointer-events: auto !important;
+}
+
+.genius-symbol.draggable:active {
+  cursor: grabbing;
+}
+
 /**
  * style.css
  */
@@ -23,6 +147,35 @@
     opacity 0.3s,
     visibility 0.3s;
   pointer-events: none;
+}
+
+/* Quando o jogo está pausado, bloqueia interação visual e de ponteiro */
+#game-screen.paused {
+  pointer-events: none;
+  user-select: none;
+}
+#game-screen.paused #game-playpause-btn {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+/* Garante que o modal de fim de fase fique sempre clicável e acima do overlay */
+#phase-end-modal {
+  z-index: 200 !important;
+  pointer-events: auto !important;
+}
+#game-screen.paused .ligar-class-item,
+#game-screen.paused .ligar-symbol-item,
+#game-screen.paused .ligar-dropzone,
+#game-screen.paused .genius-symbol.draggable {
+  opacity: 0.45 !important;
+}
+.ligar-dropzone-correct {
+  background: rgba(34, 197, 94, 0.25) !important; /* verde translúcido */
+  border: 2px solid rgba(34, 197, 94, 0.5) !important;
+  transition:
+    background 0.2s,
+    border 0.2s;
 }
 
 #game-screen.paused::before {
@@ -257,7 +410,7 @@ body::after {
 .card-back {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  border-radius: 16px;
+  border-radius: 1px;
   border: 2px solid var(--card-border-color);
 }
 

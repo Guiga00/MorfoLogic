@@ -15,25 +15,141 @@ function initLigarGame(phase) {
   updateGameUI();
 
   const board = document.getElementById('game-board');
+  // Define a classe de colunas de acordo com a fase
+  let colClass = '';
+  let symbolColClass = '';
+  let classCols = 2;
+  let symbolCols = 2;
+  switch (phase) {
+    case 1:
+      colClass = 'ligar-col-classes-fase1';
+      symbolColClass = 'ligar-col-symbols-fase1';
+      classCols = 2;
+      symbolCols = 2;
+      break;
+    case 2:
+      colClass = 'ligar-col-classes-fase2';
+      symbolColClass = 'ligar-col-symbols-fase2';
+      classCols = 3;
+      symbolCols = 3;
+      break;
+    case 3:
+      colClass = 'ligar-col-classes-fase3';
+      symbolColClass = 'ligar-col-symbols-fase3';
+      classCols = 4;
+      symbolCols = 4;
+      break;
+    default:
+      colClass = 'ligar-col-classes-fase1';
+      symbolColClass = 'ligar-col-symbols-fase1';
+      classCols = 2;
+      symbolCols = 2;
+  }
+
+  // Função para centralizar apenas a última linha do grid
+  function addPlaceholders(arr, cols, itemHtml) {
+    let html = '';
+    const total = arr.length;
+    const fullRows = Math.floor(total / cols);
+    const remainder = total % cols;
+    // Adiciona linhas completas normalmente
+    for (let row = 0; row < fullRows; row++) {
+      for (let col = 0; col < cols; col++) {
+        html += itemHtml(arr[row * cols + col]);
+      }
+    }
+    // Última linha (incompleta)
+    if (remainder !== 0) {
+      const missing = cols - remainder;
+      const left = Math.floor(missing / 2);
+      const right = missing - left;
+      for (let i = 0; i < left; i++) {
+        html +=
+          '<div class="ligar-class-item ligar-placeholder" style="visibility:hidden"></div>';
+      }
+      for (let i = 0; i < remainder; i++) {
+        html += itemHtml(arr[fullRows * cols + i]);
+      }
+      for (let i = 0; i < right; i++) {
+        html +=
+          '<div class="ligar-class-item ligar-placeholder" style="visibility:hidden"></div>';
+      }
+    }
+    return html;
+  }
+
+  function addSymbolPlaceholders(arr, cols, itemHtml) {
+    let html = '';
+    const total = arr.length;
+    const fullRows = Math.floor(total / cols);
+    const remainder = total % cols;
+    // Adiciona linhas completas normalmente
+    for (let row = 0; row < fullRows; row++) {
+      for (let col = 0; col < cols; col++) {
+        html += itemHtml(arr[row * cols + col]);
+      }
+    }
+    // Última linha (incompleta)
+    if (remainder !== 0) {
+      const missing = cols - remainder;
+      const left = Math.floor(missing / 2);
+      const right = missing - left;
+      for (let i = 0; i < left; i++) {
+        html +=
+          '<div class="ligar-symbol-item ligar-placeholder" style="visibility:hidden"></div>';
+      }
+      for (let i = 0; i < remainder; i++) {
+        html += itemHtml(arr[fullRows * cols + i]);
+      }
+      for (let i = 0; i < right; i++) {
+        html +=
+          '<div class="ligar-symbol-item ligar-placeholder" style="visibility:hidden"></div>';
+      }
+    }
+    return html;
+  }
+
+  // Define a classe de fase para o espaçamento customizado
+  let faseClass = '';
+  switch (phase) {
+    case 1:
+      faseClass = 'fase1';
+      break;
+    case 2:
+      faseClass = 'fase2';
+      break;
+    case 3:
+      faseClass = 'fase3';
+      break;
+    default:
+      faseClass = '';
+  }
+
   board.innerHTML = `
-      <div class="flex flex-col md:flex-row justify-center items-center md:items-start w-full gap-8 md:gap-12">
-          <div id="ligar-classes" class="flex flex-col gap-4 w-full max-w-xs">${classes
-            .map(
-              (c) =>
-                `<div class="target bg-stone-200 w-full h-16 rounded-lg flex items-center justify-center font-bold text-center p-2" data-id="${c.id}">${c.name}</div>`
-            )
-            .join('')}</div>
-          <div id="ligar-symbols-bank" class="flex flex-row flex-wrap items-center justify-center gap-4 w-full max-w-xs">${symbols
-            .map(
-              (s) => `
-            <div class="genius-symbol draggable w-16 h-16 p-1 bg-white rounded-lg shadow cursor-grab active:cursor-grabbing" data-id="${
-              s.id
-            }">
-                ${s.symbol('w-full h-full pointer-events-none')}
+      <div class="ligar-board-grid ${faseClass}">
+        <div id="ligar-classes" class="ligar-col-grid ligar-col-classes ${colClass}">
+          ${addPlaceholders(
+            classes,
+            classCols,
+            (c) =>
+              `<div class="ligar-class-item">
+                <div class="ligar-class-label">${c.name}</div>
+                <div class="target ligar-dropzone" data-id="${c.id}"></div>
             </div>`
-            )
-            .join('')}
-          </div>
+          )}
+        </div>
+        <div id="ligar-symbols-bank" class="ligar-col-grid ligar-col-symbols ${symbolColClass}">
+          ${addSymbolPlaceholders(
+            symbols,
+            symbolCols,
+            (s) =>
+              `<div class="ligar-symbol-item">
+              <div class="genius-symbol draggable" data-id="${s.id}">
+                  ${s.symbol('')}
+              </div>
+            </div>`
+          )}
+        </div>
       </div>`;
   document.getElementById('game-message').textContent =
     'Arraste cada símbolo para sua classe.';
@@ -69,16 +185,13 @@ function handleLigarDrop(symbolEl, targetEl, placeholder, unlockCallback) {
     });
 
     setTimeout(() => {
-      targetEl.innerHTML = `<div class="flex items-center justify-center gap-4"><span>${targetEl.textContent.trim()}</span><div class="w-12 h-12">${
-        symbolEl.innerHTML
-      }</div></div>`;
-      targetEl.classList.replace('bg-stone-200', 'bg-green-200');
-      targetEl.classList.add('border-2', 'border-green-400');
+      // Insere o símbolo dentro da dropzone quadrada, mantendo o label acima
+      targetEl.innerHTML = '';
+      targetEl.appendChild(symbolEl);
+      targetEl.classList.remove('border-green-400');
+      targetEl.classList.add('ligar-dropzone-correct');
       targetEl.dataset.completed = 'true';
-      symbolEl.remove();
-
-      // AppState.currentGame.score +=
-      //   ligarState.errorsOnItem[droppedSymbolId] === 0 ? 10 : 5;
+      // AppState.currentGame.score += ligarState.errorsOnItem[droppedSymbolId] === 0 ? 10 : 5;
       ligarState.connections++;
       updateGameUI();
       if (ligarState.connections === ligarState.total)
