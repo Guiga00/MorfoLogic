@@ -262,11 +262,15 @@ function initMemoryGame(phase) {
         memoryState.lockBoard = false;
         document.getElementById('game-message').textContent =
           'Encontre os pares!';
-
+        // Exibe o timer da fase (força display padrão)
+        const timerEl = document.getElementById('game-timer');
+        if (timerEl) {
+          timerEl.style.display = '';
+          // Atualiza o texto do timer para o tempo total da fase
+          timerEl.textContent = formatTime((timerMinutes || 3) * 60000);
+        }
         // Garante que não há múltiplos timers
         if (memoryState.gameTimer) memoryState.gameTimer.stop();
-
-        // Sempre busca o elemento do timer após possíveis mudanças no DOM
         memoryState.gameTimer = createTimer(
           (timerMinutes || 3) * 60000,
           (remaining) => {
@@ -282,7 +286,60 @@ function initMemoryGame(phase) {
     }, 600);
   }
 
-  // Garante que o timer não será duplicado
+  // --- Integração com botão de pular ---
+  const skipBtn = document.getElementById('skip-timer-btn');
+  if (skipBtn) {
+    skipBtn.onclick = () => {
+      if (memoryState.previewTimer) memoryState.previewTimer.stop();
+      // Esconde timer e botão imediatamente
+      skipBtn.style.display = 'none';
+      const timerEl = document.getElementById('game-timer');
+      if (timerEl) timerEl.style.display = 'none';
+      handlePreviewEnd();
+    };
+  }
+
+  // Modificar handlePreviewEnd para esconder timer e botão ao fim do preview
+  const originalHandlePreviewEnd = handlePreviewEnd;
+  function wrappedHandlePreviewEnd() {
+    // Esconde timer e botão
+    if (skipBtn) skipBtn.style.display = 'none';
+    const timerEl = document.getElementById('game-timer');
+    if (timerEl) timerEl.style.display = 'none';
+    // Chama o original, mas injeta exibição do timer da fase no momento certo
+    cards.forEach((card) => card.classList.remove('flipped'));
+    document.getElementById('game-message').textContent = 'Embaralhando...';
+    setTimeout(() => {
+      shuffleAnimation(cards);
+      setTimeout(() => {
+        memoryState.lockBoard = false;
+        document.getElementById('game-message').textContent =
+          'Encontre os pares!';
+        // Exibe o timer da fase (força display padrão)
+        const timerEl = document.getElementById('game-timer');
+        if (timerEl) {
+          timerEl.style.display = '';
+          // Atualiza o texto do timer para o tempo total da fase
+          timerEl.textContent = formatTime((timerMinutes || 3) * 60000);
+        }
+        // Garante que não há múltiplos timers
+        if (memoryState.gameTimer) memoryState.gameTimer.stop();
+        memoryState.gameTimer = createTimer(
+          (timerMinutes || 3) * 60000,
+          (remaining) => {
+            const timerEl = document.getElementById('game-timer');
+            if (timerEl) timerEl.textContent = formatTime(remaining);
+          },
+          () => {
+            memoryState.lockBoard = true;
+            showPhaseEndModal(false);
+          }
+        );
+      }, 800);
+    }, 600);
+  }
+
+  // Substitui o onEnd do previewTimer para usar o wrapper
   if (memoryState.previewTimer) memoryState.previewTimer.stop();
   if (memoryState.gameTimer) memoryState.gameTimer.stop();
   memoryState.previewTimer = createTimer(
@@ -291,7 +348,7 @@ function initMemoryGame(phase) {
       const timerEl = document.getElementById('game-timer');
       if (timerEl) timerEl.textContent = formatTime(remaining);
     },
-    handlePreviewEnd
+    wrappedHandlePreviewEnd
   );
 
   return function cleanupMemoryGame() {

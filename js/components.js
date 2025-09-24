@@ -14,7 +14,12 @@ function TopMenuComponent() {
         </button>
       </div>
       <div class="flex items-center gap-2">
-        <div id="game-timer" class="text-base font-bold text-[#386ccc] mt-1">00:00</div>
+        <div class="flex items-center gap-2">
+          <div id="game-timer" class="text-base font-bold text-[#386ccc] mt-1">00:00</div>
+          <button id="skip-timer-btn" class="ml-2 px-3 py-1 bg-[#386ccc] text-white rounded shadow hover:bg-[#2a529f] transition text-sm font-semibold focus:outline-none" style="display:none;" title="Pular espera">
+            Pular
+          </button>
+        </div>
         <button id="game-close-btn" title="Fechar" class="text-red-600 hover:text-red-800 text-2xl font-bold focus:outline-none ml-2">
           &times;
         </button>

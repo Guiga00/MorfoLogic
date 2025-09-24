@@ -376,10 +376,24 @@ function startGame(type, phase) {
   setupGameUIListeners();
   navigate('game-screen');
 
+  // --- Timer inicial e botão de pular ---
+  const timerEl = document.getElementById('game-timer');
+  const skipBtn = document.getElementById('skip-timer-btn');
+
+  if (type === 'memory') {
+    // O botão e o timer serão controlados pelo próprio initMemoryGame
+    if (skipBtn) skipBtn.style.display = 'inline-block';
+    if (timerEl) timerEl.style.display = '';
+    initMemoryGame(phase);
+    return;
+  } else {
+    // Oculta o botão e o timer de preview para outros mini games
+    if (skipBtn) skipBtn.style.display = 'none';
+    if (timerEl) timerEl.style.display = 'none';
+  }
+
+  // Inicia diretamente o mini game sem timer de preview
   switch (type) {
-    case 'memory':
-      initMemoryGame(phase);
-      break;
     case 'genius':
       initGeniusGame(phase);
       break;

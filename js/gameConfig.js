@@ -39,16 +39,16 @@ const GameConfig = {
   },
   genius: {
     levels: [
-      { phase: 1, difficultyFactor: 1 },
-      { phase: 2, difficultyFactor: 1.5 },
-      { phase: 3, difficultyFactor: 2 },
+      { phase: 1, difficultyFactor: 1, timerMinutes: 3 },
+      { phase: 2, difficultyFactor: 1.5, timerMinutes: 5 },
+      { phase: 3, difficultyFactor: 2, timerMinutes: 10 },
     ],
   },
   ligar: {
     levels: [
-      { phase: 1, difficultyFactor: 1 },
-      { phase: 2, difficultyFactor: 1.5 },
-      { phase: 3, difficultyFactor: 2 },
+      { phase: 1, difficultyFactor: 1, timerMinutes: 3 },
+      { phase: 2, difficultyFactor: 1.5, timerMinutes: 5 },
+      { phase: 3, difficultyFactor: 2, timerMinutes: 10 },
     ],
   },
 };
