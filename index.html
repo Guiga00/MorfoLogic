@@ -224,6 +224,44 @@
       </div>
     </div>
 
+    <!-- Modal de Jogo Pausado -->
+    <div
+      id="game-paused-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4"
+      style="z-index: 150"
+    >
+      <div
+        class="bg-white p-8 rounded-2xl shadow-2xl text-center max-w-md w-full"
+      >
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 text-[#386ccc]">
+          ⏸️ Jogo Pausado
+        </h2>
+        <p class="text-lg text-stone-600 mb-6">
+          Seu progresso foi salvo. O que deseja fazer?
+        </p>
+        <div class="flex flex-col gap-3">
+          <button
+            id="resume-game-btn"
+            class="w-full bg-green-500 text-white font-bold py-3 rounded-lg hover:bg-green-600 transition"
+          >
+            Continuar Jogando
+          </button>
+          <button
+            id="restart-phase-btn"
+            class="w-full bg-red-500 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition"
+          >
+            Reiniciar Fase
+          </button>
+          <button
+            id="exit-to-menu-btn"
+            class="w-full bg-amber-500 text-white font-bold py-3 rounded-lg hover:bg-amber-600 transition"
+          >
+            Sair para Menu
+          </button>
+        </div>
+      </div>
+    </div>
+
     <div
       id="session-expired-modal"
       class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"

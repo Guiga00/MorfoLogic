@@ -14,6 +14,12 @@ function shuffleArray(array) {
 }
 
 function initGeniusGame(phase) {
+  // Limpa animações anteriores antes de iniciar
+  if (geniusState.animationTimeouts) {
+    geniusState.isTerminated = true;
+    geniusState.animationTimeouts.forEach(clearTimeout);
+  }
+
   const originalPhraseData = GENIUS_PHRASES[phase].map((word, index) => ({
     ...word,
     originalIndex: index,

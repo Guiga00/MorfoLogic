@@ -92,11 +92,11 @@ function createCardHTML(item, index) {
 
   return `
     <div class="card perspective-1000" data-index="${index}">
-      <div class="card-inner relative w-full h-full">
-        <div class="card-front absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2">
+      <div class="card-inner relative w-full h-full transition-transform duration-400 ease-in-out transform-style-preserve-3d">
+        <div class="card-front absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 backface-hidden">
           <img src="./assets/img/card-logo.svg" alt="Verso da Carta" class="w-full h-full object-contain">
         </div>
-        <div class="card-back absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 text-center font-bold text-xs sm:text-sm md:text-base">
+        <div class="card-back absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 text-center font-bold text-xs sm:text-sm md:text-base backface-hidden rotate-y-180">
           ${cardBackContent}
         </div>
       </div>
@@ -130,46 +130,78 @@ function generateBoardHTML(items, phase) {
 
 function shuffleAnimation(cards) {
   const boardContainer = document.querySelector('.memory-board-container');
+
+  // Captura as posições iniciais das cartas
   const initialPositions = new Map();
   cards.forEach((card) => {
     initialPositions.set(card, card.getBoundingClientRect());
   });
 
+  // Remove modo preview e desabilita interação
   boardContainer.classList.remove('preview-mode');
+  boardContainer.style.pointerEvents = 'none';
 
-  // Limpa completamente o conteúdo do board para evitar duplicação
+  // Remove estrutura de colunas e card-pairs para layout simples
+  const columnsAndPairs = boardContainer.querySelectorAll(
+    '.memory-column, .card-pair'
+  );
+  columnsAndPairs.forEach((el) => {
+    while (el.firstChild) {
+      boardContainer.appendChild(el.firstChild);
+    }
+    el.remove();
+  });
+
+  // Embaralha as cartas
+  const shuffledCards = Array.from(cards);
+  shuffleArray(shuffledCards);
+
+  // Limpa e reorganiza as cartas
   while (boardContainer.firstChild) {
     boardContainer.removeChild(boardContainer.firstChild);
   }
 
-  // Embaralha e reanexa os cards
-  const shuffledCards = Array.from(cards);
-  shuffleArray(shuffledCards);
   shuffledCards.forEach((card) => {
+    // Garante que carta esteja no estado correto (virada para frente)
+    const cardInner = card.querySelector('.card-inner');
+    cardInner.style.transition = 'transform 0.4s ease-in-out';
+    cardInner.style.transform = '';
+    card.classList.remove('flipped');
     boardContainer.appendChild(card);
   });
 
-  // Animação de transição
+  // Força layout para obter posições finais
+  boardContainer.offsetHeight;
+
+  // Animação FLIP: cada carta se move da posição inicial para final
   cards.forEach((card) => {
     const finalRect = card.getBoundingClientRect();
     const initialRect = initialPositions.get(card);
-    const deltaX = initialRect.left - finalRect.left;
-    const deltaY = initialRect.top - finalRect.top;
-    card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+    if (initialRect && finalRect) {
+      const deltaX = initialRect.left - finalRect.left;
+      const deltaY = initialRect.top - finalRect.top;
+
+      // Posiciona carta na posição inicial instantaneamente
+      card.style.transition = 'none';
+      card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+
+      // Anima para posição final
+      requestAnimationFrame(() => {
+        card.style.transition = 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+        card.style.transform = 'translate(0px, 0px)';
+      });
+    }
   });
 
-  void boardContainer.offsetWidth;
-
-  cards.forEach((card) => {
-    card.style.transition = 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
-    card.style.transform = '';
-  });
-
+  // Finaliza animação
   setTimeout(() => {
     cards.forEach((card) => {
       card.style.transition = '';
+      card.style.transform = '';
     });
-  }, 800);
+    boardContainer.style.pointerEvents = 'auto';
+  }, 700);
 }
 
 function removeStar() {
@@ -233,6 +265,8 @@ function initMemoryGame(phase) {
   });
 
   const cards = boardElement.querySelectorAll('.card');
+  const boardContainer = boardElement.querySelector('.memory-board-container');
+  const cardsArray = Array.from(cards);
 
   cards.forEach((card) => {
     card.addEventListener('click', () => handleMemoryClick(card));
@@ -252,38 +286,56 @@ function initMemoryGame(phase) {
   const { timerMinutes, previewTime } =
     GameConfig.memory.levels.find((l) => l.phase === phase) || {};
 
-  function handlePreviewEnd() {
-    cards.forEach((card) => card.classList.remove('flipped'));
-    document.getElementById('game-message').textContent = 'Embaralhando...';
-
-    setTimeout(() => {
-      shuffleAnimation(cards);
+  async function handlePreviewEnd() {
+    // Adicione 'async' aqui
+    // Fase 1: Virar as cartas para baixo de forma cascata (animação)
+    document.getElementById('game-message').textContent = 'Virando cartas...';
+    cardsArray.forEach((card, index) => {
       setTimeout(() => {
-        memoryState.lockBoard = false;
-        document.getElementById('game-message').textContent =
-          'Encontre os pares!';
-        // Exibe o timer da fase (força display padrão)
-        const timerEl = document.getElementById('game-timer');
-        if (timerEl) {
-          timerEl.style.display = '';
-          // Atualiza o texto do timer para o tempo total da fase
-          timerEl.textContent = formatTime((timerMinutes || 3) * 60000);
-        }
-        // Garante que não há múltiplos timers
-        if (memoryState.gameTimer) memoryState.gameTimer.stop();
-        memoryState.gameTimer = createTimer(
-          (timerMinutes || 3) * 60000,
-          (remaining) => {
-            const timerEl = document.getElementById('game-timer');
-            if (timerEl) timerEl.textContent = formatTime(remaining);
-          },
-          () => {
-            memoryState.lockBoard = true;
-            showPhaseEndModal(false);
+        const cardInner = card.querySelector('.card-inner');
+        cardInner.style.transition = 'transform 0.4s ease-in-out';
+        cardInner.style.transform = 'rotateY(0deg)';
+        card.classList.remove('flipped');
+      }, index * 50);
+    });
+
+    // Após todas as cartas virarem para baixo, inicia o embaralhamento
+    setTimeout(
+      () => {
+        document.getElementById('game-message').textContent = 'Embaralhando...';
+
+        // Chama a animação de embaralhamento
+        shuffleAnimation(cardsArray);
+
+        // Após o embaralhamento, libera o jogo
+        setTimeout(() => {
+          memoryState.lockBoard = false;
+          document.getElementById('game-message').textContent =
+            'Encontre os pares!';
+          // Exibe o timer da fase (força display padrão)
+          const timerEl = document.getElementById('game-timer');
+          if (timerEl) {
+            timerEl.style.display = '';
+            // Atualiza o texto do timer para o tempo total da fase
+            timerEl.textContent = formatTime((timerMinutes || 3) * 60000);
           }
-        );
-      }, 800);
-    }, 600);
+          // Garante que não há múltiplos timers
+          if (memoryState.gameTimer) memoryState.gameTimer.stop();
+          memoryState.gameTimer = createTimer(
+            (timerMinutes || 3) * 60000,
+            (remaining) => {
+              const timerEl = document.getElementById('game-timer');
+              if (timerEl) timerEl.textContent = formatTime(remaining);
+            },
+            () => {
+              memoryState.lockBoard = true;
+              showPhaseEndModal(false);
+            }
+          );
+        }, 800); // Tempo para animação de embaralhamento
+      },
+      cardsArray.length * 50 + 300
+    ); // Delay após cascata de virada
   }
 
   // --- Integração com botão de pular ---
@@ -299,47 +351,7 @@ function initMemoryGame(phase) {
     };
   }
 
-  // Modificar handlePreviewEnd para esconder timer e botão ao fim do preview
-  const originalHandlePreviewEnd = handlePreviewEnd;
-  function wrappedHandlePreviewEnd() {
-    // Esconde timer e botão
-    if (skipBtn) skipBtn.style.display = 'none';
-    const timerEl = document.getElementById('game-timer');
-    if (timerEl) timerEl.style.display = 'none';
-    // Chama o original, mas injeta exibição do timer da fase no momento certo
-    cards.forEach((card) => card.classList.remove('flipped'));
-    document.getElementById('game-message').textContent = 'Embaralhando...';
-    setTimeout(() => {
-      shuffleAnimation(cards);
-      setTimeout(() => {
-        memoryState.lockBoard = false;
-        document.getElementById('game-message').textContent =
-          'Encontre os pares!';
-        // Exibe o timer da fase (força display padrão)
-        const timerEl = document.getElementById('game-timer');
-        if (timerEl) {
-          timerEl.style.display = '';
-          // Atualiza o texto do timer para o tempo total da fase
-          timerEl.textContent = formatTime((timerMinutes || 3) * 60000);
-        }
-        // Garante que não há múltiplos timers
-        if (memoryState.gameTimer) memoryState.gameTimer.stop();
-        memoryState.gameTimer = createTimer(
-          (timerMinutes || 3) * 60000,
-          (remaining) => {
-            const timerEl = document.getElementById('game-timer');
-            if (timerEl) timerEl.textContent = formatTime(remaining);
-          },
-          () => {
-            memoryState.lockBoard = true;
-            showPhaseEndModal(false);
-          }
-        );
-      }, 800);
-    }, 600);
-  }
-
-  // Substitui o onEnd do previewTimer para usar o wrapper
+  // Substitui o onEnd do previewTimer para usar handlePreviewEnd diretamente
   if (memoryState.previewTimer) memoryState.previewTimer.stop();
   if (memoryState.gameTimer) memoryState.gameTimer.stop();
   memoryState.previewTimer = createTimer(
@@ -348,7 +360,7 @@ function initMemoryGame(phase) {
       const timerEl = document.getElementById('game-timer');
       if (timerEl) timerEl.textContent = formatTime(remaining);
     },
-    wrappedHandlePreviewEnd
+    handlePreviewEnd
   );
 
   return function cleanupMemoryGame() {

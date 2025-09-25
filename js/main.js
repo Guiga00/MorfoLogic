@@ -2,11 +2,96 @@
  * js/main.js
  */
 
+// Sistema de detecção e controle mobile
+const MobileUtils = {
+  isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  ),
+  isTablet: /iPad|Android(?=.*Mobile)/i.test(navigator.userAgent),
+  isLandscape: () => window.innerWidth > window.innerHeight,
+
+  init() {
+    if (this.isMobile) {
+      document.body.classList.add('mobile-device');
+      this.setupOrientationHandling();
+      this.applyMobileStyles();
+    }
+  },
+
+  setupOrientationHandling() {
+    // Força orientação landscape em dispositivos móveis
+    const handleOrientationChange = () => {
+      if (this.isMobile) {
+        if (!this.isLandscape()) {
+          document.body.classList.add('portrait-warning');
+          this.showOrientationModal();
+        } else {
+          document.body.classList.remove('portrait-warning');
+          this.hideOrientationModal();
+        }
+      }
+    };
+
+    window.addEventListener('orientationchange', handleOrientationChange);
+    window.addEventListener('resize', handleOrientationChange);
+
+    // Verifica orientação inicial
+    setTimeout(handleOrientationChange, 100);
+  },
+
+  showOrientationModal() {
+    let modal = document.getElementById('orientation-modal');
+    if (!modal) {
+      modal = this.createOrientationModal();
+      document.body.appendChild(modal);
+    }
+    modal.classList.remove('hidden');
+  },
+
+  hideOrientationModal() {
+    const modal = document.getElementById('orientation-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+    }
+  },
+
+  createOrientationModal() {
+    const modal = document.createElement('div');
+    modal.id = 'orientation-modal';
+    modal.className =
+      'fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center p-4 z-[9999]';
+    modal.innerHTML = `
+      <div class="bg-white p-8 rounded-2xl text-center max-w-sm">
+        <div class="text-6xl mb-4">📱➡️</div>
+        <h2 class="text-2xl font-bold mb-4 text-[#386ccc]">Gire seu dispositivo</h2>
+        <p class="text-gray-600">Para uma melhor experiência, por favor gire seu dispositivo para o modo paisagem.</p>
+      </div>
+    `;
+    return modal;
+  },
+
+  applyMobileStyles() {
+    // Adiciona estilos específicos para mobile
+    document.documentElement.style.setProperty('--mobile-padding', '8px');
+    document.documentElement.style.setProperty('--mobile-font-size', '14px');
+
+    // Previne zoom em inputs
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (viewport) {
+      viewport.content =
+        'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+    }
+  },
+};
+
 const AppState = {
   currentScreen: 'login-screen',
   currentUser: null,
   generalScore: 0,
   sessionTimer: null,
+  sessionPausedAt: null, // Quando foi pausado
+  sessionTimeRemaining: null, // Tempo restante quando pausado
+  sessionStartedAt: null, // Quando iniciou
   gameActive: false,
   globalMuted: false,
   globalVolume: 1,
@@ -20,6 +105,26 @@ const AppState = {
     startTime: 0,
     clickCount: 0,
     timer: null,
+  },
+  // Função para limpar estados dos jogos
+  cleanupCurrentGame() {
+    // Limpa timers do jogo atual
+    if (this.currentGame.timer) {
+      clearInterval(this.currentGame.timer);
+      this.currentGame.timer = null;
+    }
+
+    // Limpa animações do Genius
+    if (typeof geniusState !== 'undefined' && geniusState.animationTimeouts) {
+      geniusState.isTerminated = true;
+      geniusState.animationTimeouts.forEach(clearTimeout);
+      geniusState.animationTimeouts = [];
+    }
+
+    // Limpa draggable manager
+    if (typeof DraggableManager !== 'undefined') {
+      DraggableManager.cleanup();
+    }
   },
 };
 const GRAMMAR_CLASSES = [
@@ -243,18 +348,63 @@ function closeModal(modal) {
 }
 function startSessionTimer() {
   clearTimeout(AppState.sessionTimer);
-  AppState.sessionTimer = setTimeout(
-    () => {
+  AppState.sessionPausedAt = null;
+  AppState.sessionTimeRemaining = SESSION_DURATION_MINUTES * 60 * 1000;
+  AppState.sessionStartedAt = Date.now();
+
+  AppState.sessionTimer = setTimeout(() => {
+    // Verifica se há um minigame ativo antes de encerrar
+    if (AppState.currentScreen === 'game-screen' && AppState.gameActive) {
+      // Estende por mais 5 minutos se há jogo ativo
+      extendSessionTimer(5);
+    } else {
       AppState.gameActive = false;
       showModal('session-expired-modal');
-    },
-    SESSION_DURATION_MINUTES * 60 * 1000
-  );
+    }
+  }, AppState.sessionTimeRemaining);
+}
+
+function pauseSessionTimer() {
+  if (AppState.sessionTimer) {
+    clearTimeout(AppState.sessionTimer);
+    AppState.sessionPausedAt = Date.now();
+    // Calcula tempo restante
+    const elapsed =
+      AppState.sessionPausedAt - (AppState.sessionStartedAt || Date.now());
+    AppState.sessionTimeRemaining = Math.max(
+      0,
+      AppState.sessionTimeRemaining - elapsed
+    );
+  }
+}
+
+function resumeSessionTimer() {
+  if (AppState.sessionPausedAt && AppState.sessionTimeRemaining > 0) {
+    AppState.sessionTimer = setTimeout(() => {
+      if (AppState.currentScreen === 'game-screen' && AppState.gameActive) {
+        extendSessionTimer(5);
+      } else {
+        AppState.gameActive = false;
+        showModal('session-expired-modal');
+      }
+    }, AppState.sessionTimeRemaining);
+    AppState.sessionPausedAt = null;
+    AppState.sessionStartedAt = Date.now();
+  }
+}
+
+function extendSessionTimer(minutesToAdd) {
+  clearTimeout(AppState.sessionTimer);
+  const extensionTime = minutesToAdd * 60 * 1000;
+
+  AppState.sessionTimer = setTimeout(() => {
+    AppState.gameActive = false;
+    showModal('session-expired-modal');
+  }, extensionTime);
 }
 
 function goBackToLogin(isExpired = false) {
-  DraggableManager.cleanup();
-  if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
+  AppState.cleanupCurrentGame();
   if (isExpired) closeModal(document.getElementById('session-expired-modal'));
   AppState.currentUser = null;
   AppState.generalScore = 0;
@@ -267,9 +417,12 @@ function goBackToLogin(isExpired = false) {
   navigate('login-screen');
 }
 function goToGameSelection() {
-  DraggableManager.cleanup();
-  if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
+  AppState.cleanupCurrentGame();
   closeModal(document.getElementById('phase-end-modal'));
+
+  // Retoma o timer de sessão ao voltar para seleção
+  resumeSessionTimer();
+
   if (document.getElementById('general-score'))
     document.getElementById('general-score').textContent =
       AppState.generalScore;
@@ -333,30 +486,91 @@ function setupGameUIListeners() {
   });
 
   playPauseBtn.addEventListener('click', () => {
-    const isPaused = gameScreen.classList.toggle('paused');
-    const playPauseIcon = document.getElementById('game-playpause-icon');
-    const playPauseLabel = document.getElementById('game-playpause-label');
+    const isPaused = gameScreen.classList.contains('paused');
 
     if (isPaused) {
-      playPauseIcon.innerHTML = '&#9658;';
-      playPauseLabel.innerText = 'Continuar';
-      if (AppState.currentGame.type === 'memory' && window.pauseMemoryTimer) {
-        window.pauseMemoryTimer();
-      }
+      // Se já está pausado, apenas retoma
+      resumeGame();
     } else {
-      playPauseIcon.innerHTML = '&#10074;&#10074;';
-      playPauseLabel.innerText = 'Pausar';
-      if (AppState.currentGame.type === 'memory' && window.resumeMemoryTimer) {
-        window.resumeMemoryTimer();
-      }
+      // Se não está pausado, pausa e mostra modal
+      pauseGame();
     }
   });
 }
 
+// Funções de controle de pause
+function pauseGame() {
+  const gameScreen = document.getElementById('game-screen');
+  const playPauseIcon = document.getElementById('game-playpause-icon');
+  const playPauseLabel = document.getElementById('game-playpause-label');
+
+  gameScreen.classList.add('paused');
+  playPauseIcon.innerHTML = '&#9658;';
+  playPauseLabel.innerText = 'Continuar';
+
+  // Pausa timers específicos do jogo
+  if (AppState.currentGame.type === 'memory' && window.pauseMemoryTimer) {
+    window.pauseMemoryTimer();
+  }
+
+  // Mostra modal de pause
+  showModal('game-paused-modal');
+  setupPauseModalListeners();
+}
+
+function resumeGame() {
+  const gameScreen = document.getElementById('game-screen');
+  const playPauseIcon = document.getElementById('game-playpause-icon');
+  const playPauseLabel = document.getElementById('game-playpause-label');
+
+  gameScreen.classList.remove('paused');
+  playPauseIcon.innerHTML = '&#10074;&#10074;';
+  playPauseLabel.innerText = 'Pausar';
+
+  // Resume timers específicos do jogo
+  if (AppState.currentGame.type === 'memory' && window.resumeMemoryTimer) {
+    window.resumeMemoryTimer();
+  }
+}
+
+function setupPauseModalListeners() {
+  const resumeBtn = document.getElementById('resume-game-btn');
+  const exitToMenuBtn = document.getElementById('exit-to-menu-btn');
+  const restartPhaseBtn = document.getElementById('restart-phase-btn');
+
+  // Remove listeners anteriores para evitar duplicação
+  resumeBtn.replaceWith(resumeBtn.cloneNode(true));
+  exitToMenuBtn.replaceWith(exitToMenuBtn.cloneNode(true));
+  restartPhaseBtn.replaceWith(restartPhaseBtn.cloneNode(true));
+
+  // Reobtem referências após clonagem
+  const newResumeBtn = document.getElementById('resume-game-btn');
+  const newExitToMenuBtn = document.getElementById('exit-to-menu-btn');
+  const newRestartPhaseBtn = document.getElementById('restart-phase-btn');
+
+  // Funções wrapper que fecham o modal antes de executar a ação
+  newResumeBtn.addEventListener('click', () => {
+    closeModal(document.getElementById('game-paused-modal'));
+    resumeGame();
+  });
+
+  newExitToMenuBtn.addEventListener('click', () => {
+    closeModal(document.getElementById('game-paused-modal'));
+    goToGameSelection();
+  });
+
+  newRestartPhaseBtn.addEventListener('click', () => {
+    closeModal(document.getElementById('game-paused-modal'));
+    restartPhase();
+  });
+}
+
 function startGame(type, phase) {
-  DraggableManager.cleanup();
-  if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
+  AppState.cleanupCurrentGame();
   closeModal(document.getElementById('phase-selection-modal'));
+
+  // Pausa o timer de sessão durante o jogo
+  pauseSessionTimer();
 
   AppState.currentGame = {
     type,
@@ -403,8 +617,24 @@ function startGame(type, phase) {
   }
 }
 function restartPhase() {
-  DraggableManager.cleanup();
-  if (AppState.currentGame.timer) clearInterval(AppState.currentGame.timer);
+  // Remove o estado de pausa antes de reiniciar
+  const gameScreen = document.getElementById('game-screen');
+  const playPauseIcon = document.getElementById('game-playpause-icon');
+  const playPauseLabel = document.getElementById('game-playpause-label');
+
+  if (gameScreen) {
+    gameScreen.classList.remove('paused');
+  }
+
+  // Restaura os controles para estado não pausado
+  if (playPauseIcon) {
+    playPauseIcon.innerHTML = '&#10074;&#10074;';
+  }
+  if (playPauseLabel) {
+    playPauseLabel.innerText = 'Pausar';
+  }
+
+  AppState.cleanupCurrentGame();
   startGame(AppState.currentGame.type, AppState.currentGame.phase);
 }
 
@@ -479,3 +709,11 @@ function showPhaseEndModal(isSuccess = true) {
   }
   showModal('phase-end-modal');
 }
+
+// Inicialização do sistema
+document.addEventListener('DOMContentLoaded', () => {
+  MobileUtils.init();
+
+  // Inicialização adicional se necessário
+  console.log('MorfoLogic carregado - Mobile:', MobileUtils.isMobile);
+});
