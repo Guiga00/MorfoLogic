@@ -114,6 +114,14 @@ const AppState = {
       this.currentGame.timer = null;
     }
 
+    // Limpeza específica do jogo da memória
+    if (
+      this.currentGame.type === 'memory' &&
+      typeof window.cleanupMemoryGame === 'function'
+    ) {
+      window.cleanupMemoryGame();
+    }
+
     // Limpa animações do Genius
     if (typeof geniusState !== 'undefined' && geniusState.animationTimeouts) {
       geniusState.isTerminated = true;
@@ -405,6 +413,12 @@ function extendSessionTimer(minutesToAdd) {
 
 function goBackToLogin(isExpired = false) {
   AppState.cleanupCurrentGame();
+
+  // Garantir limpeza adicional do jogo da memória
+  if (typeof window.cleanupMemoryGame === 'function') {
+    window.cleanupMemoryGame();
+  }
+
   if (isExpired) closeModal(document.getElementById('session-expired-modal'));
   AppState.currentUser = null;
   AppState.generalScore = 0;
@@ -418,6 +432,12 @@ function goBackToLogin(isExpired = false) {
 }
 function goToGameSelection() {
   AppState.cleanupCurrentGame();
+
+  // Garantir limpeza adicional do jogo da memória
+  if (typeof window.cleanupMemoryGame === 'function') {
+    window.cleanupMemoryGame();
+  }
+
   closeModal(document.getElementById('phase-end-modal'));
 
   // Retoma o timer de sessão ao voltar para seleção
