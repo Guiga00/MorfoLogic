@@ -2,6 +2,61 @@
  * js/components.js
  */
 
+const Timer = {
+  intervalId: null,
+  seconds: 0,
+  isPaused: false,
+
+  start(durationInMinutes) {
+    this.stop();
+    this.isPaused = false;
+    this.seconds = durationInMinutes * 60;
+    this.resume();
+  },
+
+  pause() {
+    this.isPaused = true;
+    clearInterval(this.intervalId);
+  },
+  
+  resume() {
+    if (!this.isPaused && this.seconds > 0) {
+      this.isPaused = false;
+      this.intervalId = setInterval(() => {
+        this.seconds--;
+        this.updateDisplay();
+        if (this.seconds <= 0) {
+          this.stop();
+          if (typeof handleTimeUp === 'function') {
+            handleTimeUp();
+          }
+        }
+      }, 1000);
+    }
+  },
+
+  stop() {
+    this.isPaused = false;
+    clearInterval(this.intervalId);
+    this.intervalId = null;
+  },
+
+  reset() {
+    this.stop();
+    this.seconds = 0;
+    this.updateDisplay();
+  },
+
+  updateDisplay() {
+    const display = document.getElementById('game-timer');
+    if (display) {
+      const minutes = Math.floor(this.seconds / 60);
+      const remainingSeconds = this.seconds % 60;
+      display.textContent = `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+  }
+};
+
 function TopMenuComponent() {
   // Menu superior com controle de volume, timer e botão de fechar
   return `

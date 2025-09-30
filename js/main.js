@@ -108,11 +108,21 @@ const AppState = {
   },
   // Função para limpar estados dos jogos
   cleanupCurrentGame() {
-    // Limpa timers do jogo atual
-    if (this.currentGame.timer) {
-      clearInterval(this.currentGame.timer);
-      this.currentGame.timer = null;
+    Timer.reset();
+
+    if (this.currentGame.previewInterval) {
+      clearInterval(this.currentGame.previewInterval);
     }
+
+    if (this.currentGame.previewTimeout) {
+      clearTimeout(this.currentGame.previewTimeout);
+    }
+
+    // // Limpa timers do jogo atual
+    // if (this.currentGame.timer) {
+    //   clearInterval(this.currentGame.timer);
+    //   this.currentGame.timer = null;
+    // }
 
     // Limpeza específica do jogo da memória
     if (
@@ -431,6 +441,8 @@ function goBackToLogin(isExpired = false) {
   navigate('login-screen');
 }
 function goToGameSelection() {
+  Timer.reset();
+
   AppState.cleanupCurrentGame();
 
   // Garantir limpeza adicional do jogo da memória
@@ -520,6 +532,8 @@ function setupGameUIListeners() {
 
 // Funções de controle de pause
 function pauseGame() {
+  Timer.pause();
+
   const gameScreen = document.getElementById('game-screen');
   const playPauseIcon = document.getElementById('game-playpause-icon');
   const playPauseLabel = document.getElementById('game-playpause-label');
@@ -539,6 +553,8 @@ function pauseGame() {
 }
 
 function resumeGame() {
+  Timer.resume();
+
   const gameScreen = document.getElementById('game-screen');
   const playPauseIcon = document.getElementById('game-playpause-icon');
   const playPauseLabel = document.getElementById('game-playpause-label');
@@ -588,7 +604,6 @@ function setupPauseModalListeners() {
 function startGame(type, phase) {
   AppState.cleanupCurrentGame();
   closeModal(document.getElementById('phase-selection-modal'));
-
   // Pausa o timer de sessão durante o jogo
   pauseSessionTimer();
 
@@ -613,29 +628,136 @@ function startGame(type, phase) {
   // --- Timer inicial e botão de pular ---
   const timerEl = document.getElementById('game-timer');
   const skipBtn = document.getElementById('skip-timer-btn');
+  const gameConfigForType = GameConfig[type];
+  const gameLevelConfig = gameConfigForType.levels.find(
+    (level) => level.phase === phase
+  );
 
-  if (type === 'memory') {
-    // O botão e o timer serão controlados pelo próprio initMemoryGame
-    if (skipBtn) skipBtn.style.display = 'inline-block';
-    if (timerEl) timerEl.style.display = '';
-    initMemoryGame(phase);
-    return;
-  } else {
-    // Oculta o botão e o timer de preview para outros mini games
+  if (!gameLevelConfig) return;
+
+  const startMainGameTimer = () => {
+    Timer.start(gameLevelConfig.timerMinutes);
+  };
+
+  if (type === 'genius') {
+    if (timerEl) timerEl.style.display = 'block';
     if (skipBtn) skipBtn.style.display = 'none';
-    if (timerEl) timerEl.style.display = 'none';
+
+    const animationDuration = getGeniusAnimationDuration(phase);
+    let countdownSeconds = Math.ceil(animationDuration / 1000);
+
+    initGeniusGame(phase);
+
+    const formatPreviewTime = (s) => `00:${s.toString().padStart(2, '0')}`;
+    timerEl.textContent = formatPreviewTime(countdownSeconds);
+
+    const previewInterval = setInterval(() => {
+      countdownSeconds--;
+
+      if (timerEl) {
+        timerEl.textContent = formatPreviewTime(countdownSeconds);
+      }
+
+      if (countdownSeconds <= 0) {
+        clearInterval(previewInterval);
+      }
+    }, 1000);
+    AppState.currentGame.previewInterval = previewInterval;
+
+    const previewTimeout = setTimeout(() => {
+      clearInterval(previewInterval);
+      startMainGameTimer();
+    }, animationDuration);
+    AppState.currentGame.previewTimeout = previewTimeout;
+  } else if (gameLevelConfig.previewTime && gameLevelConfig.previewTime > 0) {
+    if (timerEl) timerEl.style.display = 'block';
+
+    if (skipBtn && gameConfigForType.allowSkipPreview) {
+      skipBtn.style.display = 'inline-block';
+
+      const skipHandler = () => {
+        clearInterval(previewInterval);
+        clearTimeout(previewTimeout);
+        startMainGame();
+        skipBtn.removeEventListener('click', skipHandler);
+      };
+
+      skipBtn.addEventListener('click', skipHandler);
+    } else if (skipBtn) {
+      skipBtn.style.display = 'none';
+    }
+
+    const startMainGame = () => {
+      if (skipBtn) skipBtn.style.display = 'none';
+      Timer.start(gameLevelConfig.timerMinutes);
+
+      switch (type) {
+        case 'memory':
+          startMemoryGamePlay();
+          break;
+        case 'genius':
+          break;
+        case 'ligar':
+          initLigarGame(phase);
+      }
+    };
+
+    initMemoryGame(phase);
+
+    let previewSeconds = gameLevelConfig.previewTime / 1000;
+    const formatPreviewTime = (s) => `00:${s.toString().padStart(2, '0')}`;
+    timerEl.textContent = formatPreviewTime(previewSeconds);
+
+    const previewInterval = setInterval(() => {
+      previewSeconds--;
+      if (timerEl) timerEl.textContent = formatPreviewTime(previewSeconds);
+    }, 1000);
+    AppState.currentGame.previewInterval = previewInterval;
+
+    const previewTimeout = setTimeout(() => {
+      clearInterval(previewInterval);
+      startMainGame();
+    }, gameLevelConfig.previewTime);
+    AppState.currentGame.previewTimeout = previewTimeout;
+  } else {
+    if (timerEl) timerEl.style.display = 'block';
+    if (skipBtn) skipBtn.style.display = 'none';
+
+    if (type === 'ligar') initLigarGame(phase);
+
+    startMainGameTimer();
   }
 
-  // Inicia diretamente o mini game sem timer de preview
-  switch (type) {
-    case 'genius':
-      initGeniusGame(phase);
-      break;
-    case 'ligar':
-      initLigarGame(phase);
-      break;
-  }
+  // if (gameLevelConfig && timerEl) {
+  //   timerEl.style.display = 'block';
+  //   Timer.start(gameLevelConfig.timerMinutes);
+  // } else if (timerEl) {
+  //   timerEl.style.display = 'none';
+  // }
+
+  // if (type === 'memory') {
+  //   // O botão e o timer serão controlados pelo próprio initMemoryGame
+  //   if (skipBtn) {
+  //     skipBtn.style.display = 'inline-block';
+  //   }
+
+  //   initMemoryGame(phase);
+  // } else {
+  //   // Oculta o botão e o timer de preview para outros mini games
+  //   if (skipBtn) skipBtn.style.display = 'none';
+
+  //   // Inicia diretamente o mini game sem timer de preview
+  //   switch (type) {
+  //     case 'genius':
+  //       initGeniusGame(phase);
+  //       break;
+  //     case 'ligar':
+  //       initLigarGame(phase);
+  //       break;
+  //   }
+  // }
 }
+
 function restartPhase() {
   // Remove o estado de pausa antes de reiniciar
   const gameScreen = document.getElementById('game-screen');
@@ -663,6 +785,8 @@ function updateGameUI() {
 }
 
 function showPhaseEndModal(isSuccess = true) {
+  Timer.stop();
+
   const { phase, type } = AppState.currentGame;
   const isLastPhase = phase === 3;
   const modalTitle = document.getElementById('modal-title');
@@ -728,6 +852,11 @@ function showPhaseEndModal(isSuccess = true) {
     };
   }
   showModal('phase-end-modal');
+}
+
+function handleTimeUp() {
+  console.log("Time's up!");
+  showPhaseEndModal(false);
 }
 
 // Inicialização do sistema

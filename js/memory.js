@@ -4,74 +4,74 @@
 
 let memoryState = {};
 
-function formatTime(ms) {
-  const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
-  const min = Math.floor(totalSeconds / 60);
-  const sec = totalSeconds % 60;
-  return `${min.toString().padStart(2, '0')}:${sec
-    .toString()
-    .padStart(2, '0')}`;
-}
+// function formatTime(ms) {
+//   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
+//   const min = Math.floor(totalSeconds / 60);
+//   const sec = totalSeconds % 60;
+//   return `${min.toString().padStart(2, '0')}:${sec
+//     .toString()
+//     .padStart(2, '0')}`;
+// }
 
-// Objeto para criar e controlar temporizadores
-function createTimer(duration, onUpdate, onEnd) {
-  let timerId = null;
-  let remaining = duration;
-  let endTime = Date.now() + remaining;
-  let isPaused = false;
-  let isStopped = false; // Nova flag
+// // Objeto para criar e controlar temporizadores
+// function createTimer(duration, onUpdate, onEnd) {
+//   let timerId = null;
+//   let remaining = duration;
+//   let endTime = Date.now() + remaining;
+//   let isPaused = false;
+//   let isStopped = false; // Nova flag
 
-  function update() {
-    if (!isPaused && !isStopped) {
-      remaining = Math.max(0, endTime - Date.now());
-      onUpdate(remaining);
-      if (remaining <= 0) {
-        stop();
-        if (onEnd) onEnd();
-      }
-    }
-  }
+//   function update() {
+//     if (!isPaused && !isStopped) {
+//       remaining = Math.max(0, endTime - Date.now());
+//       onUpdate(remaining);
+//       if (remaining <= 0) {
+//         stop();
+//         if (onEnd) onEnd();
+//       }
+//     }
+//   }
 
-  function stop() {
-    if (timerId) {
-      clearInterval(timerId);
-      timerId = null;
-    }
-    isStopped = true; // Marca como parado
-  }
+//   function stop() {
+//     if (timerId) {
+//       clearInterval(timerId);
+//       timerId = null;
+//     }
+//     isStopped = true; // Marca como parado
+//   }
 
-  function pause() {
-    isPaused = true;
-  }
+//   function pause() {
+//     isPaused = true;
+//   }
 
-  function resume() {
-    if (!isStopped) {
-      // Só resume se não foi parado
-      isPaused = false;
-      endTime = Date.now() + remaining;
-    }
-  }
+//   function resume() {
+//     if (!isStopped) {
+//       // Só resume se não foi parado
+//       isPaused = false;
+//       endTime = Date.now() + remaining;
+//     }
+//   }
 
-  timerId = setInterval(update, 1000);
-  update();
+//   timerId = setInterval(update, 1000);
+//   update();
 
-  return { pause, resume, stop };
-}
+//   return { pause, resume, stop };
+// }
 
-window.pauseMemoryTimer = function () {
-  if (memoryState.previewTimer) memoryState.previewTimer.pause();
-  if (memoryState.gameTimer) memoryState.gameTimer.pause();
-};
+// window.pauseMemoryTimer = function () {
+//   if (memoryState.previewTimer) memoryState.previewTimer.pause();
+//   if (memoryState.gameTimer) memoryState.gameTimer.pause();
+// };
 
-window.resumeMemoryTimer = function () {
-  if (memoryState.previewTimer) memoryState.previewTimer.resume();
-  if (memoryState.gameTimer) memoryState.gameTimer.resume();
+// window.resumeMemoryTimer = function () {
+//   if (memoryState.previewTimer) memoryState.previewTimer.resume();
+//   if (memoryState.gameTimer) memoryState.gameTimer.resume();
 
-  // CORREÇÃO: Só destranca o tabuleiro se o jogo principal já tiver começado
-  if (memoryState.gameTimer) {
-    memoryState.lockBoard = false;
-  }
-};
+//   // CORREÇÃO: Só destranca o tabuleiro se o jogo principal já tiver começado
+//   if (memoryState.gameTimer) {
+//     memoryState.lockBoard = false;
+//   }
+// };
 
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
@@ -300,82 +300,96 @@ function initMemoryGame(phase) {
     }
   }, 100);
 
-  const { timerMinutes, previewTime } =
-    GameConfig.memory.levels.find((l) => l.phase === phase) || {};
+  // const { timerMinutes, previewTime } =
+  //   GameConfig.memory.levels.find((l) => l.phase === phase) || {};
 
-  function handlePreviewEnd() {
-    cards.forEach((card) => card.classList.remove('flipped'));
-    document.getElementById('game-message').textContent = 'Embaralhando...';
+  // function handlePreviewEnd() {
+  //   cards.forEach((card) => card.classList.remove('flipped'));
+  //   document.getElementById('game-message').textContent = 'Embaralhando...';
 
-    // Ocultar botão de pular quando o preview termina
-    const skipButton = document.getElementById('skip-timer-btn');
-    if (skipButton) {
-      skipButton.style.display = 'none';
-    }
+  //   // Ocultar botão de pular quando o preview termina
+  //   const skipButton = document.getElementById('skip-timer-btn');
+  //   if (skipButton) {
+  //     skipButton.style.display = 'none';
+  //   }
 
-    // Criar o timer do jogo imediatamente, mas pausado
-    const gameTimerDuration = (timerMinutes || 3) * 60000;
-    memoryState.gameTimer = createTimer(
-      gameTimerDuration,
-      (remaining) => {
-        const timerEl = document.getElementById('game-timer');
-        if (timerEl) {
-          timerEl.textContent = formatTime(remaining);
-        }
-      },
-      () => {
-        memoryState.lockBoard = true;
-        showPhaseEndModal(false);
-      }
-    );
+  //   // Criar o timer do jogo imediatamente, mas pausado
+  //   const gameTimerDuration = (timerMinutes || 3) * 60000;
+  //   memoryState.gameTimer = createTimer(
+  //     gameTimerDuration,
+  //     (remaining) => {
+  //       const timerEl = document.getElementById('game-timer');
+  //       if (timerEl) {
+  //         timerEl.textContent = formatTime(remaining);
+  //       }
+  //     },
+  //     () => {
+  //       memoryState.lockBoard = true;
+  //       showPhaseEndModal(false);
+  //     }
+  //   );
 
-    // Pausar imediatamente após criação
-    memoryState.gameTimer.pause();
+  //   // Pausar imediatamente após criação
+  //   memoryState.gameTimer.pause();
 
-    setTimeout(() => {
-      shuffleAnimation(cards);
-      setTimeout(() => {
-        memoryState.lockBoard = false;
-        document.getElementById('game-message').textContent =
-          'Encontre os pares!';
+  //   setTimeout(() => {
+  //     shuffleAnimation(cards);
+  //     setTimeout(() => {
+  //       memoryState.lockBoard = false;
+  //       document.getElementById('game-message').textContent =
+  //         'Encontre os pares!';
 
-        // Retomar o timer do jogo
-        if (memoryState.gameTimer) {
-          memoryState.gameTimer.resume();
-        }
-      }, 800);
-    }, 600);
+  //       // Retomar o timer do jogo
+  //       if (memoryState.gameTimer) {
+  //         memoryState.gameTimer.resume();
+  //       }
+  //     }, 800);
+  //   }, 600);
+  // }
+
+  // // Configurar botão de pular
+  // const skipButton = document.getElementById('skip-timer-btn');
+  // if (skipButton) {
+  //   // Remover listeners anteriores para evitar duplicação
+  //   skipButton.replaceWith(skipButton.cloneNode(true));
+  //   const newSkipButton = document.getElementById('skip-timer-btn');
+
+  //   newSkipButton.addEventListener('click', () => {
+  //     console.log('Skip button clicked'); // Debug
+
+  //     // Para o timer de preview
+  //     if (memoryState.previewTimer) {
+  //       memoryState.previewTimer.stop();
+  //       memoryState.previewTimer = null;
+  //     }
+
+  //     // Executar imediatamente o fim do preview
+  //     handlePreviewEnd();
+  //   });
+  // }
+
+  // memoryState.previewTimer = createTimer(
+  //   previewTime || 10000,
+  //   (remaining) => {
+  //     const timerEl = document.getElementById('game-timer');
+  //     if (timerEl) timerEl.textContent = formatTime(remaining);
+  //   },
+  //   handlePreviewEnd
+  // );
+}
+
+function startMemoryGamePlay() {
+  memoryState.lockBoard = false;
+  const board = document.getElementById('game-board');
+
+  if (board) {
+    board
+      .querySelectorAll('.card')
+      .forEach((card) => card.classList.remove('flipped'));
+    GameAudio.play('shuffle');
+    document.getElementById('game-message').textContent = 'Encontre os pares!';
+    shuffleAnimation(board.querySelectorAll('.card'));
   }
-
-  // Configurar botão de pular
-  const skipButton = document.getElementById('skip-timer-btn');
-  if (skipButton) {
-    // Remover listeners anteriores para evitar duplicação
-    skipButton.replaceWith(skipButton.cloneNode(true));
-    const newSkipButton = document.getElementById('skip-timer-btn');
-
-    newSkipButton.addEventListener('click', () => {
-      console.log('Skip button clicked'); // Debug
-
-      // Para o timer de preview
-      if (memoryState.previewTimer) {
-        memoryState.previewTimer.stop();
-        memoryState.previewTimer = null;
-      }
-
-      // Executar imediatamente o fim do preview
-      handlePreviewEnd();
-    });
-  }
-
-  memoryState.previewTimer = createTimer(
-    previewTime || 10000,
-    (remaining) => {
-      const timerEl = document.getElementById('game-timer');
-      if (timerEl) timerEl.textContent = formatTime(remaining);
-    },
-    handlePreviewEnd
-  );
 }
 
 function handleMemoryClick(cardElement) {

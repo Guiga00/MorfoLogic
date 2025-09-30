@@ -2,6 +2,8 @@
  * js/genius.js
  */
 
+const stillTime = 1200;
+const flyTime = 1500;
 let geniusState = {};
 
 function shuffleArray(array) {
@@ -48,6 +50,7 @@ function initGeniusGame(phase) {
     </div>`;
 
   document.getElementById('game-message').textContent = 'Observe...';
+
   animateNextWord(0);
 
   // Retorna a função de limpeza
@@ -56,6 +59,16 @@ function initGeniusGame(phase) {
     geniusState.animationTimeouts.forEach(clearTimeout);
     geniusState = {};
   };
+}
+
+function getGeniusAnimationDuration(phase) {
+  const phrase = GENIUS_PHRASES[phase];
+  if (!phrase) return;
+
+  const wordAnimationTime = stillTime + flyTime;
+  const finalPause = 500;
+
+  return phrase.length * wordAnimationTime + finalPause;
 }
 
 function animateNextWord(index) {
@@ -93,9 +106,9 @@ function animateNextWord(index) {
 
     const timeout2 = setTimeout(() => {
       animateNextWord(index + 1);
-    }, 1500);
+    }, flyTime);
     geniusState.animationTimeouts.push(timeout2);
-  }, 500);
+  }, stillTime);
   geniusState.animationTimeouts.push(timeout1);
 }
 

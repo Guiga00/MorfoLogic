@@ -36,19 +36,49 @@ const GameConfig = {
         difficultyFactor: 2, // Fator de dificuldade para lógica futura
       },
     ],
+    allowSkipPreview: true,
   },
   genius: {
     levels: [
-      { phase: 1, difficultyFactor: 1, timerMinutes: 3 },
-      { phase: 2, difficultyFactor: 1.5, timerMinutes: 5 },
-      { phase: 3, difficultyFactor: 2, timerMinutes: 10 },
+      {
+        phase: 1,
+        difficultyFactor: 1,
+        previewTime: 10000, // 10 segundos
+        timerMinutes: 3,
+      },
+      {
+        phase: 2,
+        difficultyFactor: 1.5,
+        previewTime: 15000, // 15 segundos
+        timerMinutes: 5,
+      },
+      {
+        phase: 3,
+        difficultyFactor: 2,
+        previewTime: 15000, // 15 segundos
+        timerMinutes: 10,
+      },
     ],
+    allowSkipPreview: false,
   },
   ligar: {
     levels: [
-      { phase: 1, difficultyFactor: 1, timerMinutes: 3 },
-      { phase: 2, difficultyFactor: 1.5, timerMinutes: 5 },
-      { phase: 3, difficultyFactor: 2, timerMinutes: 10 },
+      {
+        phase: 1,
+        difficultyFactor: 1,
+        timerMinutes: 3,
+      },
+      {
+        phase: 2,
+        difficultyFactor: 1.5,
+        timerMinutes: 5,
+      },
+      {
+        phase: 3,
+        difficultyFactor: 2,
+        timerMinutes: 10,
+      },
     ],
+    allowSkipPreview: false,
   },
 };
