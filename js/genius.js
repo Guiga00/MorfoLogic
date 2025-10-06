@@ -2,8 +2,8 @@
  * js/genius.js
  */
 
-const stillTime = 1200;
-const flyTime = 1500;
+const stillTime = 1200; // Tempo que a palavra fica visível antes de "voar" em segundos
+const flyTime = 1500; // Tempo que o símbolo leva para "voar" até o banco em segundos
 let geniusState = {};
 
 function shuffleArray(array) {
