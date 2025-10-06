@@ -643,14 +643,17 @@ function startGame(type, phase) {
     if (timerEl) timerEl.style.display = 'block';
     if (skipBtn) skipBtn.style.display = 'none';
 
+    // This is the restored logic
     const animationDuration = getGeniusAnimationDuration(phase);
     let countdownSeconds = Math.ceil(animationDuration / 1000);
 
     initGeniusGame(phase);
 
     const formatPreviewTime = (s) => `00:${s.toString().padStart(2, '0')}`;
-    timerEl.textContent = formatPreviewTime(countdownSeconds);
-
+    if (timerEl) {
+        timerEl.textContent = formatPreviewTime(countdownSeconds);
+    }
+    
     const previewInterval = setInterval(() => {
       countdownSeconds--;
 
@@ -669,6 +672,7 @@ function startGame(type, phase) {
       startMainGameTimer();
     }, animationDuration);
     AppState.currentGame.previewTimeout = previewTimeout;
+
   } else if (gameLevelConfig.previewTime && gameLevelConfig.previewTime > 0) {
     if (timerEl) timerEl.style.display = 'block';
 
@@ -727,35 +731,6 @@ function startGame(type, phase) {
 
     startMainGameTimer();
   }
-
-  // if (gameLevelConfig && timerEl) {
-  //   timerEl.style.display = 'block';
-  //   Timer.start(gameLevelConfig.timerMinutes);
-  // } else if (timerEl) {
-  //   timerEl.style.display = 'none';
-  // }
-
-  // if (type === 'memory') {
-  //   // O botão e o timer serão controlados pelo próprio initMemoryGame
-  //   if (skipBtn) {
-  //     skipBtn.style.display = 'inline-block';
-  //   }
-
-  //   initMemoryGame(phase);
-  // } else {
-  //   // Oculta o botão e o timer de preview para outros mini games
-  //   if (skipBtn) skipBtn.style.display = 'none';
-
-  //   // Inicia diretamente o mini game sem timer de preview
-  //   switch (type) {
-  //     case 'genius':
-  //       initGeniusGame(phase);
-  //       break;
-  //     case 'ligar':
-  //       initLigarGame(phase);
-  //       break;
-  //   }
-  // }
 }
 
 function restartPhase() {

@@ -128,8 +128,24 @@ function generateBoardHTML(items, phase) {
   const phaseClass = `memory-board-phase-${phase}`;
   return `
     <div class="memory-board-container preview-mode ${phaseClass}">
-        <div class="memory-column">${column1}</div>
-        <div class="memory-column">${column2}</div>
+        
+
+        ${items
+          .map((item, index) => {
+            // Since we process pairs, only create a pair for every other item.
+            if (index % 2 !== 0) return '';
+
+            const nameCard = items[index];
+            const symbolCard = items[index + 1];
+
+            return `
+            <div class="card-pair">
+              ${createCardHTML(nameCard, nameCard.originalIndex)}
+              ${createCardHTML(symbolCard, symbolCard.originalIndex)}
+            </div>
+          `;
+          })
+          .join('')}
     </div>`;
 }
 
