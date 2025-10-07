@@ -216,35 +216,135 @@ const USERS = {
 const SESSION_DURATION_MINUTES = 15;
 const GENIUS_PHRASES = {
   1: [
-    { word: 'Encontramos', classId: 4 },
-    { word: 'o', classId: 2 },
-    { word: 'tesouro', classId: 1 },
-    { word: 'perdido.', classId: 3 },
+    {
+      word: 'Encontramos',
+      classId: 4,
+      symbol: `<img src="./assets/img/Verbo.svg" alt="Verbo" class="">`,
+    },
+    {
+      word: 'o',
+      classId: 2,
+      symbol: `<img src="./assets/img/Artigo.svg" alt="Artigo" class="">`,
+    },
+    {
+      word: 'tesouro',
+      classId: 1,
+      symbol: `<img src="./assets/img/Substantivo.svg" alt="Substantivo" class="">`,
+    },
+    {
+      word: 'perdido.',
+      classId: 3,
+      symbol: `<img src="./assets/img/adjetivo.svg" alt="Adjetivo" class="">`,
+    },
   ],
   2: [
-    { word: 'Meu', classId: 5 },
-    { word: 'lanche', classId: 1 },
-    { word: 'favorito', classId: 3 },
-    { word: 'é', classId: 4 },
-    { word: 'suco', classId: 1 },
-    { word: 'e', classId: 8 },
-    { word: 'bolo', classId: 1 },
-    { word: 'de', classId: 7 },
-    { word: 'chocolate.', classId: 1 },
+    {
+      word: 'Meu',
+      classId: 5,
+      symbol: `<img src="./assets/img/Pronome.svg" alt="Pronome" class="">`,
+    },
+    {
+      word: 'lanche',
+      classId: 1,
+      symbol: `<img src="./assets/img/Substantivo.svg" alt="Substantivo" class="">`,
+    },
+    {
+      word: 'favorito',
+      classId: 3,
+      symbol: `<img src="./assets/img/adjetivo.svg" alt="Adjetivo" class="">`,
+    },
+    {
+      word: 'é',
+      classId: 4,
+      symbol: `<img src="./assets/img/Verbo.svg" alt="Verbo" class="">`,
+    },
+    {
+      word: 'suco',
+      classId: 1,
+      symbol: `<img src="./assets/img/Substantivo.svg" alt="Substantivo" class="">`,
+    },
+    {
+      word: 'e',
+      classId: 8,
+      symbol: `<img src="./assets/img/Conjuncao.svg" alt="Conjunção" class="">`,
+    },
+    {
+      word: 'bolo',
+      classId: 1,
+      symbol: `<img src="./assets/img/Substantivo.svg" alt="Substantivo" class="">`,
+    },
+    {
+      word: 'de',
+      classId: 7,
+      symbol: `<img src="./assets/img/Preposicao.svg" alt="Preposição" class="">`,
+    },
+    {
+      word: 'chocolate.',
+      classId: 1,
+      symbol: `<img src="./assets/img/Substantivo.svg" alt="Substantivo" class="">`,
+    },
   ],
   3: [
-    { word: 'Oba!', classId: 9 },
-    { word: 'As', classId: 2 },
-    { word: 'minhas', classId: 5 },
-    { word: 'duas', classId: 10 },
-    { word: 'bonecas', classId: 1 },
-    { word: 'novas', classId: 3 },
-    { word: 'e', classId: 8 },
-    { word: 'perfumadas', classId: 3 },
-    { word: 'chegaram', classId: 4 },
-    { word: 'hoje', classId: 6 },
-    { word: 'em', classId: 7 },
-    { word: 'casa!', classId: 1 },
+    {
+      word: 'Oba!',
+      classId: 9,
+      symbol: `<img src="./assets/img/Interjeicao.svg" alt="Interjeição" class="">`,
+    },
+    {
+      word: 'As',
+      classId: 2,
+      symbol: `<img src="./assets/img/Artigo.svg" alt="Artigo" class="">`,
+    },
+    {
+      word: 'minhas',
+      classId: 5,
+      symbol: `<img src="./assets/img/Pronome.svg" alt="Pronome" class="">`,
+    },
+    {
+      word: 'duas',
+      classId: 10,
+      symbol: `<img src="./assets/img/numeral.svg" alt="Numeral" class="">`,
+    },
+    {
+      word: 'bonecas',
+      classId: 1,
+      symbol: `<img src="./assets/img/Substantivo.svg" alt="Substantivo" class="">`,
+    },
+    {
+      word: 'novas',
+      classId: 3,
+      symbol: `<img src="./assets/img/adjetivo.svg" alt="Adjetivo" class="">`,
+    },
+    {
+      word: 'e',
+      classId: 8,
+      symbol: `<img src="./assets/img/Conjuncao.svg" alt="Conjunção" class="">`,
+    },
+    {
+      word: 'perfumadas',
+      classId: 3,
+      symbol: `<img src="./assets/img/adjetivo.svg" alt="Adjetivo" class="">`,
+    },
+    {
+      word: 'chegaram',
+      classId: 4,
+      symbol: `<img src="./assets/img/Verbo.svg" alt="Verbo" class="">`,
+    },
+    {
+      word: 'hoje',
+      classId: 6,
+      symbol: `<img src="./assets/img/Adverbio.svg" alt="Advérbio" class="">`,
+    },
+    {
+      word: 'em',
+      classId: 7,
+      symbol: `<img src="./assets/img/Preposicao.svg" alt="Preposição" class="">`,
+    },
+    {
+      word: 'casa!',
+      classId: 1,
+      symbol: `<img src="./assets/img/Substantivo.svg" alt="Substantivo" class="">`,
+    },
   ],
 };
 
@@ -651,9 +751,9 @@ function startGame(type, phase) {
 
     const formatPreviewTime = (s) => `00:${s.toString().padStart(2, '0')}`;
     if (timerEl) {
-        timerEl.textContent = formatPreviewTime(countdownSeconds);
+      timerEl.textContent = formatPreviewTime(countdownSeconds);
     }
-    
+
     const previewInterval = setInterval(() => {
       countdownSeconds--;
 
@@ -672,7 +772,6 @@ function startGame(type, phase) {
       startMainGameTimer();
     }, animationDuration);
     AppState.currentGame.previewTimeout = previewTimeout;
-
   } else if (gameLevelConfig.previewTime && gameLevelConfig.previewTime > 0) {
     if (timerEl) timerEl.style.display = 'block';
 
