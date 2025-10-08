@@ -4,75 +4,6 @@
 
 let memoryState = {};
 
-// function formatTime(ms) {
-//   const totalSeconds = Math.max(0, Math.ceil(ms / 1000));
-//   const min = Math.floor(totalSeconds / 60);
-//   const sec = totalSeconds % 60;
-//   return `${min.toString().padStart(2, '0')}:${sec
-//     .toString()
-//     .padStart(2, '0')}`;
-// }
-
-// // Objeto para criar e controlar temporizadores
-// function createTimer(duration, onUpdate, onEnd) {
-//   let timerId = null;
-//   let remaining = duration;
-//   let endTime = Date.now() + remaining;
-//   let isPaused = false;
-//   let isStopped = false; // Nova flag
-
-//   function update() {
-//     if (!isPaused && !isStopped) {
-//       remaining = Math.max(0, endTime - Date.now());
-//       onUpdate(remaining);
-//       if (remaining <= 0) {
-//         stop();
-//         if (onEnd) onEnd();
-//       }
-//     }
-//   }
-
-//   function stop() {
-//     if (timerId) {
-//       clearInterval(timerId);
-//       timerId = null;
-//     }
-//     isStopped = true; // Marca como parado
-//   }
-
-//   function pause() {
-//     isPaused = true;
-//   }
-
-//   function resume() {
-//     if (!isStopped) {
-//       // Só resume se não foi parado
-//       isPaused = false;
-//       endTime = Date.now() + remaining;
-//     }
-//   }
-
-//   timerId = setInterval(update, 1000);
-//   update();
-
-//   return { pause, resume, stop };
-// }
-
-// window.pauseMemoryTimer = function () {
-//   if (memoryState.previewTimer) memoryState.previewTimer.pause();
-//   if (memoryState.gameTimer) memoryState.gameTimer.pause();
-// };
-
-// window.resumeMemoryTimer = function () {
-//   if (memoryState.previewTimer) memoryState.previewTimer.resume();
-//   if (memoryState.gameTimer) memoryState.gameTimer.resume();
-
-//   // CORREÇÃO: Só destranca o tabuleiro se o jogo principal já tiver começado
-//   if (memoryState.gameTimer) {
-//     memoryState.lockBoard = false;
-//   }
-// };
-
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -302,96 +233,46 @@ function initMemoryGame(phase) {
     card.addEventListener('click', () => handleMemoryClick(card));
   });
 
+  // Flip all cards to show them
   cards.forEach((card) => card.classList.add('flipped'));
   document.getElementById('game-message').textContent = 'Memorize os pares!';
+
+  // Get preview time from config
+  const config = GameConfig.memory.levels[phase - 1];
+  const previewTime = config.previewTime; // in milliseconds
+  const previewSeconds = previewTime / 1000; // convert to seconds
+
+  // Start countdown timer for preview
+  Timer.startCountdown(previewSeconds, () => {
+    // Check if game is paused before starting main timer
+    if (AppState.isPaused) {
+      console.log('[Memory] Game is paused, not starting main timer yet');
+      return;
+    }
+
+    // After countdown, flip cards back
+    cards.forEach((card) => card.classList.remove('flipped'));
+
+    // Start main game timer
+    const timerMinutes = config.timerMinutes;
+    Timer.start(timerMinutes);
+
+    // Unlock board for gameplay
+    memoryState.lockBoard = false;
+
+    document.getElementById('game-message').textContent = 'Encontre os pares!';
+  });
 
   // Garantir que o botão de pular esteja visível após setup da UI
   setTimeout(() => {
     const skipBtn = document.getElementById('skip-timer-btn');
     if (skipBtn) {
       skipBtn.style.display = 'inline-block';
-      console.log('Skip button made visible'); // Debug
+      console.log('Skip button made visible');
     } else {
-      console.log('Skip button not found!'); // Debug
+      console.log('Skip button not found!');
     }
   }, 100);
-
-  // const { timerMinutes, previewTime } =
-  //   GameConfig.memory.levels.find((l) => l.phase === phase) || {};
-
-  // function handlePreviewEnd() {
-  //   cards.forEach((card) => card.classList.remove('flipped'));
-  //   document.getElementById('game-message').textContent = 'Embaralhando...';
-
-  //   // Ocultar botão de pular quando o preview termina
-  //   const skipButton = document.getElementById('skip-timer-btn');
-  //   if (skipButton) {
-  //     skipButton.style.display = 'none';
-  //   }
-
-  //   // Criar o timer do jogo imediatamente, mas pausado
-  //   const gameTimerDuration = (timerMinutes || 3) * 60000;
-  //   memoryState.gameTimer = createTimer(
-  //     gameTimerDuration,
-  //     (remaining) => {
-  //       const timerEl = document.getElementById('game-timer');
-  //       if (timerEl) {
-  //         timerEl.textContent = formatTime(remaining);
-  //       }
-  //     },
-  //     () => {
-  //       memoryState.lockBoard = true;
-  //       showPhaseEndModal(false);
-  //     }
-  //   );
-
-  //   // Pausar imediatamente após criação
-  //   memoryState.gameTimer.pause();
-
-  //   setTimeout(() => {
-  //     shuffleAnimation(cards);
-  //     setTimeout(() => {
-  //       memoryState.lockBoard = false;
-  //       document.getElementById('game-message').textContent =
-  //         'Encontre os pares!';
-
-  //       // Retomar o timer do jogo
-  //       if (memoryState.gameTimer) {
-  //         memoryState.gameTimer.resume();
-  //       }
-  //     }, 800);
-  //   }, 600);
-  // }
-
-  // // Configurar botão de pular
-  // const skipButton = document.getElementById('skip-timer-btn');
-  // if (skipButton) {
-  //   // Remover listeners anteriores para evitar duplicação
-  //   skipButton.replaceWith(skipButton.cloneNode(true));
-  //   const newSkipButton = document.getElementById('skip-timer-btn');
-
-  //   newSkipButton.addEventListener('click', () => {
-  //     console.log('Skip button clicked'); // Debug
-
-  //     // Para o timer de preview
-  //     if (memoryState.previewTimer) {
-  //       memoryState.previewTimer.stop();
-  //       memoryState.previewTimer = null;
-  //     }
-
-  //     // Executar imediatamente o fim do preview
-  //     handlePreviewEnd();
-  //   });
-  // }
-
-  // memoryState.previewTimer = createTimer(
-  //   previewTime || 10000,
-  //   (remaining) => {
-  //     const timerEl = document.getElementById('game-timer');
-  //     if (timerEl) timerEl.textContent = formatTime(remaining);
-  //   },
-  //   handlePreviewEnd
-  // );
 }
 
 function startMemoryGamePlay() {
@@ -481,3 +362,15 @@ function resetMemoryTurn() {
     memoryState.lockBoard = false;
   }
 }
+
+// Pause/Resume functions for memory game
+window.pauseMemoryGame = function () {
+  memoryState.lockBoard = true;
+};
+
+window.resumeMemoryGame = function () {
+  // Only unlock if preview time is over
+  if (!Timer.isPreview) {
+    memoryState.lockBoard = false;
+  }
+};

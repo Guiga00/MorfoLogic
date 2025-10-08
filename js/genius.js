@@ -56,10 +56,23 @@ function initGeniusGame(phase) {
 
   // Clear game message
   const gameMessage = document.getElementById('game-message');
-  if (gameMessage) gameMessage.textContent = '';
+  if (gameMessage) gameMessage.textContent = 'Prepare-se...';
 
-  // Start the first wave
-  startWave();
+  // Start 5 second countdown before game
+  Timer.startCountdown(5, () => {
+    // Check if game is paused before starting main timer
+    if (AppState.isPaused) {
+      console.log('[Genius] Game is paused, not starting main timer yet');
+      return;
+    }
+
+    // After countdown, start the main game timer
+    const timerMinutes = GameConfig.genius?.timerMinutes || 5;
+    Timer.start(timerMinutes);
+
+    // Start the game
+    startWave();
+  });
 }
 
 function startWave() {
@@ -111,6 +124,11 @@ function showWaveAnimation(callback) {
 }
 
 function showNextWordInWave(wordIndex, finalCallback) {
+  if (geniusState.isPaused) {
+    setTimeout(() => showNextWordInWave(wordIndex, finalCallback), 100);
+    return;
+  }
+
   const phraseContainer = document.getElementById('genius-phrase');
 
   // Sort by reveal order (oldest to newest)
@@ -499,3 +517,12 @@ function terminateGeniusGame() {
 function getGeniusAnimationDuration(phase) {
   return stillTime + flyTime;
 }
+
+// Pause/Resume functions for genius game
+window.pauseGeniusGame = function () {
+  geniusState.isPaused = true;
+};
+
+window.resumeGeniusGame = function () {
+  geniusState.isPaused = false;
+};

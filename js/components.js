@@ -6,39 +6,83 @@ const Timer = {
   intervalId: null,
   seconds: 0,
   isPaused: false,
+  isPreview: false,
+  onCompleteCallback: null,
 
   start(durationInMinutes) {
     this.stop();
     this.isPaused = false;
+    this.isPreview = false;
+    this.onCompleteCallback = null;
     this.seconds = durationInMinutes * 60;
-    this.resume();
+    this.startInterval();
+    this.updateDisplay();
+  },
+
+  startCountdown(durationInSeconds, onComplete) {
+    this.stop();
+    this.isPaused = false;
+    this.isPreview = true;
+    this.onCompleteCallback = onComplete;
+    this.seconds = durationInSeconds;
+    this.startInterval();
+    this.updateDisplay();
+  },
+
+  startInterval() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+
+    this.intervalId = setInterval(() => {
+      if (!this.isPaused) {
+        this.seconds--;
+        this.updateDisplay();
+
+        if (this.seconds <= 0) {
+          // SAVE the state BEFORE calling stop()
+          const wasPreview = this.isPreview;
+          const callback = this.onCompleteCallback;
+
+          // Now stop the timer
+          this.stop();
+
+          // Check the saved state to decide what to do
+          if (wasPreview && callback) {
+            // Preview ended, start main game
+            callback();
+          } else if (!wasPreview && typeof handleTimeUp === 'function') {
+            // Main game timer ended, game over
+            handleTimeUp();
+          }
+        }
+      }
+    }, 1000);
   },
 
   pause() {
     this.isPaused = true;
-    clearInterval(this.intervalId);
   },
-  
+
   resume() {
-    if (!this.isPaused && this.seconds > 0) {
+    if (this.isPaused && this.seconds > 0) {
       this.isPaused = false;
-      this.intervalId = setInterval(() => {
-        this.seconds--;
-        this.updateDisplay();
-        if (this.seconds <= 0) {
-          this.stop();
-          if (typeof handleTimeUp === 'function') {
-            handleTimeUp();
-          }
-        }
-      }, 1000);
+
+      if (!this.intervalId) {
+        this.startInterval();
+      }
     }
   },
 
   stop() {
     this.isPaused = false;
-    clearInterval(this.intervalId);
-    this.intervalId = null;
+    this.isPreview = false;
+    this.onCompleteCallback = null;
+
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
   },
 
   reset() {
@@ -54,7 +98,7 @@ const Timer = {
       const remainingSeconds = this.seconds % 60;
       display.textContent = `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
-  }
+  },
 };
 
 function TopMenuComponent() {

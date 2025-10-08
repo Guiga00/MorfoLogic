@@ -540,8 +540,12 @@ function goBackToLogin(isExpired = false) {
   document.getElementById('login-error').textContent = '';
   navigate('login-screen');
 }
+
 function goToGameSelection() {
   Timer.reset();
+
+  // Reset pause state
+  AppState.isPaused = false;
 
   AppState.cleanupCurrentGame();
 
@@ -560,6 +564,7 @@ function goToGameSelection() {
       AppState.generalScore;
   navigate('game-selection-screen');
 }
+
 function openPhaseSelectionModal(gameType) {
   const titles = { memory: 'Memória', genius: 'Genius', ligar: 'Tempo' };
   const titleEl = document.getElementById('phase-selection-title');
@@ -632,41 +637,135 @@ function setupGameUIListeners() {
 
 // Funções de controle de pause
 function pauseGame() {
+  if (AppState.isPaused) return;
+
+  AppState.isPaused = true;
+
+  // Pause the timer (works for both countdown and main timer)
   Timer.pause();
 
-  const gameScreen = document.getElementById('game-screen');
-  const playPauseIcon = document.getElementById('game-playpause-icon');
-  const playPauseLabel = document.getElementById('game-playpause-label');
-
-  gameScreen.classList.add('paused');
-  playPauseIcon.innerHTML = '&#9658;';
-  playPauseLabel.innerText = 'Continuar';
-
-  // Pausa timers específicos do jogo
-  if (AppState.currentGame.type === 'memory' && window.pauseMemoryTimer) {
-    window.pauseMemoryTimer();
+  // Pause game-specific logic
+  const currentGame = AppState.currentGame.name;
+  if (
+    currentGame === 'memory' &&
+    typeof window.pauseMemoryGame === 'function'
+  ) {
+    window.pauseMemoryGame();
+  }
+  if (
+    currentGame === 'genius' &&
+    typeof window.pauseGeniusGame === 'function'
+  ) {
+    window.pauseGeniusGame();
+  }
+  if (currentGame === 'ligar' && typeof window.pauseLigarGame === 'function') {
+    window.pauseLigarGame();
   }
 
-  // Mostra modal de pause
-  showModal('game-paused-modal');
-  setupPauseModalListeners();
+  showPauseModal();
+
+  const playPauseBtn = document.getElementById('play-pause-btn');
+  if (playPauseBtn) {
+    playPauseBtn.innerHTML = `
+      <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+      </svg>
+    `;
+  }
 }
 
 function resumeGame() {
+  if (!AppState.isPaused) return;
+
+  AppState.isPaused = false;
+
+  // Resume the timer
   Timer.resume();
 
-  const gameScreen = document.getElementById('game-screen');
-  const playPauseIcon = document.getElementById('game-playpause-icon');
-  const playPauseLabel = document.getElementById('game-playpause-label');
-
-  gameScreen.classList.remove('paused');
-  playPauseIcon.innerHTML = '&#10074;&#10074;';
-  playPauseLabel.innerText = 'Pausar';
-
-  // Resume timers específicos do jogo
-  if (AppState.currentGame.type === 'memory' && window.resumeMemoryTimer) {
-    window.resumeMemoryTimer();
+  // Resume game-specific logic
+  const currentGame = AppState.currentGame.name;
+  if (
+    currentGame === 'memory' &&
+    typeof window.resumeMemoryGame === 'function'
+  ) {
+    window.resumeMemoryGame();
   }
+  if (
+    currentGame === 'genius' &&
+    typeof window.resumeGeniusGame === 'function'
+  ) {
+    window.resumeGeniusGame();
+  }
+  if (currentGame === 'ligar' && typeof window.resumeLigarGame === 'function') {
+    window.resumeLigarGame();
+  }
+
+  // Hide pause overlay
+  hidePauseModal();
+
+  // Update button icon
+  const playPauseBtn = document.getElementById('play-pause-btn');
+  if (playPauseBtn) {
+    playPauseBtn.innerHTML = `
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z"/>
+            </svg>
+        `;
+  }
+}
+
+function showPauseModal() {
+  let modal = document.getElementById('pause-modal');
+
+  if (!modal) {
+    modal = createPauseModal();
+    document.body.appendChild(modal);
+  }
+
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+}
+
+function hidePauseModal() {
+  const modal = document.getElementById('pause-modal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+}
+
+function createPauseModal() {
+  const modal = document.createElement('div');
+  modal.id = 'pause-modal';
+  modal.className =
+    'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden';
+
+  modal.innerHTML = `
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center shadow-2xl">
+            <div class="mb-6">
+                <svg class="w-20 h-20 mx-auto text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z"/>
+                </svg>
+            </div>
+            
+            <h2 class="text-3xl font-bold text-gray-800 mb-3">Jogo Pausado</h2>
+            <p class="text-gray-600 mb-6">O tempo está parado. Escolha uma opção:</p>
+            
+            <div class="flex flex-col gap-3">
+                <button onclick="resumeGame()" class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                    Retomar Jogo
+                </button>
+                <button onclick="restartPhase()" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                    Reiniciar Fase
+                </button>
+                <button onclick="quitGame()" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                    Sair do Jogo
+                </button>
+            </div>
+        </div>
+    `;
+
+  return modal;
 }
 
 function setupPauseModalListeners() {
@@ -704,12 +803,12 @@ function setupPauseModalListeners() {
 function startGame(type, phase) {
   AppState.cleanupCurrentGame();
   closeModal(document.getElementById('phase-selection-modal'));
-  // Pausa o timer de sessão durante o jogo
   pauseSessionTimer();
 
   AppState.currentGame = {
     type,
     phase,
+    name: type,
     score: 0,
     stars: 3,
     errors: 0,
@@ -725,7 +824,6 @@ function startGame(type, phase) {
   setupGameUIListeners();
   navigate('game-screen');
 
-  // --- Timer inicial e botão de pular ---
   const timerEl = document.getElementById('game-timer');
   const skipBtn = document.getElementById('skip-timer-btn');
   const gameConfigForType = GameConfig[type];
@@ -735,53 +833,48 @@ function startGame(type, phase) {
 
   if (!gameLevelConfig) return;
 
-  const startMainGameTimer = () => {
+  if (timerEl) timerEl.style.display = 'block';
+
+  // Function to start main game after preview
+  const startMainGame = () => {
+    if (skipBtn) skipBtn.style.display = 'none';
     Timer.start(gameLevelConfig.timerMinutes);
+
+    switch (type) {
+      case 'memory':
+        startMemoryGamePlay();
+        break;
+      case 'ligar':
+        initLigarGame(phase);
+        break;
+    }
   };
 
   if (type === 'genius') {
-    if (timerEl) timerEl.style.display = 'block';
     if (skipBtn) skipBtn.style.display = 'none';
 
-    // This is the restored logic
     const animationDuration = getGeniusAnimationDuration(phase);
-    let countdownSeconds = Math.ceil(animationDuration / 1000);
+    const countdownSeconds = Math.ceil(animationDuration / 1000);
 
     initGeniusGame(phase);
 
-    const formatPreviewTime = (s) => `00:${s.toString().padStart(2, '0')}`;
-    if (timerEl) {
-      timerEl.textContent = formatPreviewTime(countdownSeconds);
+    Timer.startCountdown(countdownSeconds, () => {
+      Timer.start(gameLevelConfig.timerMinutes);
+    });
+  } else if (gameLevelConfig.previewTime && gameLevelConfig.previewTime > 0) {
+    // Initialize the game FIRST
+    if (type === 'memory') {
+      initMemoryGame(phase);
     }
 
-    const previewInterval = setInterval(() => {
-      countdownSeconds--;
-
-      if (timerEl) {
-        timerEl.textContent = formatPreviewTime(countdownSeconds);
-      }
-
-      if (countdownSeconds <= 0) {
-        clearInterval(previewInterval);
-      }
-    }, 1000);
-    AppState.currentGame.previewInterval = previewInterval;
-
-    const previewTimeout = setTimeout(() => {
-      clearInterval(previewInterval);
-      startMainGameTimer();
-    }, animationDuration);
-    AppState.currentGame.previewTimeout = previewTimeout;
-  } else if (gameLevelConfig.previewTime && gameLevelConfig.previewTime > 0) {
-    if (timerEl) timerEl.style.display = 'block';
-
+    // Show skip button if allowed
     if (skipBtn && gameConfigForType.allowSkipPreview) {
       skipBtn.style.display = 'inline-block';
 
       const skipHandler = () => {
-        clearInterval(previewInterval);
-        clearTimeout(previewTimeout);
-        startMainGame();
+        Timer.stop(); // Stop the countdown timer
+        skipBtn.style.display = 'none'; // Hide skip button
+        startMainGame(); // Start main game
         skipBtn.removeEventListener('click', skipHandler);
       };
 
@@ -790,68 +883,39 @@ function startGame(type, phase) {
       skipBtn.style.display = 'none';
     }
 
-    const startMainGame = () => {
-      if (skipBtn) skipBtn.style.display = 'none';
-      Timer.start(gameLevelConfig.timerMinutes);
-
-      switch (type) {
-        case 'memory':
-          startMemoryGamePlay();
-          break;
-        case 'genius':
-          break;
-        case 'ligar':
-          initLigarGame(phase);
-      }
-    };
-
-    initMemoryGame(phase);
-
-    let previewSeconds = gameLevelConfig.previewTime / 1000;
-    const formatPreviewTime = (s) => `00:${s.toString().padStart(2, '0')}`;
-    timerEl.textContent = formatPreviewTime(previewSeconds);
-
-    const previewInterval = setInterval(() => {
-      previewSeconds--;
-      if (timerEl) timerEl.textContent = formatPreviewTime(previewSeconds);
-    }, 1000);
-    AppState.currentGame.previewInterval = previewInterval;
-
-    const previewTimeout = setTimeout(() => {
-      clearInterval(previewInterval);
-      startMainGame();
-    }, gameLevelConfig.previewTime);
-    AppState.currentGame.previewTimeout = previewTimeout;
+    // Start countdown for preview
+    const previewSeconds = gameLevelConfig.previewTime / 1000;
+    Timer.startCountdown(previewSeconds, startMainGame);
   } else {
-    if (timerEl) timerEl.style.display = 'block';
+    // No preview time - start game immediately
     if (skipBtn) skipBtn.style.display = 'none';
 
-    if (type === 'ligar') initLigarGame(phase);
+    if (type === 'ligar') {
+      initLigarGame(phase);
+    }
 
-    startMainGameTimer();
+    Timer.start(gameLevelConfig.timerMinutes);
   }
 }
 
 function restartPhase() {
-  // Remove o estado de pausa antes de reiniciar
-  const gameScreen = document.getElementById('game-screen');
-  const playPauseIcon = document.getElementById('game-playpause-icon');
-  const playPauseLabel = document.getElementById('game-playpause-label');
+  // Close modal first
+  hidePauseModal();
 
-  if (gameScreen) {
-    gameScreen.classList.remove('paused');
-  }
+  // Reset pause state
+  AppState.isPaused = false;
 
-  // Restaura os controles para estado não pausado
-  if (playPauseIcon) {
-    playPauseIcon.innerHTML = '&#10074;&#10074;';
-  }
-  if (playPauseLabel) {
-    playPauseLabel.innerText = 'Pausar';
-  }
-
+  // Cleanup and restart
   AppState.cleanupCurrentGame();
   startGame(AppState.currentGame.type, AppState.currentGame.phase);
+}
+
+function quitGame() {
+  // Reset pause state
+  AppState.isPaused = false;
+
+  hidePauseModal();
+  goToGameSelection();
 }
 
 function updateGameUI() {
