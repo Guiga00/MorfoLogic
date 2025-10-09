@@ -511,7 +511,7 @@ body::after {
   transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
-.symbol-flying {
+/* .symbol-flying {
   position: fixed;
   width: 48px;
   height: 48px;
@@ -527,6 +527,16 @@ body::after {
   box-shadow:
     0 4px 6px -1px rgb(0 0 0 / 0.1),
     0 2px 4px -2px rgb(0 0 0 / 0.1);
+} */
+
+.symbol-flying {
+  position: fixed;
+  z-index: 100;
+  width: 64px; /* w-16 */
+  height: 64px; /* h-16 */
+  transition:
+    transform 1.2s cubic-bezier(0.5, 0, 0.75, 0),
+    opacity 1s ease-out;
 }
 
 #genius-symbols-bank .genius-symbol {
@@ -829,55 +839,59 @@ body::after {
 /* === GENIUS GAME STYLES === */
 
 .reveal-animation {
-    animation: fadeInScale 0.5s ease-out forwards;
-    opacity: 0;
+  animation: fadeInScale 0.5s ease-out forwards;
+  opacity: 0;
 }
 
 @keyframes fadeInScale {
-    0% {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-    100% {
-        opacity: 1;
-        transform: scale(1);
-    }
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .animate-pulse-symbol {
-    animation: pulse-symbol 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  animation: pulse-symbol 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse-symbol {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-        border-color: #3b82f6;
-    }
-    50% {
-        opacity: 0.7;
-        transform: scale(1.05);
-        border-color: #60a5fa;
-    }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    border-color: #3b82f6;
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+    border-color: #60a5fa;
+  }
 }
 
 .symbol-placeholder.filled {
-    border-style: solid !important;
-    background-color: #f0f9ff !important;
-    border-color: #10b981 !important;
+  border-style: solid !important;
+  background-color: #f0f9ff !important;
+  border-color: #10b981 !important;
 }
 
 .genius-symbol img {
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .symbol-placeholder img {
-    width: 100%;
-    height: 100%;
+  width: 100%;
+  height: 100%;
 }
 
 .dragging {
-    cursor: grabbing !important;
+  cursor: grabbing !important;
 }

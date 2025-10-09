@@ -126,61 +126,38 @@ function initLigarGame(phase) {
   }
 
   board.innerHTML = `
-    <div class="ligar-board-grid ${faseClass}">
-      <!-- classes column -->
-      <div class="${colClass}">
-        ${addPlaceholders(
-          classes,
-          classCols,
-          (c) => `
-          <div class="ligar-class" data-class-id="${c.id}">
-            <div class="class-name">${c.name}</div>
-          </div>
-        `
-        )}
-      </div>
-      
-      <!-- symbols column -->
-      <div class="${symbolColClass}">
-        ${addSymbolPlaceholders(
-          symbols,
-          symbolCols,
-          (c) => `
-          <div class="ligar-symbol draggable" draggable="true" data-symbol-id="${c.id}">
-            ${c.symbol('w-16 h-16 p-2')}
-          </div>
-        `
-        )}
-      </div>
-    </div>
-  `;
+      <div class="ligar-board-grid ${faseClass}">
+        <div id="ligar-classes" class="ligar-col-grid ligar-col-classes ${colClass}">
+          ${addPlaceholders(
+            classes,
+            classCols,
+            (c) =>
+              `<div class="ligar-class-item">
+                <div class="ligar-class-label">${c.name}</div>
+                <div class="target ligar-dropzone" data-id="${c.id}"></div>
+            </div>`
+          )}
+        </div>
+        <div id="ligar-symbols-bank" class="ligar-col-grid ligar-col-symbols ${symbolColClass}">
+          ${addSymbolPlaceholders(
+            symbols,
+            symbolCols,
+            (s) =>
+              `<div class="ligar-symbol-item">
+              <div class="genius-symbol draggable" data-id="${s.id}">
+                  ${s.symbol('')}
+              </div>
+            </div>`
+          )}
+        </div>
+      </div>`;
+  document.getElementById('game-message').textContent =
+    'Arraste cada símbolo para sua classe.';
 
-  // Show prepare message
-  const gameMessage = document.getElementById('game-message');
-  if (gameMessage) gameMessage.textContent = 'Prepare-se...';
-
-  // Start 5 second countdown before game
-  Timer.startCountdown(5, () => {
-    // Check if game is paused before starting main timer
-    if (AppState.isPaused) {
-      console.log('[Ligar] Game is paused, not starting main timer yet');
-      return;
-    }
-
-    // After countdown, start the main timer
-    const timerMinutes = GameConfig.ligar?.timerMinutes || 3;
-    Timer.start(timerMinutes);
-
-    if (gameMessage)
-      gameMessage.textContent = 'Arraste os símbolos para as classes!';
-
-    // Initialize dragging after countdown
-    DraggableManager.init({
-      draggableSelector: '.ligar-symbol',
-      dropzoneSelector: '.ligar-class',
-      onDrop: handleLigarDrop,
-    });
-  });
+  DraggableManager.makeDraggable(
+    '#ligar-symbols-bank .draggable',
+    handleLigarDrop
+  );
 }
 
 function handleLigarDrop(symbolEl, targetEl, placeholder, unlockCallback) {
@@ -214,7 +191,6 @@ function handleLigarDrop(symbolEl, targetEl, placeholder, unlockCallback) {
       targetEl.classList.remove('border-green-400');
       targetEl.classList.add('ligar-dropzone-correct');
       targetEl.dataset.completed = 'true';
-      // AppState.currentGame.score += ligarState.errorsOnItem[droppedSymbolId] === 0 ? 10 : 5;
       ligarState.connections++;
       updateGameUI();
       if (ligarState.connections === ligarState.total)
@@ -252,20 +228,3 @@ function handleLigarDrop(symbolEl, targetEl, placeholder, unlockCallback) {
     }, 300);
   }
 }
-
-// Pause/Resume functions for ligar game
-window.pauseLigarGame = function () {
-  // Disable dragging during pause
-  DraggableManager.cleanup();
-};
-
-window.resumeLigarGame = function () {
-  // Re-enable dragging only if not in preview
-  if (!Timer.isPreview) {
-    DraggableManager.init({
-      draggableSelector: '.ligar-symbol',
-      dropzoneSelector: '.ligar-class',
-      onDrop: handleLigarDrop,
-    });
-  }
-};
