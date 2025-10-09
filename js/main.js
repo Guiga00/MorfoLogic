@@ -361,6 +361,7 @@ function saveData() {
     console.error('Falha ao salvar os dados:', error);
   }
 }
+
 function loadData(username) {
   try {
     const allData = JSON.parse(localStorage.getItem('morfoLogicData')) || {};
@@ -381,6 +382,28 @@ function loadData(username) {
     AppState.generalScore = 0;
     AppState.progress = { memory: 0, genius: 0, ligar: 0 };
   }
+}
+
+// First-time help flag
+function hasSeenHelp(user, gameType) {
+  try {
+    const key = 'ml_help_seen_v1';
+    const data = JSON.parse(localStorage.getItem(key) || '{}');
+    return !!data?.[user || 'guest']?.[gameType];
+  } catch {
+    return false;
+  }
+}
+
+function setSeenHelp(user, gameType) {
+  try {
+    const key = 'ml_help_seen_v1';
+    const data = JSON.parse(localStorage.getItem(key) || '{}');
+    const u = user || 'guest';
+    data[u] = data[u] || {};
+    data[u][gameType] = true;
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {}
 }
 
 function navigate(screenId) {
@@ -602,7 +625,11 @@ function setupGameUIListeners() {
   const volumeSlider = document.getElementById('game-volume');
   const playPauseBtn = document.getElementById('game-playpause-btn');
   const gameScreen = document.getElementById('game-screen');
+  const helpBtn = document.getElementById('game-help-btn');
 
+  setupHelpModalListeners();
+
+  if (helpBtn) helpBtn.addEventListener('click', openHelpModal);
   if (!playPauseBtn) return;
 
   muteBtn.addEventListener('click', () => {
@@ -851,6 +878,154 @@ function setupPauseModalListeners() {
   });
 }
 
+// Help modal: create once and reuse
+function createHelpModal() {
+  const existing = document.getElementById('help-modal');
+  if (existing) return existing;
+
+  const modal = document.createElement('div');
+  modal.id = 'help-modal';
+  modal.className =
+    'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden';
+
+  modal.innerHTML = `
+    <div class="bg-white rounded-2xl p-6 md:p-8 max-w-xl w-full mx-4 text-left shadow-2xl relative">
+      <button id="help-close-btn" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-stone-200 hover:bg-stone-300 flex items-center justify-center" aria-label="Fechar ajuda">
+        ✕
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-9 h-9 rounded-full bg-blue-500 text-white font-bold flex items-center justify-center">?</div>
+        <h2 class="text-2xl font-bold text-gray-800">Como jogar</h2>
+      </div>
+
+      <div id="help-modal-content" class="text-gray-700 leading-relaxed"></div>
+
+      <div class="mt-6 flex justify-end">
+        <button id="help-ok-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+          Entendi
+        </button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+  return modal;
+}
+
+function openHelpModal() {
+  const modal = createHelpModal();
+  const content = document.getElementById('help-modal-content');
+  content.innerHTML = getHowToPlayContent();
+
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+
+  // Focus for accessibility
+  const ok = document.getElementById('help-ok-btn');
+  if (ok) ok.focus();
+}
+
+function closeHelpModal() {
+  const modal = document.getElementById('help-modal');
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.style.display = 'none';
+}
+
+// Wire close buttons and ESC key once
+function setupHelpModalListeners() {
+  createHelpModal(); // ensure it exists
+
+  const modal = document.getElementById('help-modal');
+  const closeBtn = document.getElementById('help-close-btn');
+  const okBtn = document.getElementById('help-ok-btn');
+
+  const safeBind = (el, evt, fn) => el && el.addEventListener(evt, fn);
+
+  safeBind(closeBtn, 'click', closeHelpModal);
+  safeBind(okBtn, 'click', closeHelpModal);
+
+  // Click outside dialog closes
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeHelpModal();
+  });
+
+  // ESC closes
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.style.display === 'flex') {
+      closeHelpModal();
+    }
+  });
+}
+
+function openHelpModalGate(onContinue) {
+  openHelpModal(); // uses your existing modal + dynamic content
+  const closeBtn = document.getElementById('help-close-btn');
+  const okBtn = document.getElementById('help-ok-btn');
+
+  const handler = () => {
+    closeHelpModal();
+    if (typeof onContinue === 'function') onContinue();
+    closeBtn && closeBtn.removeEventListener('click', handler);
+    okBtn && okBtn.removeEventListener('click', handler);
+  };
+
+  closeBtn && closeBtn.addEventListener('click', handler);
+  okBtn && okBtn.addEventListener('click', handler);
+}
+
+// Dynamic content by game
+function getHowToPlayContent() {
+  const type =
+    (AppState.currentGame && AppState.currentGame.name) ||
+    AppState.currentGame?.type ||
+    '';
+
+  if (type === 'memory') {
+    return `
+      <p class="mb-3">Vire duas cartas por vez e encontre pares com o mesmo símbolo.</p>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>Observe os símbolos e memorize suas posições.</li>
+        <li>Faça pares corretos para marcar pontos; erros somam ao contador.</li>
+        <li>Complete todos os pares antes do tempo acabar.</li>
+      </ul>
+    `;
+  }
+
+  if (type === 'genius') {
+    return `
+      <p class="mb-3">Memorize a ordem em que os símbolos aparecem e então reproduza arrastando-os para as posições corretas.</p>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>Observe a sequência apresentada na fase de memória.</li>
+        <li>Arraste os símbolos do banco para os espaços na mesma ordem.</li>
+        <li>Termine a sequência antes do tempo acabar para avançar.</li>
+      </ul>
+    `;
+  }
+
+  if (type === 'ligar') {
+    return `
+      <p class="mb-3">Arraste cada símbolo para sua classe gramatical correspondente.</p>
+      <ul class="list-disc pl-5 space-y-1">
+        <li>Leia o nome da classe em cada alvo.</li>
+        <li>Combine o símbolo correto com a classe correta.</li>
+        <li>Complete todas as ligações para finalizar a fase.</li>
+      </ul>
+    `;
+  }
+
+  // Fallback
+  return `
+    <p class="mb-3">Complete o objetivo do minijogo antes do tempo acabar.</p>
+    <ul class="list-disc pl-5 space-y-1">
+      <li>Leia a instrução no topo da tela.</li>
+      <li>Use arrastar e soltar quando aplicável.</li>
+      <li>Boa sorte!</li>
+    </ul>
+  `;
+}
+
 function startGame(type, phase) {
   AppState.cleanupCurrentGame();
   closeModal(document.getElementById('phase-selection-modal'));
@@ -876,105 +1051,126 @@ function startGame(type, phase) {
   setupGameUIListeners();
   navigate('game-screen');
 
-  // --- Timer inicial e botão de pular ---
-  const timerEl = document.getElementById('game-timer');
-  const skipBtn = document.getElementById('skip-timer-btn');
-  const gameConfigForType = GameConfig[type];
-  const gameLevelConfig = gameConfigForType.levels.find(
-    (level) => level.phase === phase
-  );
+  const begin = () => {
+    // --- Timer inicial e botão de pular ---
+    const timerEl = document.getElementById('game-timer');
+    const skipBtn = document.getElementById('skip-timer-btn');
+    const gameConfigForType = GameConfig[type];
+    const gameLevelConfig = gameConfigForType.levels.find(
+      (level) => level.phase === phase
+    );
 
-  if (!gameLevelConfig) return;
+    if (!gameLevelConfig) return;
 
-  const startMainGameTimer = () => {
-    Timer.start(gameLevelConfig.timerMinutes);
-  };
-
-  if (type === 'genius') {
-    if (timerEl) timerEl.style.display = 'block';
-    if (skipBtn) skipBtn.style.display = 'none';
-
-    // Initialize genius game
-    initGeniusGame(phase);
-
-    // Start main timer immediately (no preview)
-    startMainGameTimer();
-  } else if (gameLevelConfig.previewTime && gameLevelConfig.previewTime > 0) {
-    if (timerEl) timerEl.style.display = 'block';
-
-    if (skipBtn && gameConfigForType.allowSkipPreview) {
-      skipBtn.style.display = 'inline-block';
-
-      const skipHandler = () => {
-        clearInterval(previewInterval);
-        clearTimeout(previewTimeout);
-        startMainGame();
-        skipBtn.removeEventListener('click', skipHandler);
-      };
-
-      skipBtn.addEventListener('click', skipHandler);
-    } else if (skipBtn) {
-      skipBtn.style.display = 'none';
-    }
-
-    const startMainGame = () => {
-      if (AppState.isPaused) {
-        console.log(
-          '[StartGame] Paused during preview, not starting main timer'
-        );
-        return;
-      }
-
-      if (skipBtn) skipBtn.style.display = 'none';
+    const startMainGameTimer = () => {
       Timer.start(gameLevelConfig.timerMinutes);
-
-      switch (type) {
-        case 'memory':
-          startMemoryGamePlay();
-          break;
-        case 'genius':
-          break;
-        case 'ligar':
-          initLigarGame(phase);
-      }
     };
 
-    initMemoryGame(phase);
+    if (type === 'genius') {
+      if (timerEl) timerEl.style.display = 'block';
+      if (skipBtn) skipBtn.style.display = 'none';
 
-    let previewSeconds = gameLevelConfig.previewTime / 1000;
-    const formatPreviewTime = (s) => `00:${s.toString().padStart(2, '0')}`;
-    timerEl.textContent = formatPreviewTime(previewSeconds);
+      // Initialize genius game
+      initGeniusGame(phase);
 
-    // Pause-aware preview countdown
-    const previewInterval = setInterval(() => {
-      if (!AppState.isPaused) {
-        previewSeconds--;
-        if (timerEl) timerEl.textContent = formatPreviewTime(previewSeconds);
-        if (previewSeconds <= 0) {
+      // Start main timer immediately (no preview)
+      startMainGameTimer();
+    } else if (gameLevelConfig.previewTime && gameLevelConfig.previewTime > 0) {
+      if (timerEl) timerEl.style.display = 'block';
+
+      if (skipBtn && gameConfigForType.allowSkipPreview) {
+        skipBtn.style.display = 'inline-block';
+
+        const skipHandler = () => {
           clearInterval(previewInterval);
-        }
+          clearTimeout(previewTimeout);
+          startMainGame();
+          skipBtn.removeEventListener('click', skipHandler);
+        };
+
+        skipBtn.addEventListener('click', skipHandler);
+      } else if (skipBtn) {
+        skipBtn.style.display = 'none';
       }
-    }, 1000);
-    AppState.currentGame.previewInterval = previewInterval;
 
-    // Store timeout info for pause/resume
-    AppState.currentGame.previewTimeoutStart = Date.now();
-    AppState.currentGame.previewTimeoutDuration = gameLevelConfig.previewTime;
-    AppState.currentGame.previewTimeoutCallback = startMainGame;
+      const startMainGame = () => {
+        if (AppState.isPaused) {
+          console.log(
+            '[StartGame] Paused during preview, not starting main timer'
+          );
+          return;
+        }
 
-    const previewTimeout = setTimeout(() => {
-      clearInterval(previewInterval);
-      startMainGame();
-    }, gameLevelConfig.previewTime);
-    AppState.currentGame.previewTimeout = previewTimeout;
-  } else {
-    if (timerEl) timerEl.style.display = 'block';
-    if (skipBtn) skipBtn.style.display = 'none';
+        if (skipBtn) skipBtn.style.display = 'none';
+        Timer.start(gameLevelConfig.timerMinutes);
 
-    if (type === 'ligar') initLigarGame(phase);
+        switch (type) {
+          case 'memory':
+            startMemoryGamePlay();
+            break;
+          case 'genius':
+            break;
+          case 'ligar':
+            initLigarGame(phase);
+        }
+      };
 
-    startMainGameTimer();
+      initMemoryGame(phase);
+
+      let previewSeconds = gameLevelConfig.previewTime / 1000;
+      const formatPreviewTime = (s) => `00:${s.toString().padStart(2, '0')}`;
+      timerEl.textContent = formatPreviewTime(previewSeconds);
+
+      // Pause-aware preview countdown
+      const previewInterval = setInterval(() => {
+        if (!AppState.isPaused) {
+          previewSeconds--;
+          if (timerEl) timerEl.textContent = formatPreviewTime(previewSeconds);
+          if (previewSeconds <= 0) {
+            clearInterval(previewInterval);
+          }
+        }
+      }, 1000);
+      AppState.currentGame.previewInterval = previewInterval;
+
+      // Store timeout info for pause/resume
+      AppState.currentGame.previewTimeoutStart = Date.now();
+      AppState.currentGame.previewTimeoutDuration = gameLevelConfig.previewTime;
+      AppState.currentGame.previewTimeoutCallback = startMainGame;
+
+      const previewTimeout = setTimeout(() => {
+        clearInterval(previewInterval);
+        startMainGame();
+      }, gameLevelConfig.previewTime);
+      AppState.currentGame.previewTimeout = previewTimeout;
+    } else {
+      if (timerEl) timerEl.style.display = 'block';
+      if (skipBtn) skipBtn.style.display = 'none';
+
+      if (type === 'ligar') initLigarGame(phase);
+
+      startMainGameTimer();
+    }
+  };
+
+  const user = AppState.currentUser || 'guest';
+
+  if (!hasSeenHelp(user, type)) {
+    // Ensure no gameplay runs yet
+    AppState.isPaused = true;
+    Timer.pause();
+
+    openHelpModalGate(() => {
+      setSeenHelp(user, type);
+      AppState.isPaused = false;
+      begin();
+    });
+
+    return; // Stop here for first-time; begin() runs after modal close
   }
+
+  // Not first time: start immediately
+  begin();
 }
 
 function restartPhase() {

@@ -119,6 +119,9 @@ function TopMenuComponent() {
             Pular
           </button>
         </div>
+        <button id="game-help-btn" type="button" class="text-[#386ccc] hover:text-[#2a529f] text-2xl font-bold focus:outline-none ml-2" aria-label="Como jogar" title="Como jogar">
+          ?
+        </button>
         <button id="game-close-btn" title="Fechar" class="text-red-600 hover:text-red-800 text-2xl font-bold focus:outline-none ml-2">
           &times;
         </button>
