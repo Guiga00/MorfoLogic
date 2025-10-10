@@ -52,38 +52,66 @@ function generateBoardHTML(items, phase) {
     `);
   }
 
-  const midPoint = Math.ceil(pairsHTML.length / 2);
-  const column1 = pairsHTML.slice(0, midPoint).join('');
-  const column2 = pairsHTML.slice(midPoint).join('');
-
   const phaseClass = `memory-board-phase-${phase}`;
+
+  // Inserir cartas invisíveis na penúltima posição para fases 2 e 3
+  if (phase === 2 || phase === 3) {
+    const invisiblePair = `
+      <div class="card-pair invisible-cards" style="opacity: 0;">
+        <div class="card invisible-card">
+          <div class="card-inner relative w-full h-full">
+            <div class="card-front absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2">
+              <img src="./assets/img/card-logo.svg" alt="Verso da Carta" class="w-full h-full object-contain">
+            </div>
+            <div class="card-back absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 text-center font-bold text-xs sm:text-sm md:text-base">
+              DEBUG 1
+            </div>
+          </div>
+        </div>
+        <div class="card invisible-card">
+          <div class="card-inner relative w-full h-full">
+            <div class="card-front absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2">
+              <img src="./assets/img/card-logo.svg" alt="Verso da Carta" class="w-full h-full object-contain">
+            </div>
+            <div class="card-back absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 text-center font-bold text-xs sm:text-sm md:text-base">
+              DEBUG 2
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Inserir na posição correta: penúltima para fase 2, antepenúltima para fase 3
+    let insertPosition;
+    if (phase === 2) {
+      insertPosition = pairsHTML.length - 1; // Penúltima posição
+    } else if (phase === 3) {
+      insertPosition = pairsHTML.length - 2; // Antepenúltima posição
+    }
+
+    pairsHTML.splice(insertPosition, 0, invisiblePair);
+  }
+
   return `
     <div class="memory-board-container preview-mode ${phaseClass}">
-        
-
-        ${items
-          .map((item, index) => {
-            // Since we process pairs, only create a pair for every other item.
-            if (index % 2 !== 0) return '';
-
-            const nameCard = items[index];
-            const symbolCard = items[index + 1];
-
-            return `
-            <div class="card-pair">
-              ${createCardHTML(nameCard, nameCard.originalIndex)}
-              ${createCardHTML(symbolCard, symbolCard.originalIndex)}
-            </div>
-          `;
-          })
-          .join('')}
+        ${pairsHTML.join('')}
     </div>`;
 }
 
 function shuffleAnimation(cards) {
   const boardContainer = document.querySelector('.memory-board-container');
   const initialPositions = new Map();
-  cards.forEach((card) => {
+
+  // Remover cartas invisíveis antes da animação
+  const invisibleCards = boardContainer.querySelectorAll('.invisible-cards');
+  invisibleCards.forEach((invisiblePair) => invisiblePair.remove());
+
+  // Filtrar apenas as cartas reais (excluir invisíveis)
+  const realCards = Array.from(cards).filter(
+    (card) => !card.classList.contains('invisible-card')
+  );
+
+  realCards.forEach((card) => {
     initialPositions.set(card, card.getBoundingClientRect());
   });
 
@@ -99,11 +127,11 @@ function shuffleAnimation(cards) {
     el.remove();
   });
 
-  shuffleArray(Array.from(cards)).forEach((card) =>
+  shuffleArray(Array.from(realCards)).forEach((card) =>
     boardContainer.appendChild(card)
   );
 
-  cards.forEach((card) => {
+  realCards.forEach((card) => {
     const finalRect = card.getBoundingClientRect();
     const initialRect = initialPositions.get(card);
     const deltaX = initialRect.left - finalRect.left;
@@ -113,13 +141,13 @@ function shuffleAnimation(cards) {
 
   void boardContainer.offsetWidth;
 
-  cards.forEach((card) => {
+  realCards.forEach((card) => {
     card.style.transition = 'transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)';
     card.style.transform = '';
   });
 
   setTimeout(() => {
-    cards.forEach((card) => {
+    realCards.forEach((card) => {
       card.style.transition = '';
     });
   }, 800);
@@ -227,13 +255,13 @@ function initMemoryGame(phase) {
 
   boardElement.innerHTML = generateBoardHTML(items, phase);
 
-  const cards = boardElement.querySelectorAll('.card');
+  const cards = boardElement.querySelectorAll('.card:not(.invisible-card)');
 
   cards.forEach((card) => {
     card.addEventListener('click', () => handleMemoryClick(card));
   });
 
-  // Flip all cards to show them
+  // Flip all real cards to show them (not invisible ones)
   cards.forEach((card) => card.classList.add('flipped'));
   document.getElementById('game-message').textContent = 'Memorize os pares!';
 
@@ -280,12 +308,12 @@ function startMemoryGamePlay() {
   const board = document.getElementById('game-board');
 
   if (board) {
-    board
-      .querySelectorAll('.card')
-      .forEach((card) => card.classList.remove('flipped'));
+    // Filtrar apenas cartas reais (não invisíveis)
+    const realCards = board.querySelectorAll('.card:not(.invisible-card)');
+    realCards.forEach((card) => card.classList.remove('flipped'));
     GameAudio.play('shuffle');
     document.getElementById('game-message').textContent = 'Encontre os pares!';
-    shuffleAnimation(board.querySelectorAll('.card'));
+    shuffleAnimation(realCards);
   }
 }
 
