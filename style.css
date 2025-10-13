@@ -1,279 +1,34 @@
-/* Placeholder invisível para centralizar última linha na grid do minigame Ligar */
-.ligar-placeholder {
-  visibility: hidden !important;
-  pointer-events: none;
-}
-
-/* --- LIGAR MINIGAME STYLES --- */
-.ligar-board-grid {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
-  gap: 80px;
-  /* Espaçamento padrão entre as duas colunas principais */
-  width: 100%;
-}
-
-/* Espaçamento customizado por fase */
-.ligar-board-grid.fase1 {
-  gap: 24px;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.ligar-board-grid.fase2 {
-  gap: 60px;
-}
-
-.ligar-board-grid.fase3 {
-  gap: 100px;
-}
-
-/* MODIFICADO para usar Flexbox e centralizar a última linha */
-.ligar-col-grid {
-  display: grid;
-  justify-content: center;
-  align-content: start;
-  gap: 24px;
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* Grid dinâmica para cada fase */
-.ligar-col-classes-fase1,
-.ligar-col-symbols-fase1 {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.ligar-col-classes-fase2,
-.ligar-col-symbols-fase2 {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-.ligar-col-classes-fase3,
-.ligar-col-symbols-fase3 {
-  grid-template-columns: repeat(4, 1fr);
-}
-
-/* --- CONTROLE DE COLUNAS POR FASE (AGORA COM FLEXBOX) --- */
-/* A lógica aqui é definir uma largura máxima para o container, 
-   forçando a quebra de linha após o número desejado de itens.
-   Cálculo: (Nº de colunas * largura do item) + ((Nº de colunas - 1) * gap)
-   Assumindo a largura do .ligar-dropzone de 96px. */
-
-/* Fase 1 -> 2 colunas */
-.ligar-col-classes-fase1,
-.ligar-col-symbols-fase1 {
-  max-width: 150px;
-  /* (2 * 96px) + 24px */
-}
-
-/* Fase 2 -> 3 colunas */
-.ligar-col-classes-fase2,
-.ligar-col-symbols-fase2 {
-  max-width: 150px;
-  /* (3 * 96px) + (2 * 24px) */
-}
-
-/* Fase 3 -> 4 colunas */
-.ligar-col-classes-fase3,
-.ligar-col-symbols-fase3 {
-  max-width: 456px;
-  /* (4 * 96px) + (3 * 24px) */
-}
-
-/* --- ESTILOS DOS ITENS  --- */
-.ligar-class-item,
-.ligar-symbol-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.ligar-class-label {
-  margin-bottom: 8px;
-  text-align: center;
-  font-weight: bold;
-  font-size: 1rem;
-}
-
-.ligar-dropzone {
-  background: #f5f5f5;
-  border: 2px dashed #60a5fa;
-  width: 96px;
-  height: 96px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.genius-symbol.draggable {
-  width: 64px;
-  height: 64px;
-  padding: 4px;
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  cursor: grab;
-  transition: box-shadow 0.2s;
-  z-index: 10;
-}
-
-#phase-end-modal {
-  z-index: 200 !important;
-  pointer-events: auto !important;
-}
-
-.genius-symbol.draggable:active {
-  cursor: grabbing;
-}
-
-/**
- * style.css
- */
-
-#app>* {
-  grid-column: 1 / -1;
-  grid-row: 1 / -1;
-}
-
-#game-screen::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 99;
-  /* The overlay has a z-index of 99 */
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.3s,
-    visibility 0.3s;
-  pointer-events: none;
-}
-
-/* Quando o jogo está pausado, bloqueia interação visual e de ponteiro */
-#game-screen.paused {
-  pointer-events: none;
-  user-select: none;
-}
-
-#game-screen.paused #game-playpause-btn {
-  pointer-events: auto !important;
-  opacity: 1 !important;
-}
-
-/* Garante que o modal de fim de fase fique sempre clicável e acima do overlay */
-#phase-end-modal {
-  z-index: 200 !important;
-  pointer-events: auto !important;
-}
-
-/* Garante que o modal de pause fique sempre acima do overlay de pause */
-#game-paused-modal {
-  z-index: 150 !important;
-  pointer-events: auto !important;
-}
-
-#game-screen.paused .ligar-class-item,
-#game-screen.paused .ligar-symbol-item,
-#game-screen.paused .ligar-dropzone,
-#game-screen.paused .genius-symbol.draggable {
-  opacity: 0.45 !important;
-}
-
-.ligar-dropzone-correct {
-  background: rgba(34, 197, 94, 0.25) !important;
-  /* verde translúcido */
-  border: 2px solid rgba(34, 197, 94, 0.5) !important;
-  transition:
-    background 0.2s,
-    border 0.2s;
-}
-
-#game-screen.paused::before {
-  opacity: 1;
-  visibility: visible;
-  pointer-events: auto;
-}
-
-/* --- GENERIC GAME SCREEN STYLES --- */
-#game-top-menu {
-  border-bottom: 1px solid #e0e0e0;
-  min-height: 48px;
-  position: relative;
-  z-index: 10;
-}
-
-#game-close-btn {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 2rem;
-  line-height: 1;
-  padding: 0 8px;
-  color: #dc2626;
-  transition: color 0.2s;
-}
-
-#game-close-btn:hover {
-  color: #b91c1c;
-}
-
-#game-timer {
-  min-width: 60px;
-  text-align: center;
-}
-
-#game-volume {
-  vertical-align: middle;
-  accent-color: #386ccc;
-}
-
-#game-bottom-menu {
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease-out;
-  transform: translateY(100%);
-  z-index: 100;
-  /* THE FIX IS HERE: This ensures the menu is above the overlay */
-}
-
-#game-bottom-menu.menu-visible {
-  transform: translateY(0);
-}
-
-#game-playpause-btn {
-  min-width: 154px;
-  font-size: 1.1rem;
-  transition: background 0.2s;
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-}
-
-#game-playpause-btn:active {
-  background: #d2f2ff;
-}
-
-/* --- BACKGROUND AND GENERAL STYLES --- */
 :root {
+  /* Card sizes for memory game */
   --card-size-mobile: 80px;
   --card-gap-mobile: 4px;
   --card-size-desktop: 100px;
   --card-gap-desktop: 12px;
   --card-border-color: #386ccc;
+
+  /* Symbol and hint settings */
   --symbol-hint-opacity: 0.1;
+
+  /* Notebook paper theme colors */
   --notebook-paper-color: #fdfdfd;
   --notebook-line-color: #e0e0e0;
   --notebook-margin-color: #ff8a80;
+
+  /* Mobile specific sizes */
+  --mobile-card-size: 70px;
+  --mobile-card-gap: 6px;
+  --mobile-button-height: 48px;
+  --mobile-font-base: 14px;
+
+  /* Drop zone dimensions for Ligar game */
+  --dropzone-size: 96px;
+  --symbol-size: 64px;
 }
+
+
+/* ============================================
+   GLOBAL STYLES & BODY BACKGROUND
+   ============================================ */
 
 body {
   font-family: 'Nunito', sans-serif;
@@ -284,6 +39,7 @@ body {
   min-height: 100vh;
 }
 
+/* Notebook lined paper effect */
 body::before {
   content: '';
   position: absolute;
@@ -300,6 +56,7 @@ body::before {
   pointer-events: none;
 }
 
+/* Notebook red margin line */
 body::after {
   content: '';
   position: absolute;
@@ -312,6 +69,60 @@ body::after {
   pointer-events: none;
 }
 
+
+/* ============================================
+   APP LAYOUT & GENERAL TYPOGRAPHY
+   ============================================ */
+
+#app {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  width: 100%;
+}
+
+#app>* {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+/* Hidden screens are completely removed from visibility and interaction */
+#app>*.hidden {
+  visibility: hidden !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+/* Visible screen is on top */
+#app>*:not(.hidden) {
+  visibility: visible;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+/* Modals must be ABOVE all screens */
+.fixed.inset-0 {
+  z-index: 1000 !important;
+}
+
+#phase-selection-modal {
+  z-index: 1001 !important;
+}
+
+#phase-end-modal {
+  z-index: 1002 !important;
+}
+
+#game-paused-modal {
+  z-index: 1003 !important;
+}
+
 .page-title {
   color: #386ccc;
   text-align: center;
@@ -322,11 +133,168 @@ body::after {
   padding-left: 0;
 }
 
-/* --- MEMORY GAME STYLES --- */
+/* Override centering for game selection screen only */
+#game-selection-screen {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: stretch !important;
+  /* Don't center horizontally */
+  padding: 2rem !important;
+}
+
+/* Header with title and exit button should be flex row with space-between */
+#game-selection-screen>div:first-child {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
+/* ============================================
+   GAME SCREEN & OVERLAY SYSTEM
+   ============================================ */
+
+/* Overlay for paused state */
+#game-screen::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s, visibility 0.3s;
+  pointer-events: none;
+}
+
+/* Paused game state - blocks interaction */
+#game-screen.paused {
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Play/pause button remains interactive even when paused */
+#game-screen.paused #game-playpause-btn {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+/* Show overlay when paused */
+#game-screen.paused::before {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+/* Dim game elements when paused */
+#game-screen.paused .ligar-class-item,
+#game-screen.paused .ligar-symbol-item,
+#game-screen.paused .ligar-dropzone,
+#game-screen.paused .genius-symbol.draggable {
+  opacity: 0.45 !important;
+}
+
+
+/* ============================================
+   MODAL SYSTEM (Z-INDEX HIERARCHY)
+   ============================================ */
+
+/* Phase end modal - highest priority */
+#phase-end-modal {
+  z-index: 200 !important;
+  pointer-events: auto !important;
+}
+
+/* Pause modal - above overlay */
+#game-paused-modal {
+  z-index: 150 !important;
+  pointer-events: auto !important;
+}
+
+
+/* ============================================
+   GAME MENU COMPONENTS
+   ============================================ */
+
+/* Top menu bar */
+#game-top-menu {
+  border-bottom: 1px solid #e0e0e0;
+  min-height: 48px;
+  position: relative;
+  z-index: 10;
+}
+
+/* Close button styling */
+#game-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 2rem;
+  line-height: 1;
+  padding: 0 8px;
+  color: #dc2626;
+  transition: color 0.2s;
+}
+
+#game-close-btn:hover {
+  color: #b91c1c;
+}
+
+/* Timer display */
+#game-timer {
+  min-width: 60px;
+  text-align: center;
+}
+
+/* Volume control slider */
+#game-volume {
+  vertical-align: middle;
+  accent-color: #386ccc;
+}
+
+/* Bottom menu bar with slide-up animation */
+#game-bottom-menu {
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease-out;
+  transform: translateY(100%);
+  z-index: 100;
+}
+
+#game-bottom-menu.menu-visible {
+  transform: translateY(0);
+}
+
+/* Play/pause button */
+#game-playpause-btn {
+  min-width: 154px;
+  font-size: 1.1rem;
+  transition: background 0.2s;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+#game-playpause-btn:active {
+  background: #d2f2ff;
+}
+
+
+/* ============================================
+   MEMORY GAME STYLES
+   ============================================ */
+
+/* Main memory board container */
 .memory-board-container {
   display: grid;
   justify-content: center;
   max-width: 100%;
+  gap: var(--card-gap-desktop);
 }
 
 .memory-board-container .card {
@@ -334,28 +302,14 @@ body::after {
   height: var(--card-size-desktop);
 }
 
-.memory-board-container {
-  gap: var(--card-gap-desktop);
-}
-
-/* .memory-board-container.preview-mode {
-  display: flex;
-  justify-content: center;
-  gap: 60px;
-}
-
-.preview-mode .memory-column {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-} */
-
+/* Preview mode - shows pairs before game starts */
 .memory-board-container.preview-mode {
   display: grid;
   justify-content: center;
   gap: 20px;
 }
 
+/* Phase-specific grid layouts for preview */
 .preview-mode.memory-board-phase-1 {
   grid-template-columns: repeat(2, auto);
 }
@@ -368,93 +322,32 @@ body::after {
   grid-template-columns: repeat(4, auto);
 }
 
+/* Card pairs in preview mode */
 .preview-mode .card-pair {
   display: flex;
   gap: 4px;
 }
 
-.preview-mode .card-pair {
-  display: flex;
-  gap: 4px;
-}
-
+/* Flatten hierarchy when not in preview mode */
 .memory-board-container:not(.preview-mode) .memory-column,
 .memory-board-container:not(.preview-mode) .card-pair {
   display: contents;
 }
 
-/* Layout para modo embaralhamento (sem colunas) */
-.memory-board-container:not(.preview-mode):not(.memory-column):not(.card-pair) {
-  display: grid;
-  justify-content: center;
-  gap: var(--card-gap-desktop);
-}
-
+/* Gameplay grid layouts by phase */
 .memory-board-phase-1 {
-  /* 8 cards -> 4 columns, 2 rows */
   grid-template-columns: repeat(4, var(--card-size-desktop));
 }
 
 .memory-board-phase-2 {
-  /* 14 cards -> 5 columns, 3 rows */
   grid-template-columns: repeat(5, var(--card-size-desktop));
 }
 
 .memory-board-phase-3 {
-  /* 20 cards -> 7 columns, 3 rows */
   grid-template-columns: repeat(7, var(--card-size-desktop));
 }
 
-@media (max-width: 767px) {
-  body::after {
-    left: 15px;
-  }
-
-  body::before {
-    background-image: repeating-linear-gradient(to bottom,
-        var(--notebook-line-color) 0px,
-        var(--notebook-line-color) 1px,
-        transparent 1px,
-        transparent 25px);
-  }
-
-  .page-title {
-    text-align: left;
-    padding-left: 15px;
-  }
-
-  .mobile-indented-text {
-    padding-left: 15px;
-  }
-
-  .memory-board-container .card {
-    width: var(--card-size-mobile);
-    height: var(--card-size-mobile);
-  }
-
-  .memory-board-container {
-    gap: var(--card-gap-mobile);
-  }
-
-  .memory-board-preview-container {
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-  }
-
-  .memory-board-phase-1 {
-    grid-template-columns: repeat(4, var(--card-size-mobile));
-  }
-
-  .memory-board-phase-2 {
-    grid-template-columns: repeat(5, var(--card-size-mobile));
-  }
-
-  .memory-board-phase-3 {
-    grid-template-columns: repeat(7, var(--card-size-mobile));
-  }
-}
-
+/* Card flip animation */
 .card-inner {
   transform-style: preserve-3d;
   transition: transform 0.6s;
@@ -464,6 +357,7 @@ body::after {
   transform: rotateY(180deg);
 }
 
+/* Card face styling */
 .card-front,
 .card-back {
   -webkit-backface-visibility: hidden;
@@ -476,18 +370,150 @@ body::after {
   transform: rotateY(180deg);
 }
 
+/* Matched card highlight effect */
 .card-matched .card-back {
   box-shadow: 0 0 15px 3px rgba(250, 204, 21, 0.7);
   border: 2px solid #facc15;
 }
 
+/* Background symbol hint for name cards */
 .card-name-symbol-bg {
   opacity: var(--symbol-hint-opacity);
   z-index: 0;
 }
 
-/* --- GENIUS GAME & DRAG-DROP STYLES --- */
 
+/* ============================================
+   LIGAR (CONNECT) GAME STYLES
+   ============================================ */
+
+/* Main grid container with two columns */
+.ligar-board-grid {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 80px;
+  width: 100%;
+}
+
+/* Phase-specific spacing between columns */
+.ligar-board-grid.fase1 {
+  gap: 24px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.ligar-board-grid.fase2 {
+  gap: 60px;
+}
+
+.ligar-board-grid.fase3 {
+  gap: 100px;
+}
+
+/* Column grid for classes and symbols */
+.ligar-col-grid {
+  display: grid;
+  justify-content: center;
+  align-content: start;
+  gap: 24px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Grid column templates by phase - Classes and Symbols */
+.ligar-col-classes-fase1,
+.ligar-col-symbols-fase1 {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 150px;
+}
+
+.ligar-col-classes-fase2,
+.ligar-col-symbols-fase2 {
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 150px;
+}
+
+.ligar-col-classes-fase3,
+.ligar-col-symbols-fase3 {
+  grid-template-columns: repeat(4, 1fr);
+  max-width: 456px;
+  /* (4 * 96px) + (3 * 24px gap) */
+}
+
+/* Individual item containers */
+.ligar-class-item,
+.ligar-symbol-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Class label styling */
+.ligar-class-label {
+  margin-bottom: 8px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+/* Drop zone for symbols */
+.ligar-dropzone {
+  background: #f5f5f5;
+  border: 2px dashed #60a5fa;
+  width: var(--dropzone-size);
+  height: var(--dropzone-size);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Correct match feedback */
+.ligar-dropzone-correct {
+  background: rgba(34, 197, 94, 0.25) !important;
+  border: 2px solid rgba(34, 197, 94, 0.5) !important;
+  transition: background 0.2s, border 0.2s;
+}
+
+/* Invisible placeholder for centering last row */
+.ligar-placeholder {
+  visibility: hidden !important;
+  pointer-events: none;
+}
+
+
+/* ============================================
+   GENIUS GAME STYLES
+   ============================================ */
+
+/* Symbol bank and draggable symbols */
+.genius-symbol.draggable {
+  width: var(--symbol-size);
+  height: var(--symbol-size);
+  padding: 4px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: grab;
+  transition: box-shadow 0.2s;
+  z-index: 10;
+}
+
+.genius-symbol.draggable:active {
+  cursor: grabbing;
+}
+
+.genius-symbol img {
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Symbol placeholders in phrase */
 .symbol-placeholder {
   background-color: transparent;
   border-radius: 0.5rem;
@@ -497,8 +523,11 @@ body::after {
 .symbol-placeholder>img {
   transition: opacity 0.1s ease-in;
   opacity: 1;
+  width: 100%;
+  height: 100%;
 }
 
+/* Fading animation for symbols */
 .symbol-placeholder.is-fading {
   background-color: #e7e5e4;
 }
@@ -507,43 +536,77 @@ body::after {
   opacity: 0;
 }
 
+/* Filled placeholder styling */
+.symbol-placeholder.filled {
+  border-style: solid !important;
+  background-color: #f0f9ff !important;
+  border-color: #10b981 !important;
+}
+
+/* Phrase rearrangement animation */
 #genius-phrase.rearranging>div {
   transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
-/* .symbol-flying {
-  position: fixed;
-  width: 48px;
-  height: 48px;
-  z-index: 2000;
-  pointer-events: none;
-  transition:
-    transform 1.2s ease-in-out,
-    opacity 1.2s ease-in-out;
-  opacity: 1;
-  background-color: white;
-  border-radius: 0.5rem;
-  padding: 0.25rem;
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1);
-} */
-
+/* Flying symbol animation */
 .symbol-flying {
   position: fixed;
   z-index: 100;
-  width: 64px;
-  /* w-16 */
-  height: 64px;
-  /* h-16 */
+  width: var(--symbol-size);
+  height: var(--symbol-size);
   transition:
     transform 1.2s cubic-bezier(0.5, 0, 0.75, 0),
     opacity 1s ease-out;
 }
 
+/* Symbol bank transitions */
 #genius-symbols-bank .genius-symbol {
   transition: opacity 0.5s ease-in;
 }
+
+/* Reveal animation for sequential word reveals */
+.reveal-animation {
+  animation: fadeInScale 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Pulse animation for symbols */
+.animate-pulse-symbol {
+  animation: pulse-symbol 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-symbol {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    border-color: #3b82f6;
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.05);
+    border-color: #60a5fa;
+  }
+}
+
+
+/* ============================================
+   DRAG & DROP SYSTEM
+   ============================================ */
 
 .draggable {
   touch-action: none;
@@ -551,27 +614,15 @@ body::after {
 
 .dragging {
   opacity: 0.7;
-  cursor: grabbing;
+  cursor: grabbing !important;
   transition: none !important;
 }
 
-.animate-pulse-symbol {
-  animation: pulse-grow 1s infinite alternate;
-}
 
-@keyframes pulse-grow {
-  from {
-    transform: scale(0.9);
-    opacity: 0.7;
-  }
+/* ============================================
+   GENERAL ANIMATIONS
+   ============================================ */
 
-  to {
-    transform: scale(1.1);
-    opacity: 1;
-  }
-}
-
-/* --- GENERAL ANIMATIONS --- */
 .fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }
@@ -604,9 +655,53 @@ body::after {
   }
 }
 
-/* ========== MOBILE STYLES ========== */
 
-/* Classe aplicada via JavaScript quando detecta dispositivo móvel */
+/* ============================================
+   RESPONSIVE - TABLET & MOBILE (PORTRAIT)
+   ============================================ */
+
+@media (max-width: 767px) {
+
+  /* Adjust notebook margin for mobile */
+  body::after {
+    left: 15px;
+  }
+
+  /* Tighter line spacing for mobile */
+  body::before {
+    background-image: repeating-linear-gradient(to bottom,
+        var(--notebook-line-color) 0px,
+        var(--notebook-line-color) 1px,
+        transparent 1px,
+        transparent 25px);
+  }
+
+  /* Left-align title on mobile */
+  .page-title {
+    text-align: left;
+    padding-left: 15px;
+  }
+
+  .mobile-indented-text {
+    padding-left: 15px;
+  }
+
+  /* Smaller cards for mobile */
+  .memory-board-container .card {
+    width: var(--card-size-mobile);
+    height: var(--card-size-mobile);
+  }
+
+  .memory-board-container {
+    gap: var(--card-gap-mobile);
+  }
+}
+
+
+/* ============================================
+   MOBILE LANDSCAPE OPTIMIZATIONS
+   ============================================ */
+
 .mobile-device {
   --mobile-card-size: 70px;
   --mobile-card-gap: 6px;
@@ -626,8 +721,23 @@ body::after {
   z-index: 9998;
 }
 
-/* Mobile landscape optimizations */
 @media screen and (max-width: 1024px) and (orientation: landscape) {
+
+  body.mobile-device #game-screen {
+    display: block !important;
+    padding: 8px !important;
+  }
+
+  body.mobile-device #game-content-wrapper {
+    display: block !important;
+    padding: 8px !important;
+  }
+
+  body.mobile-device #game-board {
+    min-height: auto !important;
+    padding: 8px !important;
+  }
+
   .mobile-device {
     font-size: var(--mobile-font-base);
   }
@@ -639,7 +749,7 @@ body::after {
     box-sizing: border-box;
   }
 
-  /* Otimizações de tela de login para mobile landscape */
+  /* Login screen optimizations */
   .mobile-device #login-screen {
     padding: 16px;
     max-width: 400px;
@@ -659,7 +769,7 @@ body::after {
   .mobile-device input {
     padding: 12px 16px;
     font-size: 16px;
-    /* Previne zoom no iOS */
+    /* Prevents zoom on iOS */
     margin-bottom: 12px;
   }
 
@@ -669,7 +779,7 @@ body::after {
     font-size: 16px;
   }
 
-  /* Seleção de jogos para mobile landscape */
+  /* Game selection screen */
   .mobile-device #game-selection-screen {
     padding: 12px;
   }
@@ -684,7 +794,7 @@ body::after {
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
 
-  /* Otimizações de jogo para mobile landscape */
+  /* Game screen layout */
   .mobile-device #game-screen {
     padding: 0;
     height: 100vh;
@@ -795,11 +905,10 @@ body::after {
     max-width: 400px;
   }
 
-  /* Button improvements for touch */
+  /* Touch target improvements - 44px minimum (Apple recommendation) */
   .mobile-device button,
   .mobile-device .button-like {
     min-height: 44px;
-    /* Apple's recommended touch target */
     border-radius: 8px;
     font-weight: 600;
   }
@@ -816,7 +925,7 @@ body::after {
   }
 }
 
-/* Adjustments for very small landscape screens */
+/* Very small landscape screens (phones in landscape) */
 @media screen and (max-width: 640px) and (orientation: landscape) {
   .mobile-device {
     --mobile-card-size: 60px;
@@ -838,62 +947,301 @@ body::after {
   }
 }
 
-/* === GENIUS GAME STYLES === */
+/* ============================================
+   MOBILE GAME SCREEN LAYOUT
+   ============================================ */
 
-.reveal-animation {
-  animation: fadeInScale 0.5s ease-out forwards;
-  opacity: 0;
+/* Mobile game wrapper - fullscreen container */
+.mobile-game-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  overflow: hidden;
 }
 
-@keyframes fadeInScale {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* Mobile header - fixed at top */
+.mobile-game-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 100;
 }
 
-.animate-pulse-symbol {
-  animation: pulse-symbol 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+.mobile-header-left,
+.mobile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-@keyframes pulse-symbol {
-
-  0%,
-  100% {
-    opacity: 1;
-    transform: scale(1);
-    border-color: #3b82f6;
-  }
-
-  50% {
-    opacity: 0.7;
-    transform: scale(1.05);
-    border-color: #60a5fa;
-  }
+.mobile-volume-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
 }
 
-.symbol-placeholder.filled {
-  border-style: solid !important;
-  background-color: #f0f9ff !important;
-  border-color: #10b981 !important;
+.mobile-volume-slider {
+  width: 60px;
+  height: 4px;
 }
 
-.genius-symbol img {
+.mobile-timer {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.mobile-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.mobile-icon-btn:active {
+  background-color: #f3f4f6;
+}
+
+.mobile-close-btn {
+  color: #ef4444;
+  font-size: 28px;
+}
+
+/* Mobile content area - scrollable */
+.mobile-game-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 72px 16px 80px 16px;
+  /* Top padding for header, bottom for footer */
+}
+
+/* Mobile footer - fixed at bottom */
+.mobile-game-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.mobile-pause-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #1e40af;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s;
+}
+
+.mobile-pause-btn:active {
+  transform: scale(0.95);
+  background-color: #1e3a8a;
+}
+
+.mobile-pause-icon {
+  font-size: 24px;
+  color: #ffffff;
+}
+
+.mobile-game-message {
+  position: fixed;
+  bottom: 88px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  padding: 0 16px;
+}
+
+/* Mobile card styling - full width in column */
+.mobile-game-board .card {
   width: 100%;
-  height: 100%;
-  pointer-events: none;
+  max-width: 120px;
+  height: 120px;
+  flex-shrink: 0;
 }
 
-.symbol-placeholder img {
+/* Hide desktop layout on mobile */
+@media screen and (max-width: 1024px) {
+  .mobile-device #game-content-wrapper {
+    display: none;
+  }
+
+  .mobile-device #game-bottom-menu {
+    display: none;
+  }
+}
+
+/* Hide mobile layout on desktop */
+@media screen and (min-width: 1025px) {
+  .mobile-game-wrapper {
+    display: none;
+  }
+}
+
+/* ============================================
+   MOBILE BODY FIXES - PREVENT SCROLL BUT ALLOW CLICKS
+   ============================================ */
+
+body.mobile-device {
+  overflow: hidden;
+  height: 100vh;
+  /* Remove position: fixed - it blocks clicks */
+}
+
+body.mobile-device #app {
+  overflow: hidden;
+  height: 100vh;
+  /* Ensure clicks work */
+  pointer-events: auto;
+}
+
+/* Game selection screen should not scroll */
+body.mobile-device #game-selection-screen {
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Ensure buttons are clickable */
+  pointer-events: auto;
+}
+
+body.mobile-device #game-selection-screen * {
+  pointer-events: auto;
+}
+
+/* Mobile Game Layout */
+.mobile-game-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mobile-game-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  border-bottom: 1px solid #e5e7eb;
+  z-index: 100;
+}
+
+.mobile-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.mobile-header-center {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.mobile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+/* ============================================
+   MOBILE GAME SCREEN & GRID FIX
+   ============================================ */
+
+/* Main board container on mobile */
+.mobile-game-board {
+  margin-top: 60px;
+  padding: 1vmin;
+  /* Use responsive padding */
+  overflow: hidden;
+  /* Prevent scrolling the board itself */
+  height: calc(100vh - 60px);
+  /* Fill available vertical space */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* Center the grid vertically and horizontally */
   width: 100%;
-  height: 100%;
+  box-sizing: border-box;
 }
 
-.dragging {
-  cursor: grabbing !important;
+/* The memory game grid itself */
+.mobile-game-board .memory-board-container {
+  display: grid !important;
+  gap: 1.5vmin;
+  /* Responsive gap between cards */
+
+  /* This is the key: Set a max-width based on the screen's height 
+     to maintain a squarish aspect ratio for the whole grid. */
+  max-width: 90vh;
+  max-height: 90%;
+
+  /* Make the grid itself have an aspect ratio of 4/3 or similar */
+  aspect-ratio: 4 / 3;
+  margin: 0 auto;
+}
+
+/* --- Phase-specific columns (same as desktop) --- */
+.mobile-game-board .memory-board-phase-1 {
+  grid-template-columns: repeat(4, 1fr) !important;
+}
+
+.mobile-game-board .memory-board-phase-2 {
+  grid-template-columns: repeat(5, 1fr) !important;
+}
+
+.mobile-game-board .memory-board-phase-3 {
+  grid-template-columns: repeat(7, 1fr) !important;
+}
+
+/* Ensure cards are always square */
+.mobile-game-board .card {
+  width: 100%;
+  aspect-ratio: 1 / 1;
 }

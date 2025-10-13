@@ -144,27 +144,64 @@ function BottomMenuComponent() {
   `;
 }
 
+/**
+ * Game Screen Component
+ * Adapts layout based on mobile detection
+ */
 function GameScreenComponent(title, phase) {
-  // Componente principal da tela do jogo
-  // O #game-content-wrapper agora envolve o conteúdo que deve ter o "fade".
-  // O BottomMenuComponent fica fora.
-  return `
-    <div id="game-content-wrapper" class="w-full">
-      <div class="w-full flex flex-col items-start gap-2 mb-2">
-        <h2 id="game-title" class="text-2xl md:text-3xl font-bold">${title}</h2>
-        <span id="game-phase-label" class="text-base md:text-lg text-stone-600">
-          Fase <span id="game-phase">${phase}</span>
-        </span>
+  const isMobile = document.body.classList.contains('mobile-device'); // Re-enable mobile detection
+
+  if (isMobile) {
+    // Mobile layout matching the prototype
+    return `
+      <div id="game-content-wrapper" class="mobile-game-layout">
+        <!-- Fixed Header -->
+        <div class="mobile-game-header">
+          <div class="mobile-header-left">
+            <label for="game-volume">Volume</label>
+            <input type="range" id="game-volume" min="0" max="100" value="50" />
+          </div>
+          
+          <div class="mobile-header-center">
+            <span id="game-message">Encontre os pares!</span>
+          </div>
+          
+          <div class="mobile-header-right">
+            <button id="game-playpause-btn" aria-label="Pausar">
+              <span id="game-playpause-icon">⏸</span>
+            </button>
+            <div id="game-timer">9:41</div>
+            <button id="mobile-help-btn" aria-label="Ajuda">?</button>
+            <button id="game-close-btn" aria-label="Fechar">×</button>
+          </div>
+        </div>
+        
+        <!-- Scrollable Content Area - REMOVED THE CLASS HERE -->
+        <div class="mobile-game-board">
+          <div id="game-board"></div>
+        </div>
       </div>
-
-      ${TopMenuComponent()}
-
-      <div id="game-board" class="p-4 md:p-6 min-h-[500px] w-full flex flex-col items-center justify-center">
+    `;
+  } else {
+    // Desktop layout (unchanged)
+    return `
+      <div id="game-content-wrapper" class="w-full">
+        <div class="w-full flex flex-col items-start gap-2 mb-2">
+          <h2 id="game-title" class="text-2xl md:text-3xl font-bold">${title}</h2>
+          <span id="game-phase-label" class="text-base md:text-lg text-stone-600">
+            Fase <span id="game-phase">${phase}</span>
+          </span>
         </div>
 
-      <div id="game-message" class="text-center text-lg md:text-xl font-semibold mt-4 h-8"></div>
-    </div>
+        ${TopMenuComponent()}
 
-    ${BottomMenuComponent()}
-  `;
+        <div id="game-board" class="p-4 md:p-6 min-h-[500px] w-full flex flex-col items-center justify-center">
+        </div>
+
+        <div id="game-message" class="text-center text-lg md:text-xl font-semibold mt-4 h-8"></div>
+      </div>
+
+      ${BottomMenuComponent()}
+    `;
+  }
 }
