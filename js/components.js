@@ -161,11 +161,11 @@ function GameScreenComponent(title, phase) {
             <label for="game-volume">Volume</label>
             <input type="range" id="game-volume" min="0" max="100" value="50" />
           </div>
-          
+
           <div class="mobile-header-center">
             <span id="game-message">Encontre os pares!</span>
           </div>
-          
+
           <div class="mobile-header-right">
             <button id="game-playpause-btn" aria-label="Pausar">
               <span id="game-playpause-icon">⏸</span>
@@ -175,7 +175,7 @@ function GameScreenComponent(title, phase) {
             <button id="game-close-btn" aria-label="Fechar">×</button>
           </div>
         </div>
-        
+
         <!-- Scrollable Content Area - REMOVED THE CLASS HERE -->
         <div class="mobile-game-board">
           <div id="game-board"></div>

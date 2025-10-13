@@ -1,9 +1,8 @@
 :root {
   /* Card sizes for memory game */
-  --card-size-mobile: 80px;
-  --card-gap-mobile: 4px;
+  --card-size-mobile: 92px;
   --card-size-desktop: 100px;
-  --card-gap-desktop: 12px;
+  --card-gap: 16px;
   --card-border-color: #386ccc;
 
   /* Symbol and hint settings */
@@ -15,8 +14,6 @@
   --notebook-margin-color: #ff8a80;
 
   /* Mobile specific sizes */
-  --mobile-card-size: 70px;
-  --mobile-card-gap: 6px;
   --mobile-button-height: 48px;
   --mobile-font-base: 14px;
 
@@ -294,7 +291,7 @@ body::after {
   display: grid;
   justify-content: center;
   max-width: 100%;
-  gap: var(--card-gap-desktop);
+  gap: var(--card-gap);
 }
 
 .memory-board-container .card {
@@ -362,7 +359,7 @@ body::after {
 .card-back {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  border-radius: 1px;
+  /* border-radius: 1px; */
   border: 2px solid var(--card-border-color);
 }
 
@@ -686,14 +683,8 @@ body::after {
     padding-left: 15px;
   }
 
-  /* Smaller cards for mobile */
-  .memory-board-container .card {
-    width: var(--card-size-mobile);
-    height: var(--card-size-mobile);
-  }
-
   .memory-board-container {
-    gap: var(--card-gap-mobile);
+    gap: var(--card-gap);
   }
 }
 
@@ -816,32 +807,67 @@ body::after {
 
   /* Memory game mobile adaptations */
   .mobile-device .memory-board-container {
-    gap: var(--mobile-card-gap);
+    gap: var(---card-gap);
     max-width: 100%;
   }
 
   .mobile-device .memory-board-container .card {
-    width: var(--mobile-card-size);
-    height: var(--mobile-card-size);
+    width: var(--card-size-mobile);
+    height: var(--card-size-mobile);
     font-size: 0.8rem;
   }
 
   .mobile-device .memory-board-phase-1 {
-    grid-template-columns: repeat(2, var(--mobile-card-size));
+    grid-template-columns: repeat(4, var(--card-size-mobile));
   }
 
   .mobile-device .memory-board-phase-2 {
-    grid-template-columns: repeat(4, var(--mobile-card-size));
+    grid-template-columns: repeat(5, var(--card-size-mobile));
   }
 
   .mobile-device .memory-board-phase-3 {
-    grid-template-columns: repeat(4, var(--mobile-card-size));
+    grid-template-columns: repeat(7, var(--card-size-mobile));
   }
 
   /* Genius game mobile adaptations */
   .mobile-device #genius-phrase {
     gap: 8px;
     min-height: 80px;
+  }
+
+  /* Mobile preview mode - responsive columns */
+  .mobile-device .memory-board-container.preview-mode {
+    gap: var(--card-gap);
+    padding: 8px;
+    max-width: 100%;
+  }
+
+  /* Phase 1: 2 columns in preview */
+  .mobile-device .preview-mode.memory-board-phase-1 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Phase 2: 3 columns in preview */
+  .mobile-device .preview-mode.memory-board-phase-2 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Phase 3: 4 columns in preview */
+  .mobile-device .preview-mode.memory-board-phase-3 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  /* Card pairs in preview - responsive */
+  .mobile-device .preview-mode .card-pair {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+  }
+
+  /* Cards in preview mode */
+  .mobile-device .preview-mode .card {
+    width: var(--card-size-mobile);
+    height: var(--card-size-mobile);
   }
 
   .mobile-device #genius-phrase>div {
@@ -1089,13 +1115,13 @@ body::after {
   padding: 0 16px;
 }
 
-/* Mobile card styling - full width in column */
+/* Mobile card styling - full width in column
 .mobile-game-board .card {
   width: 100%;
   max-width: 120px;
   height: 120px;
   flex-shrink: 0;
-}
+} */
 
 /* Hide desktop layout on mobile */
 @media screen and (max-width: 1024px) {
@@ -1196,52 +1222,31 @@ body.mobile-device #game-selection-screen * {
 
 /* Main board container on mobile */
 .mobile-game-board {
-  margin-top: 60px;
+  margin-top: 32px;
   padding: 1vmin;
-  /* Use responsive padding */
   overflow: hidden;
-  /* Prevent scrolling the board itself */
   height: calc(100vh - 60px);
-  /* Fill available vertical space */
   display: flex;
   justify-content: center;
+  /* Centers horizontally */
   align-items: center;
-  /* Center the grid vertically and horizontally */
+  /* Centers vertically */
   width: 100%;
   box-sizing: border-box;
 }
 
 /* The memory game grid itself */
 .mobile-game-board .memory-board-container {
-  display: grid !important;
-  gap: 1.5vmin;
-  /* Responsive gap between cards */
-
-  /* This is the key: Set a max-width based on the screen's height 
-     to maintain a squarish aspect ratio for the whole grid. */
+  display: grid;
+  gap: var(--card-gap);
   max-width: 90vh;
   max-height: 90%;
-
-  /* Make the grid itself have an aspect ratio of 4/3 or similar */
-  aspect-ratio: 4 / 3;
   margin: 0 auto;
-}
-
-/* --- Phase-specific columns (same as desktop) --- */
-.mobile-game-board .memory-board-phase-1 {
-  grid-template-columns: repeat(4, 1fr) !important;
-}
-
-.mobile-game-board .memory-board-phase-2 {
-  grid-template-columns: repeat(5, 1fr) !important;
-}
-
-.mobile-game-board .memory-board-phase-3 {
-  grid-template-columns: repeat(7, 1fr) !important;
-}
-
-/* Ensure cards are always square */
-.mobile-game-board .card {
-  width: 100%;
-  aspect-ratio: 1 / 1;
+  /* Centers the grid */
+  justify-self: center;
+  /* Ensures grid is centered in flex parent */
+  align-self: center;
+  /* Centers vertically in flex parent */
+  place-items: center;
+  /* Centers items within grid cells */
 }
