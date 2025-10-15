@@ -114,10 +114,10 @@ function TopMenuComponent() {
       </div>
       <div class="flex items-center gap-2">
         <div class="flex items-center gap-2">
-          <div id="game-timer" class="text-base font-bold text-[#386ccc] mt-1">00:00</div>
           <button id="skip-timer-btn" class="ml-2 px-3 py-1 bg-[#386ccc] text-white rounded shadow hover:bg-[#2a529f] transition text-sm font-semibold focus:outline-none" style="display:none;" title="Pular espera">
             Pular
           </button>
+          <div id="game-timer" class="text-base font-bold text-[#386ccc] mt-1">00:00</div>
         </div>
         <button id="game-help-btn" type="button" class="text-[#386ccc] hover:text-[#2a529f] text-2xl font-bold focus:outline-none ml-2" aria-label="Como jogar" title="Como jogar">
           ?
@@ -158,21 +158,36 @@ function GameScreenComponent(title, phase) {
         <!-- Fixed Header -->
         <div class="mobile-game-header">
           <div class="mobile-header-left">
-            <label for="game-volume">Volume</label>
-            <input type="range" id="game-volume" min="0" max="100" value="50" />
+            <label for="game-volume" class="text-sm text-stone-500 pr-2">Volume</label>
+            <input id="game-volume" type="range" min="0" max="100" value="100" class="w-24 accent-[#386ccc]" />
+            <button id="game-mute-btn" title="Mutar/Desmutar" class="text-[#386ccc] hover:text-[#2a529f] text-2xl focus:outline-none">
+              <span id="game-mute-icon">&#128266;</span>
+            </button>
+            <button id="game-playpause-btn" aria-label="Pausar">
+              <span id="game-playpause-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#386ccc">
+  <rect x="6" y="4" width="4" height="16" rx="1"/>
+  <rect x="14" y="4" width="4" height="16" rx="1"/>
+</svg></span>
+            </button>
           </div>
 
           <div class="mobile-header-center">
-            <span id="game-message">Encontre os pares!</span>
+            <span id="game-message"></span>
           </div>
 
           <div class="mobile-header-right">
-            <button id="game-playpause-btn" aria-label="Pausar">
-              <span id="game-playpause-icon">⏸</span>
+            <div class="flex items-center gap-2">
+              <button id="skip-timer-btn" class="mobile-skip-button" style="display:none;" title="Pular espera">
+                Pular
+              </button>
+              <div id="game-timer" class="text-base font-bold text-[#386ccc] mt-1">00:00</div>
+            </div>
+            <button id="game-help-btn" type="button" class="text-[#386ccc] hover:text-[#2a529f] text-2xl font-bold focus:outline-none ml-2" aria-label="Como jogar" title="Como jogar">
+              ?
             </button>
-            <div id="game-timer">9:41</div>
-            <button id="mobile-help-btn" aria-label="Ajuda">?</button>
-            <button id="game-close-btn" aria-label="Fechar">×</button>
+            <button id="game-close-btn" title="Fechar" class="text-red-600 hover:text-red-800 text-2xl font-bold focus:outline-none ml-2">
+              &times;
+            </button>
           </div>
         </div>
 

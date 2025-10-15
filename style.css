@@ -16,6 +16,8 @@
   /* Mobile specific sizes */
   --mobile-button-height: 48px;
   --mobile-font-base: 14px;
+  --mobile-card-size: 70px;
+  --mobile-card-gap: 6px;
 
   /* Drop zone dimensions for Ligar game */
   --dropzone-size: 96px;
@@ -693,13 +695,6 @@ body::after {
    MOBILE LANDSCAPE OPTIMIZATIONS
    ============================================ */
 
-.mobile-device {
-  --mobile-card-size: 70px;
-  --mobile-card-gap: 6px;
-  --mobile-button-height: 48px;
-  --mobile-font-base: 14px;
-}
-
 /* Portrait warning overlay */
 .portrait-warning::before {
   content: '';
@@ -761,7 +756,24 @@ body::after {
     padding: 12px 16px;
     font-size: 16px;
     /* Prevents zoom on iOS */
-    margin-bottom: 12px;
+    /* margin-bottom: 12px; */
+  }
+
+  .mobile-device .mobile-skip-button {
+    min-height: 28px;
+    padding: 6px 16px;
+    background-color: #386ccc;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .mobile-device #game-playpause-btn {
+    min-height: fit-content;
+    min-width: auto;
+    align-items: center;
+    padding: 12px;
+    font-size: 1.5rem;
   }
 
   .mobile-device button {
@@ -934,7 +946,6 @@ body::after {
   /* Touch target improvements - 44px minimum (Apple recommendation) */
   .mobile-device button,
   .mobile-device .button-like {
-    min-height: 44px;
     border-radius: 8px;
     font-weight: 600;
   }
@@ -1004,13 +1015,6 @@ body::after {
   justify-content: space-between;
   padding: 0 16px;
   z-index: 100;
-}
-
-.mobile-header-left,
-.mobile-header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
 .mobile-volume-label {
@@ -1198,7 +1202,6 @@ body.mobile-device #game-selection-screen * {
 .mobile-header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
   font-size: 12px;
 }
 
