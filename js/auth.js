@@ -8,8 +8,8 @@ function initAuth() {
 
   loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const username = document.getElementById('username').value.toLowerCase();
-    const password = document.getElementById('password').value.toLowerCase();
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
     const userType = USERS[username];
     const errorEl = document.getElementById('login-error');
 

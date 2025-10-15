@@ -145,6 +145,77 @@ const AppState = {
     }
   },
 };
+
+// Sistema de exibição do timer de sessão em tempo real
+const SessionTimerDisplay = {
+  intervalId: null,
+  element: null,
+
+  init() {
+    this.element = document.getElementById('session-timer-display');
+  },
+
+  start() {
+    if (this.intervalId) return; // Já está rodando
+
+    this.updateDisplay();
+    this.intervalId = setInterval(() => {
+      this.updateDisplay();
+    }, 1000);
+  },
+
+  stop() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+    }
+  },
+
+  updateDisplay() {
+    if (!this.element) return;
+
+    // Calcula tempo restante baseado no estado atual
+    let remaining = 0;
+
+    if (AppState.sessionPausedAt) {
+      // Sessão pausada - usar o tempo armazenado
+      remaining = AppState.sessionTimeRemaining;
+    } else if (AppState.sessionStartedAt) {
+      // Sessão ativa - calcular em tempo real
+      const elapsed = Date.now() - AppState.sessionStartedAt;
+      remaining = Math.max(0, AppState.sessionTimeRemaining - elapsed);
+    }
+
+    // Formata para MM:SS
+    const totalSeconds = Math.ceil(remaining / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+
+    this.element.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+    // Muda cor quando falta menos de 1 minuto
+    if (totalSeconds <= 60 && totalSeconds > 0) {
+      this.element.classList.remove('text-amber-600');
+      this.element.classList.add('text-red-600');
+    } else if (totalSeconds === 0) {
+      this.element.classList.remove('text-amber-600', 'text-red-600');
+      this.element.classList.add('text-stone-400');
+    } else {
+      this.element.classList.remove('text-red-600', 'text-stone-400');
+      this.element.classList.add('text-amber-600');
+    }
+  },
+
+  reset() {
+    this.stop();
+    if (this.element) {
+      this.element.textContent = '--:--';
+      this.element.classList.remove('text-red-600', 'text-stone-400');
+      this.element.classList.add('text-amber-600');
+    }
+  },
+};
+
 const GRAMMAR_CLASSES = [
   {
     id: 1,
@@ -213,7 +284,7 @@ const USERS = {
   professor: 'admin',
   diretora: 'admin',
 };
-const SESSION_DURATION_MINUTES = 15;
+const SESSION_DURATION_MINUTES = 15; // Duração padrão da sessão em minutos
 const GENIUS_PHRASES = {
   1: [
     {
@@ -493,13 +564,15 @@ function startSessionTimer() {
   AppState.sessionTimeRemaining = SESSION_DURATION_MINUTES * 60 * 1000;
   AppState.sessionStartedAt = Date.now();
 
+  // Inicia o display visual
+  SessionTimerDisplay.start();
+
   AppState.sessionTimer = setTimeout(() => {
-    // Verifica se há um minigame ativo antes de encerrar
     if (AppState.currentScreen === 'game-screen' && AppState.gameActive) {
-      // Estende por mais 5 minutos se há jogo ativo
       extendSessionTimer(5);
     } else {
       AppState.gameActive = false;
+      SessionTimerDisplay.stop();
       showModal('session-expired-modal');
     }
   }, AppState.sessionTimeRemaining);
@@ -508,15 +581,17 @@ function startSessionTimer() {
 function pauseSessionTimer() {
   if (AppState.sessionTimer) {
     clearTimeout(AppState.sessionTimer);
-    AppState.sessionPausedAt = Date.now();
-    // Calcula tempo restante
-    const elapsed =
-      AppState.sessionPausedAt - (AppState.sessionStartedAt || Date.now());
-    AppState.sessionTimeRemaining = Math.max(
-      0,
-      AppState.sessionTimeRemaining - elapsed
-    );
   }
+  AppState.sessionPausedAt = Date.now();
+  const elapsed =
+    AppState.sessionPausedAt - (AppState.sessionStartedAt || Date.now());
+  AppState.sessionTimeRemaining = Math.max(
+    0,
+    AppState.sessionTimeRemaining - elapsed
+  );
+
+  // Para a atualização do display
+  SessionTimerDisplay.stop();
 }
 
 function resumeSessionTimer() {
@@ -526,33 +601,45 @@ function resumeSessionTimer() {
         extendSessionTimer(5);
       } else {
         AppState.gameActive = false;
+        SessionTimerDisplay.stop();
         showModal('session-expired-modal');
       }
     }, AppState.sessionTimeRemaining);
+
     AppState.sessionPausedAt = null;
     AppState.sessionStartedAt = Date.now();
+
+    // Retoma o display
+    SessionTimerDisplay.start();
   }
 }
-
 function extendSessionTimer(minutesToAdd) {
   clearTimeout(AppState.sessionTimer);
   const extensionTime = minutesToAdd * 60 * 1000;
 
+  // Atualiza os valores de sessão
+  AppState.sessionTimeRemaining = extensionTime;
+  AppState.sessionStartedAt = Date.now();
+
   AppState.sessionTimer = setTimeout(() => {
     AppState.gameActive = false;
+    SessionTimerDisplay.stop();
+    pauseGame();
     showModal('session-expired-modal');
   }, extensionTime);
 }
 
 function goBackToLogin(isExpired = false) {
   AppState.cleanupCurrentGame();
-
-  // Garantir limpeza adicional do jogo da memória
   if (typeof window.cleanupMemoryGame === 'function') {
     window.cleanupMemoryGame();
   }
 
-  if (isExpired) closeModal(document.getElementById('session-expired-modal'));
+  if (isExpired) {
+    closeModal(document.getElementById('session-expired-modal'));
+  }
+
+  SessionTimerDisplay.reset(); // Para e reseta o display do timer
   AppState.currentUser = null;
   AppState.generalScore = 0;
   AppState.progress = { memory: 0, genius: 0, ligar: 0 };
@@ -1030,12 +1117,12 @@ function startGame(type, phase) {
   AppState.cleanupCurrentGame();
   closeModal(document.getElementById('phase-selection-modal'));
   // Pausa o timer de sessão durante o jogo
-  pauseSessionTimer();
+  // pauseSessionTimer();
 
   AppState.currentGame = {
     type,
     phase,
-    name: type, // ADD THIS LINE
+    name: type,
     score: 0,
     stars: 3,
     errors: 0,
@@ -1275,7 +1362,6 @@ function handleTimeUp() {
 // Inicialização do sistema
 document.addEventListener('DOMContentLoaded', () => {
   MobileUtils.init();
-
-  // Inicialização adicional se necessário
+  SessionTimerDisplay.init();
   console.log('MorfoLogic carregado - Mobile:', MobileUtils.isMobile);
 });

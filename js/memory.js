@@ -30,7 +30,7 @@ function createCardHTML(item, index) {
     <div class="card perspective-1000" data-index="${index}">
       <div class="card-inner relative w-full h-full">
         <div class="card-front absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2">
-          <img src="./assets/img/card-logo.svg" alt="Verso da Carta" class="w-full h-full object-contain">
+          <img src="./assets/img/logo-morfologic.jpeg" alt="Verso da Carta" class="w-full h-full object-contain">
         </div>
         <div class="card-back absolute w-full h-full bg-white rounded-lg flex items-center justify-center p-2 text-center font-bold text-xs sm:text-sm md:text-base">
           ${cardBackContent}

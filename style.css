@@ -1,3 +1,19 @@
+/* Fonte personalizada */
+@font-face {
+  font-family: 'Irineu';
+  src:
+    url('./assets/fonts/irineu_cursivo_escolar-webfont.woff2') format('woff2'),
+    url('./assets/fonts/irineu_cursivo_escolar-webfont.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Aplicar globalmente */
+body {
+  font-family: 'Irineu', 'Nunito', sans-serif;
+}
+
 /* Placeholder invisível para centralizar última linha na grid do minigame Ligar */
 .ligar-placeholder {
   visibility: hidden !important;
@@ -136,7 +152,7 @@
  * style.css
  */
 
-#app>* {
+#app > * {
   grid-column: 1 / -1;
   grid-row: 1 / -1;
 }
@@ -291,11 +307,13 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: repeating-linear-gradient(to bottom,
-      var(--notebook-line-color) 0px,
-      var(--notebook-line-color) 1px,
-      transparent 1px,
-      transparent 30px);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--notebook-line-color) 0px,
+    var(--notebook-line-color) 1px,
+    transparent 1px,
+    transparent 30px
+  );
   z-index: -2;
   pointer-events: none;
 }
@@ -411,11 +429,13 @@ body::after {
   }
 
   body::before {
-    background-image: repeating-linear-gradient(to bottom,
-        var(--notebook-line-color) 0px,
-        var(--notebook-line-color) 1px,
-        transparent 1px,
-        transparent 25px);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--notebook-line-color) 0px,
+      var(--notebook-line-color) 1px,
+      transparent 1px,
+      transparent 25px
+    );
   }
 
   .page-title {
@@ -494,7 +514,7 @@ body::after {
   transition: background-color 0.4s ease-in;
 }
 
-.symbol-placeholder>img {
+.symbol-placeholder > img {
   transition: opacity 0.1s ease-in;
   opacity: 1;
 }
@@ -503,11 +523,11 @@ body::after {
   background-color: #e7e5e4;
 }
 
-.symbol-placeholder.is-fading>img {
+.symbol-placeholder.is-fading > img {
   opacity: 0;
 }
 
-#genius-phrase.rearranging>div {
+#genius-phrase.rearranging > div {
   transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
@@ -734,7 +754,7 @@ body::after {
     min-height: 80px;
   }
 
-  .mobile-device #genius-phrase>div {
+  .mobile-device #genius-phrase > div {
     font-size: 0.9rem;
     height: auto;
     min-height: 60px;
@@ -862,7 +882,6 @@ body::after {
 }
 
 @keyframes pulse-symbol {
-
   0%,
   100% {
     opacity: 1;
