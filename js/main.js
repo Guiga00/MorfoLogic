@@ -712,30 +712,42 @@ function setupGameUIListeners() {
   const volumeSlider = document.getElementById('game-volume');
   const playPauseBtn = document.getElementById('game-playpause-btn');
   const gameScreen = document.getElementById('game-screen');
-  const helpBtn = document.getElementById('game-help-btn');
+  const helpBtn =
+    document.getElementById('game-help-btn') ||
+    document.getElementById('mobile-help-btn');
 
   setupHelpModalListeners();
 
   if (helpBtn) helpBtn.addEventListener('click', openHelpModal);
   if (!playPauseBtn) return;
 
-  muteBtn.addEventListener('click', () => {
-    const isMuted = !AppState.globalMuted;
-    AppState.globalMuted = isMuted;
-    muteIcon.innerHTML = isMuted ? '&#128263;' : '&#128266;';
-    document.querySelectorAll('audio').forEach((a) => (a.muted = isMuted));
-  });
+  // Add null check for mute button (only exists in desktop layout)
+  if (muteBtn && muteIcon) {
+    muteBtn.addEventListener('click', () => {
+      const isMuted = !AppState.globalMuted;
+      AppState.globalMuted = isMuted;
+      muteIcon.innerHTML = isMuted ? '&#128263;' : '&#128266;';
+      document.querySelectorAll('audio').forEach((a) => (a.muted = isMuted));
+    });
+  }
 
-  volumeSlider.addEventListener('input', (e) => {
-    const vol = Number(e.target.value) / 100;
-    AppState.globalVolume = vol;
-    document.querySelectorAll('audio').forEach((a) => (a.volume = vol));
-  });
+  // Volume slider exists in both layouts
+  if (volumeSlider) {
+    volumeSlider.addEventListener('input', (e) => {
+      const vol = Number(e.target.value) / 100;
+      AppState.globalVolume = vol;
+      document.querySelectorAll('audio').forEach((a) => (a.volume = vol));
+    });
+  }
 
-  closeBtn.addEventListener('click', () => {
-    goToGameSelection();
-  });
+  // Close button exists in both layouts
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      goToGameSelection();
+    });
+  }
 
+  // Play/pause button exists in both layouts
   playPauseBtn.addEventListener('click', () => {
     const isPaused = gameScreen.classList.contains('paused');
 
