@@ -899,18 +899,51 @@ body::after {
     height: 48px;
   }
 
-  /* Ligar game mobile adaptations */
-  .mobile-device .ligar-board-grid {
-    gap: 20px;
-    flex-direction: column;
-    align-items: stretch;
-  }
-
   .mobile-device .ligar-board-grid.fase1,
   .mobile-device .ligar-board-grid.fase2,
   .mobile-device .ligar-board-grid.fase3 {
     gap: 16px;
     max-width: 100%;
+  }
+
+  /* Scale down Ligar game for mobile */
+  .mobile-device .ligar-board-grid {
+    gap: 20px;
+    /* Reduce gap between columns */
+    transform: scale(1);
+    /* Scale down entire board */
+    transform-origin: center;
+  }
+
+  /* Adjust column widths for mobile */
+  .mobile-device .ligar-col-classes-fase1,
+  .mobile-device .ligar-col-symbols-fase1 {
+    max-width: 120px;
+    gap: 12px;
+  }
+
+  .mobile-device .ligar-col-classes-fase2,
+  .mobile-device .ligar-col-symbols-fase2 {
+    max-width: 120px;
+    gap: 12px;
+  }
+
+  .mobile-device .ligar-col-classes-fase3,
+  .mobile-device .ligar-col-symbols-fase3 {
+    max-width: 280px;
+    /* Much smaller than 456px */
+    gap: 12px;
+  }
+
+  /* Smaller dropzones and symbols on mobile */
+  .mobile-device .ligar-dropzone {
+    width: 60px;
+    height: 60px;
+    min-height: auto;
+  }
+
+  .mobile-device .ligar-class-label {
+    font-size: 0.75rem;
   }
 
   .mobile-device .ligar-col-grid {
