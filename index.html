@@ -120,11 +120,39 @@
             Sair
           </button>
         </header>
-        <div class="grid md:grid-cols-3 gap-6 text-center">
-          <div
-            onclick="openPhaseSelectionModal('memory')"
-            class="bg-white p-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all"
+
+        <!-- Seletor de Jogos -->
+        <div class="mb-8 max-w-md mx-auto">
+          <label
+            for="game-filter"
+            class="block text-stone-600 font-semibold mb-2"
           >
+          </label>
+          <select
+            id="game-filter"
+            class="w-full px-4 py-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#4a81e3] focus:outline-none transition bg-white cursor-pointer"
+          >
+            <option value="all">Todos os Jogos</option>
+            <option value="favorites">⭐ Favoritos</option>
+            <option value="memory">🧠 Memória</option>
+            <option value="genius">✨ Genius</option>
+            <option value="ligar">🔗 Tempo</option>
+          </select>
+        </div>
+
+        <div id="games-container" class="grid md:grid-cols-3 gap-6 text-center">
+          <div
+            data-game="memory"
+            onclick="openPhaseSelectionModal('memory')"
+            class="bg-white p-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all relative"
+          >
+            <button
+              class="favorite-star absolute top-4 left-4 text-3xl transition-transform hover:scale-125 z-10"
+              data-game-id="memory"
+              onclick="event.stopPropagation(); toggleFavorite('memory')"
+            >
+              ☆
+            </button>
             <h2 class="text-2xl font-bold mb-2 text-stone-700">Memória</h2>
             <p class="text-stone-500 mb-4">
               Encontre os pares de símbolos e classes.
@@ -137,9 +165,17 @@
             </button>
           </div>
           <div
+            data-game="genius"
             onclick="openPhaseSelectionModal('genius')"
-            class="bg-white p-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all"
+            class="bg-white p-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all relative"
           >
+            <button
+              class="favorite-star absolute top-4 left-4 text-3xl transition-transform hover:scale-125 z-10"
+              data-game-id="genius"
+              onclick="event.stopPropagation(); toggleFavorite('genius')"
+            >
+              ☆
+            </button>
             <h2 class="text-2xl font-bold mb-2 text-stone-700">Genius</h2>
             <p class="text-stone-500 mb-4">
               Memorize e repita a sequência de símbolos.
@@ -152,9 +188,17 @@
             </button>
           </div>
           <div
+            data-game="ligar"
             onclick="openPhaseSelectionModal('ligar')"
-            class="bg-white p-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all"
+            class="bg-white p-6 rounded-2xl shadow-lg cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all relative"
           >
+            <button
+              class="favorite-star absolute top-4 left-4 text-3xl transition-transform hover:scale-125 z-10"
+              data-game-id="ligar"
+              onclick="event.stopPropagation(); toggleFavorite('ligar')"
+            >
+              ☆
+            </button>
             <h2 class="text-2xl font-bold mb-2 text-stone-700">Tempo</h2>
             <p class="text-stone-500 mb-4">
               Una os pares no menor tempo possível.

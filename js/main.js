@@ -2,16 +2,176 @@
  * js/main.js
  */
 
+// ========== SISTEMA DE FAVORITOS ==========
+let favorites = JSON.parse(localStorage.getItem('gameFavorites')) || [];
+
+// Carregar favoritos ao iniciar
+function loadFavorites() {
+  favorites.forEach((gameId) => {
+    const star = document.querySelector(
+      `.favorite-star[data-game-id="${gameId}"]`
+    );
+    if (star) {
+      star.textContent = '★';
+      star.style.color = '#fbbf24';
+    }
+  });
+}
+
+// Toggle favorito
+function toggleFavorite(gameId) {
+  const star = document.querySelector(
+    `.favorite-star[data-game-id="${gameId}"]`
+  );
+
+  if (favorites.includes(gameId)) {
+    favorites = favorites.filter((id) => id !== gameId);
+    star.textContent = '☆';
+    star.style.color = '';
+  } else {
+    favorites.push(gameId);
+    star.textContent = '★';
+    star.style.color = '#fbbf24';
+  }
+
+  localStorage.setItem('gameFavorites', JSON.stringify(favorites));
+
+  const gameFilter = document.getElementById('game-filter');
+  if (gameFilter && gameFilter.value === 'favorites') {
+    filterGames('favorites');
+  }
+}
+
+// Limpar todos os favoritos
+function clearAllFavorites() {
+  if (confirm('Deseja remover todos os favoritos?')) {
+    favorites = [];
+    localStorage.removeItem('gameFavorites');
+
+    // Resetar todas as estrelas
+    document.querySelectorAll('.favorite-star').forEach((star) => {
+      star.textContent = '☆';
+      star.style.color = '';
+    });
+
+    // Atualizar visualização se estiver em favoritos
+    const gameFilter = document.getElementById('game-filter');
+    if (gameFilter && gameFilter.value === 'favorites') {
+      filterGames('favorites');
+    }
+  }
+}
+// ========== FIM SISTEMA DE FAVORITOS ==========
+
+// Função de filtro corrigida
+function filterGames(selectedGame) {
+  const gamesContainer = document.getElementById('games-container');
+  const gameCards = document.querySelectorAll('[data-game]');
+
+  // Remover mensagem de favoritos vazia se existir
+  const emptyMessage = gamesContainer.querySelector('.empty-favorites-message');
+  if (emptyMessage) {
+    emptyMessage.remove();
+  }
+
+  // Restaurar cards se foram removidos
+  if (gameCards.length === 0) {
+    location.reload(); // Força reload se os cards foram perdidos
+    return;
+  }
+
+  if (selectedGame === 'all') {
+    // Mostrar todos em grid
+    gamesContainer.className = 'grid md:grid-cols-3 gap-6 text-center';
+    gameCards.forEach((card) => {
+      card.style.display = 'block';
+      card.classList.remove('max-w-sm', 'w-full');
+    });
+  } else if (selectedGame === 'favorites') {
+    if (favorites.length === 0) {
+      // Ocultar todos os cards mas mantê-los no DOM
+      gameCards.forEach((card) => {
+        card.style.display = 'none';
+      });
+
+      // Adicionar mensagem de favoritos vazia
+      gamesContainer.className = 'text-center';
+      const emptyDiv = document.createElement('div');
+      emptyDiv.className =
+        'empty-favorites-message bg-white p-8 rounded-2xl shadow-lg';
+      emptyDiv.innerHTML = `
+        <div class="text-6xl mb-4">⭐</div>
+        <h3 class="text-2xl font-bold text-stone-700 mb-2">Nenhum favorito ainda</h3>
+        <p class="text-stone-500">Clique na estrela dos jogos para adicioná-los aos favoritos!</p>
+      `;
+      gamesContainer.appendChild(emptyDiv);
+      return;
+    }
+
+    // Centralizar se houver 1 ou 2 favoritos, grid se 3
+    if (favorites.length <= 2) {
+      gamesContainer.className =
+        'flex justify-center items-start gap-6 text-center';
+    } else {
+      gamesContainer.className = 'grid md:grid-cols-3 gap-6 text-center';
+    }
+
+    gameCards.forEach((card) => {
+      if (favorites.includes(card.dataset.game)) {
+        card.style.display = 'block';
+        // Remover classes de largura para permitir centralização
+        card.classList.remove('max-w-sm', 'w-full');
+        if (favorites.length <= 2) {
+          // Adicionar apenas max-w para limitar largura, sem w-full
+          card.classList.add('max-w-sm');
+        }
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  } else {
+    // Mostrar apenas o selecionado centralizado
+    gamesContainer.className = 'flex justify-center text-center';
+    gameCards.forEach((card) => {
+      if (card.dataset.game === selectedGame) {
+        card.style.display = 'block';
+        card.classList.add('max-w-sm', 'w-full');
+      } else {
+        card.style.display = 'none';
+        card.classList.remove('max-w-sm', 'w-full');
+      }
+    });
+  }
+}
+
 // Sistema de detecção e controle mobile
 const MobileUtils = {
   isMobile: /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent
   ),
-  isTablet: /iPad|Android(?=.*Mobile)/i.test(navigator.userAgent),
+  isTablet: /iPad|Android(?!.*Mobile)/i.test(navigator.userAgent),
+
+  // Detecta se é tablet baseado em dimensões (iPad Air: 1180x820)
+  isTabletBySize: () => {
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const maxDimension = Math.max(width, height);
+    const minDimension = Math.min(width, height);
+
+    // Tablets geralmente têm entre 768px e 1366px na maior dimensão
+    return (
+      maxDimension >= 768 &&
+      maxDimension <= 1366 &&
+      minDimension >= 600 &&
+      minDimension <= 1024
+    );
+  },
+
   isLandscape: () => window.innerWidth > window.innerHeight,
 
   init() {
-    if (this.isMobile) {
+    // Aplica para mobile E tablet
+    if (this.isMobile || this.isTablet || this.isTabletBySize()) {
       document.body.classList.add('mobile-device');
       this.setupOrientationHandling();
       this.applyMobileStyles();
@@ -19,9 +179,9 @@ const MobileUtils = {
   },
 
   setupOrientationHandling() {
-    // Força orientação landscape em dispositivos móveis
+    // Força orientação landscape em dispositivos móveis E tablets
     const handleOrientationChange = () => {
-      if (this.isMobile) {
+      if (this.isMobile || this.isTablet || this.isTabletBySize()) {
         if (!this.isLandscape()) {
           document.body.classList.add('portrait-warning');
           this.showOrientationModal();
@@ -1149,7 +1309,7 @@ function startGame(type, phase) {
   gameScreenContainer.innerHTML = GameScreenComponent(gameTitles[type], phase);
   setupGameUIListeners();
   navigate('game-screen');
-
+  loadFavorites();
   const begin = () => {
     // --- Timer inicial e botão de pular ---
     const timerEl = document.getElementById('game-timer');
@@ -1376,4 +1536,12 @@ document.addEventListener('DOMContentLoaded', () => {
   MobileUtils.init();
   SessionTimerDisplay.init();
   console.log('MorfoLogic carregado - Mobile:', MobileUtils.isMobile);
+
+  // Event listener do filtro
+  const gameFilter = document.getElementById('game-filter');
+  if (gameFilter) {
+    gameFilter.addEventListener('change', function (e) {
+      filterGames(e.target.value);
+    });
+  }
 });
