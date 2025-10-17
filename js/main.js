@@ -25,13 +25,22 @@ function toggleFavorite(gameId) {
   );
 
   if (favorites.includes(gameId)) {
+    // Remover favorito
     favorites = favorites.filter((id) => id !== gameId);
     star.textContent = '☆';
     star.style.color = '';
+    star.classList.remove('favorited');
   } else {
+    // Adicionar favorito
     favorites.push(gameId);
     star.textContent = '★';
     star.style.color = '#fbbf24';
+
+    // Adicionar animação de pulsar
+    star.classList.add('favorited');
+    setTimeout(() => {
+      star.classList.remove('favorited');
+    }, 500);
   }
 
   localStorage.setItem('gameFavorites', JSON.stringify(favorites));
@@ -158,10 +167,19 @@ const MobileUtils = {
     const maxDimension = Math.max(width, height);
     const minDimension = Math.min(width, height);
 
-    // Tablets geralmente têm entre 768px e 1366px na maior dimensão
+    // Detecta tablets reais (não desktops)
+    // iPad Air: 820x1180 em portrait, 1180x820 em landscape
+    // Tablets geralmente têm aspect ratio específico
+
+    // Se a tela for muito grande (>1280px), provavelmente é desktop
+    if (maxDimension > 1280) {
+      return false;
+    }
+
+    // Tablets geralmente têm entre 768px e 1280px na maior dimensão
     return (
       maxDimension >= 768 &&
-      maxDimension <= 1366 &&
+      maxDimension <= 1280 &&
       minDimension >= 600 &&
       minDimension <= 1024
     );

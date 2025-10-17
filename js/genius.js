@@ -3,6 +3,40 @@
  * --- Sequential wave reveal with memory phase ---
  */
 
+/**
+ * Define a ordem de revelação progressiva para cada fase
+ * Cada subarray representa uma rodada mostrando os índices das palavras
+ */
+const GENIUS_REVEAL_SEQUENCE = {
+  1: [
+    [2], // Rodada 1: "tesouro"
+    [1, 2], // Rodada 2: "o tesouro"
+    [1, 2, 3], // Rodada 3: "o tesouro perdido"
+    [0, 1, 2, 3], // Rodada 4: "Encontramos o tesouro perdido"
+  ],
+  2: [
+    [1], // Rodada 1: "Lanche"
+    [0, 1], // Rodada 2: "Meu lanche"
+    [0, 1, 2], // Rodada 3: "Meu lanche favorito"
+    [0, 1, 2, 3], // Rodada 4: "Meu lanche favorito é"
+    [0, 1, 2, 3, 4], // Rodada 5: "Meu lanche favorito é suco"
+    [0, 1, 2, 3, 4, 5, 6], // Rodada 6: "Meu lanche favorito é suco e bolo"
+    [0, 1, 2, 3, 4, 5, 6, 7, 8], // Rodada 7: "Meu lanche favorito é suco e bolo de chocolate"
+  ],
+  3: [
+    [4], // Rodada 1: "Bonecas"
+    [1, 4], // Rodada 2: "As bonecas"
+    [1, 4, 5], // Rodada 3: "As bonecas novas"
+    [1, 2, 4, 5], // Rodada 4: "As minhas bonecas novas"
+    [1, 2, 3, 4, 5], // Rodada 5: "As minhas duas bonecas novas"
+    [1, 2, 3, 4, 5, 8], // Rodada 6: "As minhas duas bonecas novas chegaram"
+    [1, 2, 3, 4, 5, 8, 9], // Rodada 7: "As minhas duas bonecas novas chegaram hoje"
+    [1, 2, 3, 4, 5, 8, 9, 10], // Rodada 8: "As minhas duas bonecas novas chegaram hoje em"
+    [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], // Rodada 9: "As minhas duas bonecas novas e perfumadas chegaram hoje em"
+    [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], // Rodada 10: "Oba! As minhas duas bonecas novas e perfumadas chegaram hoje em casa!"
+  ],
+};
+
 const stillTime = 1200;
 const flyTime = 1200;
 let geniusState = {};
@@ -27,19 +61,15 @@ function initGeniusGame(phase) {
     originalIndex: index,
   }));
 
-  const revealOrder = shuffleArray([
-    ...Array(originalPhraseData.length).keys(),
-  ]);
-
   const board = document.getElementById('game-board');
   AppState.currentGame.score = 0;
   AppState.currentGame.errors = 0;
 
   geniusState = {
     phrase: originalPhraseData,
-    revealOrder: revealOrder,
+    revealSequence: GENIUS_REVEAL_SEQUENCE[phase], // Sequência de revelação
+    currentRound: 0, // Rodada atual (0 = primeira rodada)
     revealedWords: [],
-    currentRevealStep: 0,
     currentInputIndex: 0,
     turn: 'computer',
     isTerminated: false,
@@ -57,31 +87,32 @@ function initGeniusGame(phase) {
   const gameMessage = document.getElementById('game-message');
   if (gameMessage) gameMessage.textContent = 'Memorize a ordem!';
 
-  // Start the wave game immediately - no preview timer
+  // Start the wave game immediately
   startWave();
 }
 
 function startWave() {
-  if (geniusState.currentRevealStep >= geniusState.revealOrder.length) {
-    // All words revealed! Game complete!
+  if (geniusState.currentRound >= geniusState.revealSequence.length) {
+    // Todas as rodadas completas! Jogo terminado!
     endGeniusGame(true);
     return;
   }
 
   geniusState.turn = 'computer';
 
-  // Get the next word to reveal
-  const nextWordIndex = geniusState.revealOrder[geniusState.currentRevealStep];
-  const wordData = geniusState.phrase[nextWordIndex];
+  // Pegar os índices das palavras para esta rodada
+  const wordsToReveal = geniusState.revealSequence[geniusState.currentRound];
 
-  // Add this word to revealed words
-  geniusState.revealedWords.push({
-    ...wordData,
-    originalIndex: nextWordIndex,
-    revealIndex: geniusState.currentRevealStep,
-  });
+  // Resetar palavras reveladas para esta rodada
+  geniusState.revealedWords = wordsToReveal.map(
+    (originalIndex, revealIndex) => ({
+      ...geniusState.phrase[originalIndex],
+      originalIndex: originalIndex,
+      revealIndex: revealIndex,
+    })
+  );
 
-  // Show wave animation
+  // Mostrar animação
   showWaveAnimation(() => {
     geniusState.currentInputIndex = 0;
     renderPhraseForInput();
@@ -289,6 +320,24 @@ function renderPhraseForInput() {
   });
 }
 
+function reattachDragListeners(element) {
+  element.addEventListener('mousedown', (e) => {
+    DraggableManager.dragStart.call(DraggableManager, e);
+  });
+  element.addEventListener(
+    'touchstart',
+    (e) => {
+      DraggableManager.dragStart.call(DraggableManager, e);
+    },
+    { passive: false }
+  );
+
+  // Garantir que o elemento tenha as classes corretas
+  if (!element.classList.contains('draggable')) {
+    element.classList.add('draggable', 'cursor-grab');
+  }
+}
+
 function handleGeniusDrop(symbolEl, targetEl, placeholder, unlockCallback) {
   if (geniusState.turn !== 'player') {
     unlockCallback();
@@ -308,32 +357,52 @@ function handleGeniusDrop(symbolEl, targetEl, placeholder, unlockCallback) {
 
     setTimeout(() => {
       placeholder.replaceWith(symbolEl);
+
       Object.assign(symbolEl.style, {
         position: 'static',
         left: '',
         top: '',
         zIndex: '',
         transform: '',
+        transition: '',
+        pointerEvents: '',
+        opacity: '1',
       });
+
+      symbolEl.classList.remove('opacity-0', 'dragging');
       unlockCallback();
     }, 300);
     return;
   }
 
-  const droppedRevealIndex = parseInt(symbolEl.dataset.revealIndex);
-  const targetRevealIndex = parseInt(targetEl.dataset.revealIndex);
+  // ✅ Pegar os índices originais
+  const droppedOriginalIndex = parseInt(symbolEl.dataset.originalIndex);
+  const targetOriginalIndex = parseInt(targetEl.dataset.originalIndex);
 
-  const expectedWord = geniusState.revealedWords.find(
-    (w) => w.revealIndex === geniusState.currentInputIndex
-  );
+  // Logo após pegar droppedWord e targetWord
+  const droppedWord = geniusState.phrase[droppedOriginalIndex];
+  const targetWord = geniusState.phrase[targetOriginalIndex];
 
-  const isCorrect =
-    droppedRevealIndex === expectedWord.revealIndex &&
-    targetRevealIndex === expectedWord.revealIndex;
+  // 🔍 DEBUG
+  console.log('Dropped:', droppedWord.word, '| Class:', droppedWord.class);
+  console.log('Target:', targetWord.word, '| Class:', targetWord.class);
+  console.log('Match?', droppedWord.class === targetWord.class);
+
+  // Verificar se o slot já está preenchido
+  const isSlotFilled = targetEl.classList.contains('filled');
+
+  // Validar: mesma classe gramatical + slot vazio
+  const isCorrect = droppedWord.symbol === targetWord.symbol && !isSlotFilled;
 
   if (isCorrect) {
     AppState.currentGame.score += 10;
     if (typeof GameAudio !== 'undefined') GameAudio.play('correct');
+
+    // Feedback visual de sucesso
+    targetEl.classList.add('correct-drop');
+    setTimeout(() => {
+      targetEl.classList.remove('correct-drop');
+    }, 500);
 
     // Remove placeholder
     placeholder.remove();
@@ -350,23 +419,29 @@ function handleGeniusDrop(symbolEl, targetEl, placeholder, unlockCallback) {
     });
 
     setTimeout(() => {
+      // ✅ Usar o símbolo do card ARRASTADO
+      const wordData = geniusState.phrase[droppedOriginalIndex];
+
       // Place symbol in dropzone
       targetEl.innerHTML =
-        typeof expectedWord.symbol === 'function'
-          ? expectedWord.symbol('w-16 h-16')
-          : expectedWord.symbol;
+        typeof wordData.symbol === 'function'
+          ? wordData.symbol('w-16 h-16')
+          : wordData.symbol;
       targetEl.classList.add('filled');
       targetEl.classList.remove('border-dashed');
 
-      // REMOVE the dragged symbol element
+      // Remove dragged element
       if (symbolEl && symbolEl.parentNode) {
         symbolEl.remove();
       }
 
-      geniusState.currentInputIndex++;
+      // ✅ Contar slots preenchidos ao invés de usar currentInputIndex
+      const filledSlots = document.querySelectorAll(
+        '#genius-phrase .symbol-placeholder.filled'
+      );
 
-      if (geniusState.currentInputIndex >= geniusState.revealedWords.length) {
-        geniusState.currentRevealStep++;
+      if (filledSlots.length >= geniusState.revealedWords.length) {
+        geniusState.currentRound++;
 
         const gameMessage = document.getElementById('game-message');
         if (gameMessage) gameMessage.textContent = 'Muito bem!';
@@ -385,7 +460,15 @@ function handleGeniusDrop(symbolEl, targetEl, placeholder, unlockCallback) {
 
     const gameMessage = document.getElementById('game-message');
     if (gameMessage)
-      gameMessage.textContent = 'Ordem incorreta! Tente novamente.';
+      gameMessage.textContent = 'Classe gramatical incorreta! Tente novamente.';
+
+    // Feedback visual de erro
+    if (targetEl) {
+      targetEl.classList.add('wrong-drop', 'shake-subtle');
+      setTimeout(() => {
+        targetEl.classList.remove('wrong-drop', 'shake-subtle');
+      }, 500);
+    }
 
     // Animate back to placeholder
     const placeholderRect = placeholder.getBoundingClientRect();
@@ -398,13 +481,19 @@ function handleGeniusDrop(symbolEl, targetEl, placeholder, unlockCallback) {
 
     setTimeout(() => {
       placeholder.replaceWith(symbolEl);
+
       Object.assign(symbolEl.style, {
         position: 'static',
         left: '',
         top: '',
         zIndex: '',
         transform: '',
+        transition: '',
+        pointerEvents: '',
+        opacity: '1',
       });
+
+      symbolEl.classList.remove('opacity-0', 'dragging');
       unlockCallback();
     }, 300);
 
