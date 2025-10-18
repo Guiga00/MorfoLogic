@@ -1,0 +1,24 @@
+{
+  "name": "MorfoLogic - Gramática Montessori",
+  "short_name": "MorfoLogic",
+  "description": "Aprenda gramática com o método Montessori",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdfdfd",
+  "theme_color": "#386ccc",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

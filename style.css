@@ -1,3 +1,6 @@
+/* ============================================
+   Placeholder pra vizualizar melhor no mobile
+   ============================================ */
 @media screen and (max-width: 1024px) and (orientation: landscape) {
   .mobile-device #app > * {
     transform: scale(0.75);
