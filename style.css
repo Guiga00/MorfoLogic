@@ -1,3 +1,39 @@
+@media screen and (max-width: 1024px) and (orientation: landscape) {
+  .mobile-device #app > * {
+    transform: scale(0.75);
+    transform-origin: top center;
+    width: 117.65%;
+    min-height: 117.65vh;
+  }
+}
+
+/* ===== FONTE CUSTOMIZADA ===== */
+@font-face {
+  font-family: 'Irineu';
+  src: url('../assets/fonts/Irineu Canva Alfabeto T2.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Aplicar Irineu em todos os títulos e subtítulos */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.page-title,
+.game-title,
+#game-name,
+.phase-title,
+.modal-title,
+#game-selection-screen h1,
+#game-selection-screen h2,
+#login-screen h1 {
+  font-family: 'Irineu', 'Comic Sans MS', cursive, sans-serif;
+}
+
 :root {
   /* Card sizes for memory game */
   --card-size-mobile: 92px;

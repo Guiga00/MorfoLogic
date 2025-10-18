@@ -3,7 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Para mobile, zoom inicial menor -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=0.75, maximum-scale=1.0, user-scalable=yes"
+    />
+
     <title>MorfoLogic - Plataforma Montessori</title>
+    <link rel="icon" type="image/png" href="./assets//img/favicon.png" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -30,27 +37,30 @@
     <div id="app" class="w-full max-w-5xl mx-auto p-4 grid">
       <div
         id="login-screen"
-        class="text-center bg-white p-8 rounded-2xl shadow-lg fade-in"
+        class="text-center bg-white p-10 rounded-2xl shadow-2xl fade-in max-w-md w-full mx-auto my-auto"
       >
-        <h1 class="text-4xl md:text-5xl font-extrabold mb-2 text-[#386ccc]">
-          MorfoLogic
+        <h1
+          class="text-3xl md:text-4xl pt-10 font-extrabold mb-1 text-[#386ccc]"
+        >
+          Morfo<span id="logic" class="text-[#FF2C2C]">Logic</span>
         </h1>
-        <p class="text-stone-500 mb-8">
+        <br />
+        <p class="text-stone-500 mb-8 text-sm">
           Aprenda gramática com o método Montessori
         </p>
-        <form id="login-form" class="max-w-sm mx-auto">
+        <form id="login-form" class="space-y-4">
           <input
             type="text"
             id="username"
             placeholder="Digite seu usuário"
-            class="w-full px-4 py-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-[#4a81e3] focus:outline-none transition"
+            class="w-full px-4 py-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#4a81e3] focus:outline-none transition"
             required
           />
           <input
             type="password"
             id="password"
             placeholder="Digite sua senha"
-            class="w-full px-4 py-3 border border-stone-300 rounded-lg mb-4 focus:ring-2 focus:ring-[#4a81e3] focus:outline-none transition"
+            class="w-full px-4 py-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-[#4a81e3] focus:outline-none transition"
             required
           />
           <button
@@ -61,7 +71,7 @@
             Entrar
           </button>
         </form>
-        <p id="login-error" class="text-red-500 mt-4 h-5"></p>
+        <p id="login-error" class="text-red-500 mt-4 h-5 text-sm"></p>
       </div>
 
       <div
@@ -97,26 +107,26 @@
       </div>
 
       <div id="game-selection-screen" class="hidden">
-        <header class="flex justify-between items-center mb-8">
-          <div>
-            <h1 class="page-title text-3xl md:text-4xl font-extrabold">
-              Selecione um Mini-jogo
+        <header class="flex justify-between items-center mb-12 gap-6">
+          <div class="space-y-4">
+            <h1 class="page-title text-xl md:text-3xl font-extrabold">
+              Selecione um Mini-Jogo
             </h1>
-            <p class="mobile-indented-text text-stone-500">
+            <p class="mobile-indented-text text-stone-600 text-base md:text-lg">
               Sua pontuação geral é:
               <span id="general-score" class="font-bold text-[#2a529f]">0</span>
             </p>
           </div>
           <p
             id="session-timer-show"
-            class="bg-white text-amber-500 font-bold py-2 px-4 rounded-lg hover:bg-amber-50 transition"
+            class="bg-white text-amber-500 font-bold py-3 px-5 rounded-lg hover:bg-amber-50 transition shadow-sm"
           >
             Tempo de Sessão:
             <span id="session-timer-display" class="text-amber-500">--:--</span>
           </p>
           <button
             onclick="goBackToLogin()"
-            class="bg-stone-200 text-stone-600 font-bold py-2 px-4 rounded-lg hover:bg-stone-300 transition"
+            class="bg-stone-200 text-stone-600 font-bold py-3 px-5 rounded-lg hover:bg-stone-300 transition shadow-sm"
           >
             Sair
           </button>
