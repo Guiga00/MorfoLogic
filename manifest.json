@@ -3,7 +3,7 @@
   "short_name": "MorfoLogic",
   "description": "Aprenda gramática com o método Montessori",
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "background_color": "#fdfdfd",
   "theme_color": "#386ccc",
   "orientation": "landscape",
