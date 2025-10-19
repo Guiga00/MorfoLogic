@@ -1,15 +1,3 @@
-/* ============================================
-   MOBILE LANDSCAPE ZOOM OUT
-   ============================================ */
-@media screen and (max-width: 1024px) and (orientation: landscape) {
-  .mobile-device #app > *:not(.hidden) {
-    transform: scale(0.8);
-    transform-origin: top center;
-    width: 125%; /* 100 / 0.8 = 125% */
-    min-height: 125vh;
-  }
-}
-
 /* ===== FONTE CUSTOMIZADA ===== */
 @font-face {
   font-family: 'Irineu';
