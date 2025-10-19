@@ -4,13 +4,6 @@
 
 let memoryState = {};
 
-function shuffleArray(array) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
-
 function createCardHTML(item, index) {
   let cardBackContent;
   if (item.type === 'name') {
@@ -182,8 +175,6 @@ window.cleanupMemoryGame = function (hideSkipButton = true) {
     lockBoard: true,
     matches: 0,
     totalPairs: 0,
-    previewTimer: null,
-    gameTimer: null,
   };
 
   // Limpar elementos visuais

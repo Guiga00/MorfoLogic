@@ -41,15 +41,6 @@ const stillTime = 1200;
 const flyTime = 1200;
 let geniusState = {};
 
-function shuffleArray(array) {
-  const newArr = [...array];
-  for (let i = newArr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
-  }
-  return newArr;
-}
-
 function initGeniusGame(phase) {
   // Clear any previous game instance
   if (geniusState.animationTimeouts) {
