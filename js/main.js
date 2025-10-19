@@ -286,40 +286,91 @@ const AppState = {
   },
   // Função para limpar estados dos jogos
   cleanupCurrentGame() {
+    // Stop and reset the global Timer
+    Timer.stop();
     Timer.reset();
 
+    // Clear preview-related timeouts/intervals
     if (this.currentGame.previewInterval) {
       clearInterval(this.currentGame.previewInterval);
+      this.currentGame.previewInterval = null;
     }
-
     if (this.currentGame.previewTimeout) {
       clearTimeout(this.currentGame.previewTimeout);
+      this.currentGame.previewTimeout = null;
     }
 
-    // // Limpa timers do jogo atual
-    // if (this.currentGame.timer) {
-    //   clearInterval(this.currentGame.timer);
-    //   this.currentGame.timer = null;
-    // }
+    // Use GameLifecycle for cleanup
+    GameLifecycle.executeHook(this.currentGame.type, 'cleanup');
+  },
+};
 
-    // Limpeza específica do jogo da memória
-    if (
-      this.currentGame.type === 'memory' &&
-      typeof window.cleanupMemoryGame === 'function'
-    ) {
-      window.cleanupMemoryGame();
-    }
+const GameLifecycle = {
+  hooks: {
+    memory: {
+      pause: () => {
+        if (typeof window.pauseMemoryGame === 'function') {
+          window.pauseMemoryGame();
+        }
+      },
+      resume: () => {
+        if (typeof window.resumeMemoryGame === 'function') {
+          window.resumeMemoryGame();
+        }
+      },
+      cleanup: () => {
+        if (typeof window.cleanupMemoryGame === 'function') {
+          window.cleanupMemoryGame();
+        }
+      },
+    },
+    genius: {
+      pause: () => {
+        if (typeof window.pauseGeniusGame === 'function') {
+          window.pauseGeniusGame();
+        }
+      },
+      resume: () => {
+        if (typeof window.resumeGeniusGame === 'function') {
+          window.resumeGeniusGame();
+        }
+      },
+      cleanup: () => {
+        if (typeof geniusState !== 'undefined') {
+          geniusState.isTerminated = true;
+          geniusState.animationTimeouts?.forEach(clearTimeout);
+          geniusState.animationTimeouts = [];
+        }
+      },
+    },
+    ligar: {
+      pause: () => {
+        if (typeof window.pauseLigarGame === 'function') {
+          window.pauseLigarGame();
+        }
+      },
+      resume: () => {
+        if (typeof window.resumeLigarGame === 'function') {
+          window.resumeLigarGame();
+        }
+      },
+      cleanup: () => {
+        if (typeof DraggableManager !== 'undefined') {
+          DraggableManager.cleanup();
+        }
+      },
+    },
+  },
 
-    // Limpa animações do Genius
-    if (typeof geniusState !== 'undefined' && geniusState.animationTimeouts) {
-      geniusState.isTerminated = true;
-      geniusState.animationTimeouts.forEach(clearTimeout);
-      geniusState.animationTimeouts = [];
-    }
-
-    // Limpa draggable manager
-    if (typeof DraggableManager !== 'undefined') {
-      DraggableManager.cleanup();
+  /**
+   * Execute a lifecycle hook for the current game
+   * @param {string} gameType - 'memory', 'genius', or 'ligar'
+   * @param {string} hookName - 'pause', 'resume', or 'cleanup'
+   */
+  executeHook(gameType, hookName) {
+    const hook = this.hooks[gameType]?.[hookName];
+    if (typeof hook === 'function') {
+      hook();
     }
   },
 };
@@ -919,46 +970,19 @@ function setupGameUIListeners() {
 // Funções de controle de pause
 function pauseGame() {
   if (AppState.isPaused) return;
-
   AppState.isPaused = true;
 
-  // Pause the timer (works for both countdown and main timer)
+  // Pause the timer
   Timer.pause();
 
-  // PAUSE PREVIEW TIMEOUT - Clear it and track remaining time
-  if (AppState.currentGame.previewTimeout) {
-    clearTimeout(AppState.currentGame.previewTimeout);
-    const elapsed = Date.now() - AppState.currentGame.previewTimeoutStart;
-    const remaining = AppState.currentGame.previewTimeoutDuration - elapsed;
-    AppState.currentGame.previewTimeoutDuration = Math.max(0, remaining);
-  }
-
-  // PAUSE PREVIEW INTERVAL
-  if (AppState.currentGame.previewInterval) {
-    clearInterval(AppState.currentGame.previewInterval);
-  }
-
   // Pause game-specific logic
-  const currentGame = AppState.currentGame.name;
-  if (
-    currentGame === 'memory' &&
-    typeof window.pauseMemoryGame === 'function'
-  ) {
-    window.pauseMemoryGame();
-  }
-  if (
-    currentGame === 'genius' &&
-    typeof window.pauseGeniusGame === 'function'
-  ) {
-    window.pauseGeniusGame();
-  }
-  if (currentGame === 'ligar' && typeof window.pauseLigarGame === 'function') {
-    window.pauseLigarGame();
-  }
+  GameLifecycle.executeHook(AppState.currentGame.type, 'pause');
 
+  // Show pause modal
   showPauseModal();
 
-  const playPauseBtn = document.getElementById('play-pause-btn');
+  // Update play/pause button icon
+  const playPauseBtn = document.getElementById('game-playpause-btn');
   if (playPauseBtn) {
     playPauseBtn.innerHTML = `
       <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
@@ -970,73 +994,19 @@ function pauseGame() {
 
 function resumeGame() {
   if (!AppState.isPaused) return;
-
   AppState.isPaused = false;
 
-  // RESUME PREVIEW INTERVAL - Only if preview is still active
-  const timerEl = document.getElementById('game-timer');
-  if (
-    AppState.currentGame.previewTimeoutDuration > 0 &&
-    AppState.currentGame.previewTimeoutCallback &&
-    timerEl
-  ) {
-    const formatPreviewTime = (s) => `00:${s.toString().padStart(2, '0')}`;
-    let remainingSeconds = Math.ceil(
-      AppState.currentGame.previewTimeoutDuration / 1000
-    );
-
-    const previewInterval = setInterval(() => {
-      if (!AppState.isPaused) {
-        remainingSeconds--;
-        if (timerEl) timerEl.textContent = formatPreviewTime(remainingSeconds);
-        if (remainingSeconds <= 0) {
-          clearInterval(previewInterval);
-        }
-      }
-    }, 1000);
-    AppState.currentGame.previewInterval = previewInterval;
-
-    // RESUME PREVIEW TIMEOUT
-    AppState.currentGame.previewTimeoutStart = Date.now();
-
-    const previewTimeout = setTimeout(() => {
-      if (AppState.currentGame.previewInterval) {
-        clearInterval(AppState.currentGame.previewInterval);
-      }
-      if (AppState.currentGame.previewTimeoutCallback) {
-        AppState.currentGame.previewTimeoutCallback();
-      }
-    }, AppState.currentGame.previewTimeoutDuration);
-
-    AppState.currentGame.previewTimeout = previewTimeout;
-  } else {
-    // Preview already ended, just resume the main Timer
-    Timer.resume();
-  }
+  // Resume the timer
+  Timer.resume();
 
   // Resume game-specific logic
-  const currentGame = AppState.currentGame.name;
-  if (
-    currentGame === 'memory' &&
-    typeof window.resumeMemoryGame === 'function'
-  ) {
-    window.resumeMemoryGame();
-  }
-  if (
-    currentGame === 'genius' &&
-    typeof window.resumeGeniusGame === 'function'
-  ) {
-    window.resumeGeniusGame();
-  }
-  if (currentGame === 'ligar' && typeof window.resumeLigarGame === 'function') {
-    window.resumeLigarGame();
-  }
+  GameLifecycle.executeHook(AppState.currentGame.type, 'resume');
 
-  // Hide pause overlay
+  // Hide pause modal
   hidePauseModal();
 
-  // Update button icon
-  const playPauseBtn = document.getElementById('play-pause-btn');
+  // Update play/pause button icon
+  const playPauseBtn = document.getElementById('game-playpause-btn');
   if (playPauseBtn) {
     playPauseBtn.innerHTML = `
       <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">

@@ -74,6 +74,15 @@ const Timer = {
     }
   },
 
+  reset() {
+    this.stop();
+    this.seconds = 0;
+    this.isPaused = false;
+    this.isPreview = false;
+    this.onCompleteCallback = null;
+    this.updateDisplay();
+  },
+
   stop() {
     this.isPaused = false;
     this.isPreview = false;
@@ -83,12 +92,6 @@ const Timer = {
       clearInterval(this.intervalId);
       this.intervalId = null;
     }
-  },
-
-  reset() {
-    this.stop();
-    this.seconds = 0;
-    this.updateDisplay();
   },
 
   updateDisplay() {

@@ -155,18 +155,6 @@ function removeStar() {
 window.cleanupMemoryGame = function (hideSkipButton = true) {
   console.log('Cleaning up memory game...'); // Debug
 
-  // Parar timers
-  if (memoryState.previewTimer) {
-    console.log('Stopping preview timer'); // Debug
-    memoryState.previewTimer.stop();
-    memoryState.previewTimer = null;
-  }
-  if (memoryState.gameTimer) {
-    console.log('Stopping game timer'); // Debug
-    memoryState.gameTimer.stop();
-    memoryState.gameTimer = null;
-  }
-
   // Reset completo do estado
   memoryState = {
     items: [],
