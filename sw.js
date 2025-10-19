@@ -17,13 +17,3 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
-
-/* PWA Fullscreen - respeita safe areas */
-@supports(padding: max(0px)) {
-  body {
-    padding-left: max(0px, env(safe-area-inset-left));
-    padding-right: max(0px, env(safe-area-inset-right));
-    padding-top: max(0px, env(safe-area-inset-top));
-    padding-bottom: max(0px, env(safe-area-inset-bottom));
-  }
-}
