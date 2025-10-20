@@ -677,6 +677,681 @@ body::after {
   }
 }
 
+/* ============================================
+   RESPONSIVE - TABLET & MOBILE (PORTRAIT)
+   ============================================ */
+
+@media (max-width: 767px) {
+  /* Adjust notebook margin for mobile */
+  body::after {
+    left: 15px;
+  }
+
+  /* Tighter line spacing for mobile */
+  body::before {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      var(--notebook-line-color) 0px,
+      var(--notebook-line-color) 1px,
+      transparent 1px,
+      transparent 25px
+    );
+  }
+
+  /* Left-align title on mobile */
+  .page-title {
+    text-align: left;
+    padding-left: 15px;
+  }
+
+  .mobile-indented-text {
+    padding-left: 15px;
+  }
+
+  .memory-board-container {
+    gap: var(--card-gap);
+  }
+}
+
+/* ============================================
+   MOBILE LANDSCAPE OPTIMIZATIONS
+   ============================================ */
+
+/* Portrait warning overlay */
+.portrait-warning::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 9998;
+}
+
+/* ============================================
+   HIGH RESOLUTION MOBILE LANDSCAPE (FHD+)
+   S21 FE, Pixel 6, OnePlus, etc
+   ============================================ */
+@media screen and (min-width: 1080px) and (max-width: 2400px) and (min-height: 600px) and (max-height: 1200px) and (orientation: landscape) {
+  body.mobile-device {
+    font-size: 16px;
+  }
+
+  .mobile-device #app {
+    padding: 12px;
+  }
+
+  .mobile-device #game-selection-screen {
+    padding: 20px !important;
+  }
+
+  .mobile-device .page-title {
+    font-size: 2.5rem;
+  }
+
+  .mobile-device .game-grid {
+    gap: 16px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .mobile-device .memory-board-container .card {
+    width: calc(var(--card-size-mobile) * 1.3);
+    height: calc(var(--card-size-mobile) * 1.3);
+  }
+
+  .mobile-device .memory-board-phase-1 {
+    grid-template-columns: repeat(4, calc(var(--card-size-mobile) * 1.3));
+  }
+
+  .mobile-device .memory-board-phase-2 {
+    grid-template-columns: repeat(5, calc(var(--card-size-mobile) * 1.3));
+  }
+
+  .mobile-device .memory-board-phase-3 {
+    grid-template-columns: repeat(7, calc(var(--card-size-mobile) * 1.3));
+  }
+}
+
+@media screen and (max-width: 1024px) and (max-height: 768px) and (orientation: landscape) {
+  body.mobile-device #game-screen {
+    display: block !important;
+    padding: 8px !important;
+  }
+
+  body.mobile-device #game-content-wrapper {
+    display: block !important;
+    padding: 8px !important;
+  }
+
+  body.mobile-device #game-board {
+    min-height: auto !important;
+    padding: 8px !important;
+  }
+
+  .mobile-device {
+    font-size: var(--mobile-font-base);
+  }
+
+  .mobile-device #app {
+    padding: 8px;
+    max-width: 100vw;
+    height: 100vh;
+    box-sizing: border-box;
+  }
+
+  /* Login screen optimizations */
+  .mobile-device #login-screen {
+    padding: 16px;
+    max-width: 400px;
+    margin: auto;
+  }
+
+  .mobile-device #login-screen h1 {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+  }
+
+  .mobile-device #login-screen p {
+    font-size: 0.9rem;
+    margin-bottom: 16px;
+  }
+
+  .mobile-device input {
+    padding: 12px 16px;
+    font-size: 16px;
+    /* Prevents zoom on iOS */
+    /* margin-bottom: 12px; */
+  }
+
+  .mobile-device .mobile-skip-button {
+    min-height: 28px;
+    padding: 6px 16px;
+    background-color: #386ccc;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .mobile-device #game-playpause-btn {
+    min-height: fit-content;
+    min-width: auto;
+    align-items: center;
+    padding: 12px;
+    font-size: 1.5rem;
+  }
+
+  .mobile-device button {
+    min-height: var(--mobile-button-height);
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+
+  /* Game selection screen */
+  .mobile-device #game-selection-screen {
+    padding: 12px;
+  }
+
+  .mobile-device .page-title {
+    font-size: 2rem;
+    margin-bottom: 16px;
+  }
+
+  .mobile-device .game-grid {
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+
+  /* Game screen layout */
+  .mobile-device #game-screen {
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobile-device #game-top-menu {
+    padding: 8px 12px;
+    min-height: 44px;
+    flex-shrink: 0;
+  }
+
+  .mobile-device #game-board {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+  }
+
+  /* Memory game mobile adaptations */
+  .mobile-device .memory-board-container {
+    gap: var(--card-gap);
+    max-width: 100%;
+  }
+
+  .mobile-device .memory-board-container .card {
+    width: var(--card-size-mobile);
+    height: var(--card-size-mobile);
+    font-size: 0.8rem;
+  }
+
+  .mobile-device .memory-board-phase-1 {
+    grid-template-columns: repeat(4, var(--card-size-mobile));
+  }
+
+  .mobile-device .memory-board-phase-2 {
+    grid-template-columns: repeat(5, var(--card-size-mobile));
+  }
+
+  .mobile-device .memory-board-phase-3 {
+    grid-template-columns: repeat(7, var(--card-size-mobile));
+  }
+
+  /* Genius game mobile adaptations */
+  .mobile-device #genius-phrase {
+    gap: 8px;
+    min-height: 80px;
+  }
+
+  /* Mobile preview mode - responsive columns */
+  .mobile-device .memory-board-container.preview-mode {
+    gap: var(--card-gap);
+    padding: 8px;
+    max-width: 100%;
+  }
+
+  /* Phase 1: 2 columns in preview */
+  .mobile-device .preview-mode.memory-board-phase-1 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Phase 2: 3 columns in preview */
+  .mobile-device .preview-mode.memory-board-phase-2 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  /* Phase 3: 4 columns in preview */
+  .mobile-device .preview-mode.memory-board-phase-3 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  /* Card pairs in preview - responsive */
+  .mobile-device .preview-mode .card-pair {
+    display: flex;
+    gap: 4px;
+    width: 100%;
+  }
+
+  /* Cards in preview mode */
+  .mobile-device .preview-mode .card {
+    width: var(--card-size-mobile);
+    height: var(--card-size-mobile);
+  }
+
+  .mobile-device #genius-phrase > div {
+    font-size: 0.9rem;
+    height: auto;
+    min-height: 60px;
+  }
+
+  .mobile-device #genius-symbols-bank {
+    padding: 12px;
+    gap: 8px;
+    min-height: 80px;
+  }
+
+  .mobile-device .genius-symbol {
+    width: 48px;
+    height: 48px;
+  }
+
+  .mobile-device .ligar-board-grid.fase1,
+  .mobile-device .ligar-board-grid.fase2,
+  .mobile-device .ligar-board-grid.fase3 {
+    gap: 16px;
+    max-width: 100%;
+  }
+
+  /* Scale down Ligar game for mobile */
+  .mobile-device .ligar-board-grid {
+    gap: 20px;
+    /* Reduce gap between columns */
+    transform: scale(1);
+    /* Scale down entire board */
+    transform-origin: center;
+  }
+
+  /* Adjust column widths for mobile */
+  .mobile-device .ligar-col-classes-fase1,
+  .mobile-device .ligar-col-symbols-fase1 {
+    max-width: 120px;
+    gap: 12px;
+  }
+
+  .mobile-device .ligar-col-classes-fase2,
+  .mobile-device .ligar-col-symbols-fase2 {
+    max-width: 120px;
+    gap: 12px;
+  }
+
+  .mobile-device .ligar-col-classes-fase3,
+  .mobile-device .ligar-col-symbols-fase3 {
+    max-width: 280px;
+    /* Much smaller than 456px */
+    gap: 12px;
+  }
+
+  /* Smaller dropzones and symbols on mobile */
+  .mobile-device .ligar-dropzone {
+    width: 60px;
+    height: 60px;
+    min-height: auto;
+  }
+
+  .mobile-device .ligar-class-label {
+    font-size: 0.75rem;
+  }
+
+  .mobile-device .ligar-col-grid {
+    gap: 12px;
+  }
+
+  .mobile-device .ligar-class-item,
+  .mobile-device .ligar-symbol-item {
+    padding: 12px;
+    font-size: 0.9rem;
+    min-height: 44px;
+  }
+
+  .mobile-device .ligar-dropzone {
+    min-height: 44px;
+    padding: 8px;
+  }
+
+  /* Modal adaptations for mobile */
+  .mobile-device .modal-content {
+    margin: 12px;
+    padding: 20px;
+    max-width: calc(100vw - 24px);
+  }
+
+  .mobile-device #phase-selection-modal .modal-content,
+  .mobile-device #phase-end-modal .modal-content,
+  .mobile-device #game-paused-modal .modal-content {
+    width: auto;
+    max-width: 400px;
+  }
+
+  /* Touch target improvements - 44px minimum (Apple recommendation) */
+  .mobile-device button,
+  .mobile-device .button-like {
+    border-radius: 8px;
+    font-weight: 600;
+  }
+
+  .mobile-device .card,
+  .mobile-device .draggable {
+    cursor: grab;
+  }
+
+  .mobile-device .card:active,
+  .mobile-device .draggable:active {
+    cursor: grabbing;
+    transform: scale(1.05);
+  }
+}
+
+/* Very small landscape screens (phones in landscape) */
+@media screen and (max-width: 640px) and (orientation: landscape) {
+  .mobile-device {
+    --mobile-card-size: 60px;
+    --mobile-card-gap: 4px;
+    --mobile-font-base: 13px;
+  }
+
+  .mobile-device #game-top-menu {
+    padding: 6px 10px;
+    min-height: 40px;
+  }
+
+  .mobile-device #game-board {
+    padding: 8px;
+  }
+
+  .mobile-device .ligar-board-grid {
+    gap: 12px;
+  }
+}
+
+/* ============================================
+   MOBILE GAME SCREEN LAYOUT
+   ============================================ */
+
+/* Mobile game wrapper - fullscreen container */
+.mobile-game-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  overflow: hidden;
+}
+
+/* Mobile header - fixed at top */
+.mobile-game-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 100;
+}
+
+.mobile-volume-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.mobile-volume-slider {
+  width: 60px;
+  height: 4px;
+}
+
+.mobile-timer {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.mobile-icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.mobile-icon-btn:active {
+  background-color: #f3f4f6;
+}
+
+.mobile-close-btn {
+  color: #ef4444;
+  font-size: 28px;
+}
+
+/* Mobile content area - scrollable */
+.mobile-game-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 72px 16px 80px 16px;
+  /* Top padding for header, bottom for footer */
+}
+
+/* Mobile footer - fixed at bottom */
+.mobile-game-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 72px;
+  background-color: #ffffff;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.mobile-pause-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #1e40af;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s;
+}
+
+.mobile-pause-btn:active {
+  transform: scale(0.95);
+  background-color: #1e3a8a;
+}
+
+.mobile-pause-icon {
+  font-size: 24px;
+  color: #ffffff;
+}
+
+.mobile-game-message {
+  position: fixed;
+  bottom: 88px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  padding: 0 16px;
+}
+
+/* Mobile card styling - full width in column
+.mobile-game-board .card {
+  width: 100%;
+  max-width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+} */
+
+/* Hide desktop layout on mobile */
+@media screen and (max-width: 1024px) {
+  .mobile-device #game-content-wrapper {
+    display: none;
+  }
+
+  .mobile-device #game-bottom-menu {
+    display: none;
+  }
+}
+
+/* Hide mobile layout on desktop */
+@media screen and (min-width: 1025px) {
+  .mobile-game-wrapper {
+    display: none;
+  }
+}
+
+/* ============================================
+   MOBILE BODY FIXES - PREVENT SCROLL BUT ALLOW CLICKS
+   ============================================ */
+
+body.mobile-device {
+  overflow: hidden;
+  height: 100vh;
+  /* Remove position: fixed - it blocks clicks */
+}
+
+body.mobile-device #app {
+  overflow: hidden;
+  height: 100vh;
+  /* Ensure clicks work */
+  pointer-events: auto;
+}
+
+/* Game selection screen should not scroll */
+body.mobile-device #game-selection-screen {
+  overflow: hidden;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* Ensure buttons are clickable */
+  pointer-events: auto;
+}
+
+body.mobile-device #game-selection-screen * {
+  pointer-events: auto;
+}
+
+/* Mobile Game Layout */
+.mobile-game-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mobile-game-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  border-bottom: 1px solid #e5e7eb;
+  z-index: 100;
+}
+
+.mobile-header-left {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+}
+
+.mobile-header-center {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.mobile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+/* ============================================
+   MOBILE GAME SCREEN & GRID FIX
+   ============================================ */
+
+/* Main board container on mobile */
+.mobile-game-board {
+  margin-top: 32px;
+  padding: 1vmin;
+  overflow: hidden;
+  height: calc(100vh - 60px);
+  display: flex;
+  justify-content: center;
+  /* Centers horizontally */
+  align-items: center;
+  /* Centers vertically */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* The memory game grid itself */
+.mobile-game-board .memory-board-container {
+  display: grid;
+  gap: var(--card-gap);
+  max-width: 90vh;
+  max-height: 90%;
+  margin: 0 auto;
+  /* Centers the grid */
+  justify-self: center;
+  /* Ensures grid is centered in flex parent */
+  align-self: center;
+  /* Centers vertically in flex parent */
+  place-items: center;
+  /* Centers items within grid cells */
+}
+
 /* Animação das estrelas de favoritos */
 .favorite-star {
   transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
