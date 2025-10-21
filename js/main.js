@@ -1511,14 +1511,50 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Registrar Service Worker
+// ========== REGISTRAR SERVICE WORKER COM AUTO-UPDATE (PWA) ==========
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker
-    .register('./sw.js')
-    .then((registration) => {
-      console.log('✅ PWA registrado com sucesso!', registration.scope);
-    })
-    .catch((error) => {
-      console.log('❌ Erro ao registrar PWA:', error);
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('./sw.js')
+      .then((registration) => {
+        console.log('✅ PWA registrado:', registration.scope);
+
+        // ✅ Verifica atualizações a cada 10 segundos (DESENVOLVIMENTO)
+        setInterval(() => {
+          registration.update();
+        }, 10000);
+
+        // ✅ Detecta novo Service Worker
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+
+          newWorker.addEventListener('statechange', () => {
+            if (
+              newWorker.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
+              console.log('🔄 Nova versão disponível! Recarregando...');
+
+              // ✅ FORÇA RELOAD AUTOMÁTICO (descomente se quiser)
+              // window.location.reload(true);
+
+              // OU exibe notificação para o usuário
+              if (confirm('Nova versão disponível! Recarregar página?')) {
+                newWorker.postMessage('SKIP_WAITING');
+                window.location.reload();
+              }
+            }
+          });
+        });
+      })
+      .catch((error) => {
+        console.error('❌ Erro ao registrar PWA:', error);
+      });
+
+    // ✅ Recarrega quando o SW assumir controle
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      console.log('🔄 Service Worker atualizado! Recarregando...');
+      window.location.reload();
     });
+  });
 }
