@@ -1511,14 +1511,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Registrar Service Worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker
-    .register('./sw.js')
-    .then((registration) => {
-      console.log('✅ PWA registrado com sucesso!', registration.scope);
-    })
-    .catch((error) => {
-      console.log('❌ Erro ao registrar PWA:', error);
-    });
-}
+// // Registrar Service Worker
+// if ('serviceWorker' in navigator) {
+//   navigator.serviceWorker
+//     .register('./sw.js')
+//     .then((registration) => {
+//       console.log('✅ PWA registrado com sucesso!', registration.scope);
+//     })
+//     .catch((error) => {
+//       console.log('❌ Erro ao registrar PWA:', error);
+//     });
+// }
