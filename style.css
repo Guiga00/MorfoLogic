@@ -1,4 +1,7 @@
-/* ===== FONTE CUSTOMIZADA ===== */
+/* ============================================
+   CATEGORIA 1: CONFIGURAÇÃO DE FONTES
+   ============================================ */
+
 @font-face {
   font-family: 'Irineu';
   src: url('../assets/fonts/Irineu Canva Alfabeto T2.otf') format('opentype');
@@ -7,7 +10,6 @@
   font-display: swap;
 }
 
-/* Aplicar Irineu em todos os títulos e subtítulos */
 h1,
 h2,
 h3,
@@ -25,11 +27,15 @@ h6,
   font-family: 'Irineu', 'Comic Sans MS', cursive, sans-serif;
 }
 
+/* ============================================
+   CATEGORIA 2: VARIÁVEIS CSS
+   ============================================ */
+
 :root {
   /* Card sizes for memory game */
-  --card-size-mobile: 92px;
-  --card-size-desktop: 100px;
-  --card-gap: 16px;
+  --card-size-mobile: 6.25em;
+  --card-size-desktop: 6.25em;
+  --card-gap: 1em;
   --card-border-color: #386ccc;
 
   /* Symbol and hint settings */
@@ -41,14 +47,14 @@ h6,
   --notebook-margin-color: #ff8a80;
 
   /* Mobile specific sizes */
-  --mobile-button-height: 48px;
-  --mobile-font-base: 14px;
-  --mobile-card-size: 70px;
-  --mobile-card-gap: 6px;
+  --mobile-button-height: 3em;
+  --mobile-font-base: 0.75em;
+  --mobile-card-size: 4.25em;
+  --mobile-card-gap: 0.25em;
 
   /* Drop zone dimensions for Ligar game */
-  --dropzone-size: 96px;
-  --symbol-size: 64px;
+  --dropzone-size: 6em;
+  --symbol-size: 4em;
 
   /* Z-index hierarchy */
   --z-base: 1;
@@ -56,11 +62,19 @@ h6,
   --z-header: 100;
   --z-modal: 1000;
   --z-overlay: 999;
+
+  /* Viewport height variable (handles mobile browser UI) */
+  --app-vh: 100dvh;
+  --mobile-header-h: 60px;
 }
 
 /* ============================================
-   GLOBAL STYLES & BODY BACKGROUND
+   CATEGORIA 3: ESTILOS GLOBAIS
    ============================================ */
+
+html {
+  height: 100%;
+}
 
 body {
   font-family: 'Nunito', sans-serif;
@@ -69,6 +83,10 @@ body {
   position: relative;
   overflow-x: hidden;
   min-height: 100vh;
+  height: var(--app-vh);
+  min-height: var(--app-vh);
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 /* Notebook lined paper effect */
@@ -79,11 +97,13 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: repeating-linear-gradient(to bottom,
-      var(--notebook-line-color) 0px,
-      var(--notebook-line-color) 1px,
-      transparent 1px,
-      transparent 30px);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--notebook-line-color) 0px,
+    var(--notebook-line-color) 1px,
+    transparent 1px,
+    transparent 30px
+  );
   z-index: -2;
   pointer-events: none;
 }
@@ -93,8 +113,8 @@ body::after {
   content: '';
   position: absolute;
   top: 0;
-  left: 60px;
-  width: 2px;
+  left: 3.75em;
+  width: 0.25em;
   height: 100%;
   background-color: var(--notebook-margin-color);
   z-index: -1;
@@ -102,7 +122,7 @@ body::after {
 }
 
 /* ============================================
-   APP LAYOUT & GENERAL TYPOGRAPHY
+   CATEGORIA 4: LAYOUT DA APLICAÇÃO
    ============================================ */
 
 #app {
@@ -110,12 +130,12 @@ body::after {
   place-items: center;
   min-height: 100vh;
   width: 100%;
-  max-width: 100%;
-  padding: 1rem;
+  max-width: 75em;
+  padding: 1em;
   margin: 0 auto;
 }
 
-#app>* {
+#app > * {
   grid-column: 1 / -1;
   grid-row: 1 / -1;
   width: 100%;
@@ -123,22 +143,31 @@ body::after {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 2em;
 }
 
 /* Hidden screens are completely removed from visibility and interaction */
-#app>*.hidden {
+#app > *.hidden {
   visibility: hidden !important;
   pointer-events: none !important;
   z-index: -1 !important;
 }
 
 /* Visible screen is on top */
-#app>*:not(.hidden) {
+#app > *:not(.hidden) {
   visibility: visible;
   pointer-events: auto;
   z-index: 10;
 }
+
+/* If a fixed mobile header is present, subtract its height from the app area */
+body:has(.mobile-game-header) #app {
+  height: calc(var(--app-vh) - var(--mobile-header-h));
+}
+
+/* ============================================
+   CATEGORIA 5: SISTEMA DE MODAIS
+   ============================================ */
 
 /* Modals must be ABOVE all screens */
 .fixed.inset-0 {
@@ -157,6 +186,22 @@ body::after {
   z-index: 1003 !important;
 }
 
+/* Phase end modal - highest priority */
+#phase-end-modal {
+  z-index: 200 !important;
+  pointer-events: auto !important;
+}
+
+/* Pause modal - above overlay */
+#game-paused-modal {
+  z-index: 150 !important;
+  pointer-events: auto !important;
+}
+
+/* ============================================
+   CATEGORIA 6: TELA DE SELEÇÃO DE JOGOS
+   ============================================ */
+
 .page-title {
   color: #386ccc;
   text-align: center;
@@ -173,22 +218,19 @@ body::after {
   flex-direction: column !important;
   justify-content: center !important;
   align-items: stretch !important;
-  /* Don't center horizontally */
-  padding: 2rem !important;
 }
 
 /* Header with title and exit button should be flex row with space-between */
-#game-selection-screen>div:first-child {
+#game-selection-screen > div:first-child {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 2rem;
 }
 
 /* ============================================
-   GAME SCREEN & OVERLAY SYSTEM
+   CATEGORIA 7: SISTEMA DE OVERLAY DO JOGO
    ============================================ */
 
 /* Overlay for paused state */
@@ -237,29 +279,13 @@ body::after {
 }
 
 /* ============================================
-   MODAL SYSTEM (Z-INDEX HIERARCHY)
-   ============================================ */
-
-/* Phase end modal - highest priority */
-#phase-end-modal {
-  z-index: 200 !important;
-  pointer-events: auto !important;
-}
-
-/* Pause modal - above overlay */
-#game-paused-modal {
-  z-index: 150 !important;
-  pointer-events: auto !important;
-}
-
-/* ============================================
-   GAME MENU COMPONENTS
+   CATEGORIA 8: COMPONENTES DO MENU DO JOGO
    ============================================ */
 
 /* Top menu bar */
 #game-top-menu {
-  border-bottom: 1px solid #e0e0e0;
-  min-height: 48px;
+  border-bottom: 0.0625em solid #e0e0e0;
+  min-height: 3em;
   position: relative;
   z-index: 10;
 }
@@ -269,9 +295,9 @@ body::after {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 2rem;
+  font-size: 2em;
   line-height: 1;
-  padding: 0 8px;
+  padding: 0 0.5em;
   color: #dc2626;
   transition: color 0.2s;
 }
@@ -282,7 +308,7 @@ body::after {
 
 /* Timer display */
 #game-timer {
-  min-width: 60px;
+  min-width: 3.75em;
   text-align: center;
 }
 
@@ -294,7 +320,7 @@ body::after {
 
 /* Bottom menu bar with slide-up animation */
 #game-bottom-menu {
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -0.25em 0.5em rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease-out;
   transform: translateY(100%);
   z-index: 100;
@@ -306,8 +332,8 @@ body::after {
 
 /* Play/pause button */
 #game-playpause-btn {
-  min-width: 154px;
-  font-size: 1.1rem;
+  min-width: 9.75em;
+  font-size: 1.1em;
   transition: background 0.2s;
   display: flex;
   flex-direction: row;
@@ -319,7 +345,7 @@ body::after {
 }
 
 /* ============================================
-   MEMORY GAME STYLES
+   CATEGORIA 9: JOGO DA MEMÓRIA - CONTAINERS
    ============================================ */
 
 /* Main memory board container */
@@ -339,7 +365,7 @@ body::after {
 .memory-board-container.preview-mode {
   display: grid;
   justify-content: center;
-  gap: 20px;
+  gap: 0.25em;
 }
 
 /* Phase-specific grid layouts for preview */
@@ -358,7 +384,7 @@ body::after {
 /* Card pairs in preview mode */
 .preview-mode .card-pair {
   display: flex;
-  gap: 4px;
+  gap: 0.25em;
 }
 
 /* Flatten hierarchy when not in preview mode */
@@ -366,6 +392,10 @@ body::after {
 .memory-board-container:not(.preview-mode) .card-pair {
   display: contents;
 }
+
+/* ============================================
+   CATEGORIA 10: JOGO DA MEMÓRIA - LAYOUTS POR FASE
+   ============================================ */
 
 /* Gameplay grid layouts by phase */
 .memory-board-phase-1 {
@@ -379,6 +409,10 @@ body::after {
 .memory-board-phase-3 {
   grid-template-columns: repeat(7, var(--card-size-desktop));
 }
+
+/* ============================================
+   CATEGORIA 11: JOGO DA MEMÓRIA - ANIMAÇÕES DE CARDS
+   ============================================ */
 
 /* Card flip animation */
 .card-inner {
@@ -395,8 +429,7 @@ body::after {
 .card-back {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  /* border-radius: 1px; */
-  border: 2px solid var(--card-border-color);
+  border: 0.1em solid var(--card-border-color);
 }
 
 .card-back {
@@ -405,8 +438,8 @@ body::after {
 
 /* Matched card highlight effect */
 .card-matched .card-back {
-  box-shadow: 0 0 15px 3px rgba(250, 204, 21, 0.7);
-  border: 2px solid #facc15;
+  box-shadow: 0 0 0.25em 0.25em rgba(250, 204, 21, 0.7);
+  border: 0.25em solid #facc15;
 }
 
 /* Background symbol hint for name cards */
@@ -416,7 +449,7 @@ body::after {
 }
 
 /* ============================================
-   LIGAR (CONNECT) GAME STYLES
+   CATEGORIA 12: JOGO LIGAR - CONTAINER PRINCIPAL
    ============================================ */
 
 /* Main grid container with two columns */
@@ -425,32 +458,28 @@ body::after {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 80px;
+  gap: 5em; /* Padrão desktop */
   width: 100%;
 }
 
 /* Phase-specific spacing between columns */
 .ligar-board-grid.fase1 {
-  gap: 24px;
-  max-width: 500px;
+  /* REMOVA O gap: 1.5em; */
+  max-width: 31.25em;
   margin-left: auto;
   margin-right: auto;
 }
 
-.ligar-board-grid.fase2 {
-  gap: 60px;
-}
-
-.ligar-board-grid.fase3 {
-  gap: 100px;
-}
+/* ============================================
+   CATEGORIA 13: JOGO LIGAR - COLUNAS E GRIDS
+   ============================================ */
 
 /* Column grid for classes and symbols */
 .ligar-col-grid {
   display: grid;
   justify-content: center;
   align-content: start;
-  gap: 24px;
+  gap: 0.5em;
   width: 100%;
   margin-left: auto;
   margin-right: auto;
@@ -460,21 +489,24 @@ body::after {
 .ligar-col-classes-fase1,
 .ligar-col-symbols-fase1 {
   grid-template-columns: repeat(2, 1fr);
-  max-width: 150px;
+  max-width: 9.25em;
 }
 
 .ligar-col-classes-fase2,
 .ligar-col-symbols-fase2 {
   grid-template-columns: repeat(3, 1fr);
-  max-width: 150px;
+  max-width: 9.25em;
 }
 
 .ligar-col-classes-fase3,
 .ligar-col-symbols-fase3 {
   grid-template-columns: repeat(4, 1fr);
-  max-width: 456px;
-  /* (4 * 96px) + (3 * 24px gap) */
+  max-width: 28.5em;
 }
+
+/* ============================================
+   CATEGORIA 14: JOGO LIGAR - ITENS E DROP ZONES
+   ============================================ */
 
 /* Individual item containers */
 .ligar-class-item,
@@ -486,10 +518,10 @@ body::after {
 
 /* Class label styling */
 .ligar-class-label {
-  margin-bottom: 8px;
+  margin-bottom: 0.5em;
   text-align: center;
   font-weight: bold;
-  font-size: 1rem;
+  font-size: 1em;
 }
 
 /* Drop zone for symbols */
@@ -520,17 +552,17 @@ body::after {
 }
 
 /* ============================================
-   GENIUS GAME STYLES
+   CATEGORIA 15: JOGO GENIUS - SÍMBOLOS ARRASTÁVEIS
    ============================================ */
 
 /* Symbol bank and draggable symbols */
 .genius-symbol.draggable {
   width: var(--symbol-size);
   height: var(--symbol-size);
-  padding: 4px;
+  padding: 0.25em;
   background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 0.75em;
+  box-shadow: 0 0.25em 0.5em rgba(0, 0, 0, 0.08);
   cursor: grab;
   transition: box-shadow 0.2s;
   z-index: 10;
@@ -546,14 +578,18 @@ body::after {
   pointer-events: none;
 }
 
+/* ============================================
+   CATEGORIA 16: JOGO GENIUS - PLACEHOLDERS
+   ============================================ */
+
 /* Symbol placeholders in phrase */
 .symbol-placeholder {
   background-color: transparent;
-  border-radius: 0.5rem;
+  border-radius: 0.5em;
   transition: background-color 0.4s ease-in;
 }
 
-.symbol-placeholder>img {
+.symbol-placeholder > img {
   transition: opacity 0.1s ease-in;
   opacity: 1;
   width: 100%;
@@ -565,7 +601,7 @@ body::after {
   background-color: #e7e5e4;
 }
 
-.symbol-placeholder.is-fading>img {
+.symbol-placeholder.is-fading > img {
   opacity: 0;
 }
 
@@ -576,8 +612,12 @@ body::after {
   border-color: #10b981 !important;
 }
 
+/* ============================================
+   CATEGORIA 17: JOGO GENIUS - ANIMAÇÕES DE FRASE
+   ============================================ */
+
 /* Phrase rearrangement animation */
-#genius-phrase.rearranging>div {
+#genius-phrase.rearranging > div {
   transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
@@ -615,13 +655,16 @@ body::after {
   }
 }
 
+/* ============================================
+   CATEGORIA 18: ANIMAÇÃO PULSE DE SÍMBOLOS
+   ============================================ */
+
 /* Pulse animation for symbols */
 .animate-pulse-symbol {
   animation: pulse-symbol 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse-symbol {
-
   0%,
   100% {
     opacity: 1;
@@ -637,7 +680,7 @@ body::after {
 }
 
 /* ============================================
-   DRAG & DROP SYSTEM
+   CATEGORIA 19: SISTEMA DRAG & DROP
    ============================================ */
 
 .draggable {
@@ -651,7 +694,7 @@ body::after {
 }
 
 /* ============================================
-   GENERAL ANIMATIONS
+   CATEGORIA 20: ANIMAÇÕES GERAIS DE FADE
    ============================================ */
 
 .fade-in {
@@ -687,56 +730,620 @@ body::after {
 }
 
 /* ============================================
-   RESPONSIVE - TABLET & MOBILE (PORTRAIT)
+   CATEGORIA 21: ANIMAÇÃO DE FAVORITOS (ESTRELAS)
    ============================================ */
 
-@media (max-width: 767px) {
+/* Animação das estrelas de favoritos */
+.favorite-star {
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  cursor: pointer;
+  display: inline-block;
+}
 
-  /* Adjust notebook margin for mobile */
-  body::after {
-    left: 15px;
+.favorite-star:hover {
+  transform: scale(1.2) rotate(15deg);
+}
+
+.favorite-star:active {
+  transform: scale(0.9);
+}
+
+.favorite-star.favorited {
+  animation: pulse-favorite 0.5s ease-out;
+}
+
+@keyframes pulse-favorite {
+  0% {
+    transform: scale(1);
   }
 
-  /* Tighter line spacing for mobile */
-  body::before {
-    background-image: repeating-linear-gradient(to bottom,
-        var(--notebook-line-color) 0px,
-        var(--notebook-line-color) 1px,
-        transparent 1px,
-        transparent 25px);
+  50% {
+    transform: scale(1.3) rotate(15deg);
   }
 
-  /* Left-align title on mobile */
-  .page-title {
-    text-align: left;
-    padding-left: 15px;
-  }
-
-  .mobile-indented-text {
-    padding-left: 15px;
-  }
-
-  .memory-board-container {
-    gap: var(--card-gap);
-  }
-
-  .mobile-device .game-board {
-    gap: var(--mobile-card-gap);
-    padding: 8px;
-  }
-
-  .mobile-device .game-header {
-    height: 56px;
-    padding: 0 16px;
-  }
-
-  .mobile-device .game-content {
-    padding: 72px 16px 80px;
+  100% {
+    transform: scale(1);
   }
 }
 
+/* Brilho dourado quando favorito */
+.favorite-star[style*='fbbf24'] {
+  filter: drop-shadow(0 0 0.5em rgba(251, 191, 36, 0.6));
+}
+
 /* ============================================
-   MOBILE LANDSCAPE OPTIMIZATIONS
+   CATEGORIA 22: FEEDBACK VISUAL DE DRAG & DROP
+   ============================================ */
+
+/* Zona de drop com highlight azul quando hover */
+.drag-over {
+  background-color: #dbeafe !important;
+  border-color: #3b82f6 !important;
+  border-width: 0.25em !important;
+  transform: scale(1.05);
+  box-shadow:
+    0 0 1.25em rgba(59, 130, 246, 0.5),
+    inset 0 0 1.25em rgba(59, 130, 246, 0.1);
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Elemento sendo arrastado - sombra e opacidade */
+.dragging {
+  opacity: 0.9;
+  filter: drop-shadow(0 0.5em 1.5em rgba(0, 0, 0, 0.3));
+  transition: opacity 0.2s ease;
+}
+
+/* Feedback visual para drop correto (verde) */
+.correct-drop {
+  background-color: #dcfce7 !important;
+  border-color: #22c55e !important;
+  animation: pulse-correct 0.5s ease;
+}
+
+@keyframes pulse-correct {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+/* Feedback visual para drop errado (vermelho) */
+.wrong-drop {
+  background-color: #fee2e2 !important;
+  border-color: #ef4444 !important;
+}
+
+/* ============================================
+   CATEGORIA 23: ANIMAÇÃO SHAKE DE ERRO
+   ============================================ */
+
+/* Shake suave para indicar erro */
+@keyframes shake-subtle {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-0.25em);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(0.25em);
+  }
+}
+
+.shake-subtle {
+  animation: shake-subtle 0.4s ease-in-out;
+}
+
+/* ============================================
+   CATEGORIA 24: SISTEMA DE ESTADOS DE TELA
+   ============================================ */
+
+/* Placeholder mais visível */
+.symbol-placeholder {
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Replace visibility hidden with more specific selectors */
+.app-screen {
+  display: none;
+}
+
+.app-screen.active {
+  display: flex;
+}
+
+/* ============================================
+   CATEGORIA 25: SISTEMA DE Z-INDEX PARA MODAIS
+   ============================================ */
+
+/* Modal system with proper z-indexing */
+.modal {
+  z-index: var(--z-modal);
+}
+
+.modal-overlay {
+  z-index: var(--z-overlay);
+}
+
+/* ============================================
+   CATEGORIA 26: ESTADOS COM DATA ATTRIBUTES
+   ============================================ */
+
+/* Replace .hidden class with more specific display states */
+[data-state='hidden'] {
+  display: none;
+  pointer-events: none;
+}
+
+[data-state='visible'] {
+  display: flex;
+}
+
+/* ============================================
+   CATEGORIA 27: GRIDS E DROPZONES GENÉRICOS
+   ============================================ */
+
+/* Grid containers with proper specificity */
+.games-grid {
+  display: grid;
+  gap: 1em;
+  width: 100%;
+  padding: 1em;
+}
+
+/* Proper class-based state management */
+.dropzone {
+  background: #f5f5f5;
+  border: 0.25em dashed #60a5fa;
+}
+
+.dropzone[data-state='correct'] {
+  background: rgba(34, 197, 94, 0.25);
+  border-color: rgba(34, 197, 94, 0.5);
+}
+
+.dropzone[data-state='wrong'] {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+/* ============================================
+   CATEGORIA 28: MOBILE DEVICE - GAME SCREEN
+   ============================================ */
+
+body.mobile-device #game-screen {
+  display: block !important;
+}
+
+body.mobile-device #game-content-wrapper {
+  display: block !important;
+}
+
+body.mobile-device #game-board {
+  min-height: auto !important;
+  margin-top: 4em;
+}
+
+.mobile-device {
+  font-size: var(--mobile-font-base);
+}
+
+.mobile-device #app {
+  padding: 0.5em;
+  max-width: 100vw;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Game screen layout */
+.mobile-device #game-screen {
+  padding: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-device #game-top-menu {
+  padding: 0.5em 0.75em;
+  min-height: 2.75em;
+  flex-shrink: 0;
+}
+
+.mobile-device #game-board {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* ============================================
+   CATEGORIA 29: MOBILE DEVICE - LOGIN & BUTTONS
+   ============================================ */
+
+/* Login screen optimizations */
+.mobile-device #login-screen {
+  padding: 2em;
+  max-width: 25em;
+  margin: auto;
+  transform: translateY(-10%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 1rem; /* MANTÉM ARREDONDAMENTO (16px) */
+  overflow: hidden; /* Garante que o conteúdo respeite o border-radius */
+}
+
+/* Centralizar conteúdo interno */
+.mobile-device #login-screen img,
+.mobile-device #login-screen h1,
+.mobile-device #login-screen p,
+.mobile-device #login-screen form {
+  width: 100%;
+  text-align: center;
+}
+
+.mobile-device #login-screen h1 {
+  font-size: 2.5em;
+  margin-bottom: 0.5em;
+}
+
+.mobile-device #login-screen p {
+  font-size: 1em;
+  margin-bottom: 1em;
+}
+
+.mobile-device input {
+  padding: 1em 1em;
+  font-size: 1em;
+}
+
+.mobile-device .mobile-skip-button {
+  min-height: 1.75em;
+  padding: 1em 1em;
+  background-color: #386ccc;
+  color: white;
+  font-size: 0.875em;
+  font-weight: 600;
+}
+
+.mobile-device #game-playpause-btn {
+  min-height: fit-content;
+  min-width: auto;
+  align-items: center;
+  padding: 0.75em;
+  font-size: 1.5em;
+}
+
+.mobile-device button {
+  min-height: var(--mobile-button-height);
+  padding: 0.75em 1.25em;
+  font-size: 1em;
+}
+
+/* ============================================
+   CATEGORIA 30: MOBILE DEVICE - GAME SELECTION
+   ============================================ */
+
+.mobile-device .page-title {
+  font-size: 1.25em !important;
+  margin-bottom: 0.5em;
+}
+
+.mobile-device #game-selection-screen .page-title {
+  font-size: 1.5em !important;
+  font-weight: 700;
+  margin-bottom: 0.25em;
+}
+
+.mobile-device .game-grid {
+  grid-template-columns: repeat(auto-fit, minmax(12.5em, 1fr));
+  gap: 0em;
+}
+
+/* Reduzir tamanho dos cards no mobile */
+.mobile-device #games-container > div {
+  padding: 0.75em !important; /* Menor que p-6 (1.5em) */
+  font-size: 1.25em; /* Reduz texto também */
+}
+
+.mobile-device #games-container h2 {
+  font-size: 1.25em; /* Título menor */
+}
+
+.mobile-device #games-container p {
+  font-size: 1em; /* Descrição menor */
+  margin-bottom: 0.5em;
+}
+
+.mobile-device #games-container .text-6xl {
+  font-size: 3em !important; /* Emoji menor */
+}
+
+/* ===== NOVAS REGRAS DA ESTRELA ===== */
+/* Ajustar estrela de favoritos no mobile - canto superior esquerdo */
+.mobile-device .favorite-star {
+  font-size: 1.5em !important; /* Tamanho moderado */
+  top: -0.25em !important; /* Próximo ao topo */
+  left: 0.35em !important; /* Próximo à esquerda */
+  z-index: 20;
+  width: 1.2em; /* Área de toque adequada */
+  height: 1.2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.2em; /* Espaço interno */
+}
+
+/* Área de toque expandida invisível */
+.mobile-device .favorite-star::after {
+  content: '';
+  position: absolute;
+  top: -0.3em;
+  left: -0.3em;
+  right: -0.3em;
+  bottom: -0.3em;
+  background: transparent;
+}
+
+/* ============================================
+   CATEGORIA 31: MOBILE DEVICE - MEMORY GAME
+   ============================================ */
+
+/* Memory game mobile adaptations */
+.mobile-device .memory-board-container {
+  gap: var(--card-gap);
+  max-width: 100%;
+}
+
+.mobile-device .memory-board-container .card {
+  width: var(--card-size-mobile);
+  height: var(--card-size-mobile);
+  font-size: 1em;
+}
+
+.mobile-device .memory-board-phase-1 {
+  grid-template-columns: repeat(4, var(--card-size-mobile));
+}
+
+.mobile-device .memory-board-phase-2 {
+  grid-template-columns: repeat(5, var(--card-size-mobile));
+}
+
+.mobile-device .memory-board-phase-3 {
+  grid-template-columns: repeat(7, var(--card-size-mobile));
+}
+
+/* Mobile preview mode - responsive columns */
+.mobile-device .memory-board-container.preview-mode {
+  gap: var(--card-gap);
+  max-width: 100%;
+}
+
+/* Phase 1: 2 columns in preview */
+.mobile-device .preview-mode.memory-board-phase-1 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Phase 2: 3 columns in preview */
+.mobile-device .preview-mode.memory-board-phase-2 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* Phase 3: 4 columns in preview */
+.mobile-device .preview-mode.memory-board-phase-3 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Card pairs in preview - responsive */
+.mobile-device .preview-mode .card-pair {
+  display: flex;
+  gap: 0.25em;
+  width: 100%;
+}
+
+/* Cards in preview mode */
+.mobile-device .preview-mode .card {
+  width: var(--card-size-mobile);
+  height: var(--card-size-mobile);
+}
+
+/* ============================================
+   CATEGORIA 32: MOBILE DEVICE - GENIUS GAME
+   ============================================ */
+
+.mobile-device #genius-symbols-bank .genius-symbol.draggable {
+  width: 4em !important;
+  height: 4em !important;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.mobile-device #genius-symbols-bank .genius-symbol.draggable:active {
+  transform: scale(1);
+}
+
+/* Genius game mobile adaptations */
+.mobile-device #genius-phrase {
+  gap: 0.5em;
+  min-height: 5em;
+}
+
+.mobile-device #genius-phrase > div {
+  font-size: 0.9em;
+  height: auto;
+  min-height: 3.75em;
+}
+
+.mobile-device #genius-symbols-bank {
+  padding: 0em;
+  gap: 1em;
+  min-height: 5em;
+}
+
+.mobile-device .genius-symbol {
+  width: 3em;
+  height: 3em;
+}
+
+/* ============================================
+   CATEGORIA 33: MOBILE DEVICE - LIGAR GAME
+   ============================================ */
+
+/* Ligar game for mobile - NO TRANSFORM SCALE */
+.mobile-device .ligar-board-grid {
+  gap: 0.5em !important; /* Espaço entre colunas */
+  transform: scale(1);
+  transform-origin: center;
+}
+
+/* Adjust column widths for mobile */
+.mobile-device .ligar-col-classes-fase1,
+.mobile-device .ligar-col-symbols-fase1 {
+  max-width: 11em; /* Aumentado para acomodar dropzones maiores */
+  gap: 0.75em;
+}
+
+.mobile-device .ligar-col-classes-fase2,
+.mobile-device .ligar-col-symbols-fase2 {
+  max-width: 9em;
+  gap: 0.75em;
+}
+
+.mobile-device .ligar-col-classes-fase3,
+.mobile-device .ligar-col-symbols-fase3 {
+  max-width: 22em;
+  gap: 0.5em;
+}
+
+/* Dropzones MAIORES */
+.mobile-device .ligar-dropzone {
+  width: 5em; /* Aumentado de 4em para 5em */
+  height: 5em;
+  min-height: 5em;
+  min-width: 5em;
+  padding: 0.5em;
+  transition: all 0.2s ease;
+}
+
+.mobile-device .ligar-class-label {
+  font-size: 0.875em; /* Aumentado para 0.875em */
+  margin-bottom: 0.25em;
+}
+
+.mobile-device .ligar-class-item,
+.mobile-device .ligar-symbol-item {
+  font-size: 1em;
+  min-height: auto;
+}
+
+/* Símbolos no banco - MAIORES */
+.mobile-device .ligar-symbol-item .genius-symbol.draggable {
+  width: 4.5em !important; /* Aumentado de 3.5em para 4.5em */
+  height: 4.5em !important;
+  min-width: 4.5em;
+  min-height: 4.5em;
+  max-width: 4.5em;
+  max-height: 4.5em;
+  flex-shrink: 0;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Símbolos dentro das dropzones - MAIORES */
+.mobile-device .ligar-dropzone .genius-symbol,
+.mobile-device .ligar-dropzone img {
+  width: 4em !important; /* Aumentado de 3.5em para 4em */
+  height: 4em !important;
+  object-fit: contain;
+  transition: none;
+}
+
+/* Durante o drag - MAIORES */
+.mobile-device .ligar-board-grid .genius-symbol.dragging {
+  width: 4.5em !important;
+  height: 4.5em !important;
+  opacity: 0.9;
+  transition: opacity 0.2s ease;
+}
+
+/* Feedback tátil */
+.mobile-device .ligar-symbol-item .genius-symbol.draggable:active {
+  transform: scale(0.95);
+}
+
+/* ============================================
+   CATEGORIA 34: MOBILE DEVICE - MODALS
+   ============================================ */
+
+/* Modal adaptations for mobile */
+.mobile-device .modal-content {
+  margin: 0.75em;
+  padding: 1.25em;
+  max-width: calc(100vw - 1.5em);
+}
+
+.mobile-device #phase-selection-modal .modal-content,
+.mobile-device #phase-end-modal .modal-content,
+.mobile-device #game-paused-modal .modal-content {
+  width: auto;
+  max-width: 25em;
+}
+
+/* ============================================
+   CATEGORIA 35: MOBILE DEVICE - TOUCH TARGETS
+   ============================================ */
+
+/* Touch target improvements - 44px minimum (Apple recommendation) */
+.mobile-device button,
+.mobile-device .button-like {
+  border-radius: 0.5em;
+  font-weight: 600;
+}
+
+.mobile-device .card,
+.mobile-device .draggable {
+  cursor: grab;
+}
+
+.mobile-device .card:active,
+.mobile-device .draggable:active {
+  cursor: grabbing;
+  transform: none;
+}
+
+/* ============================================
+   CATEGORIA 36: MOBILE DEVICE - VERY SMALL SCREENS
+   ============================================ */
+
+.mobile-device.very-small-screen {
+  --mobile-card-size: 3.75em;
+  --mobile-card-gap: 0.25em;
+  --mobile-font-base: 0.8125em;
+}
+
+.mobile-device.very-small-screen #game-top-menu {
+  padding: 0.375em 0.625em;
+  min-height: 2.5em;
+}
+
+/* ============================================
+   CATEGORIA 37: MOBILE GAME LAYOUT COMPONENTS
    ============================================ */
 
 /* Portrait warning overlay */
@@ -750,363 +1357,6 @@ body::after {
   background: rgba(0, 0, 0, 0.9);
   z-index: 9998;
 }
-
-/* ============================================
-   HIGH RESOLUTION MOBILE LANDSCAPE (FHD+)
-   S21 FE, Pixel 6, OnePlus, etc
-   ============================================ */
-@media screen and (min-width: 1080px) and (max-width: 2400px) and (min-height: 600px) and (max-height: 1200px) and (orientation: landscape) {
-  body.mobile-device {
-    font-size: 16px;
-  }
-
-  .mobile-device #app {
-    padding: 12px;
-  }
-
-  .mobile-device #game-selection-screen {
-    padding: 20px !important;
-  }
-
-  .mobile-device .page-title {
-    font-size: 2.5rem;
-  }
-
-  .mobile-device .game-grid {
-    gap: 16px;
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .mobile-device .memory-board-container .card {
-    width: calc(var(--card-size-mobile) * 1.3);
-    height: calc(var(--card-size-mobile) * 1.3);
-  }
-
-  .mobile-device .memory-board-phase-1 {
-    grid-template-columns: repeat(4, calc(var(--card-size-mobile) * 1.3));
-  }
-
-  .mobile-device .memory-board-phase-2 {
-    grid-template-columns: repeat(5, calc(var(--card-size-mobile) * 1.3));
-  }
-
-  .mobile-device .memory-board-phase-3 {
-    grid-template-columns: repeat(7, calc(var(--card-size-mobile) * 1.3));
-  }
-}
-
-@media screen and (max-width: 1024px) and (max-height: 768px) and (orientation: landscape) {
-  body.mobile-device #game-screen {
-    display: block !important;
-    padding: 8px !important;
-  }
-
-  body.mobile-device #game-content-wrapper {
-    display: block !important;
-    padding: 8px !important;
-  }
-
-  body.mobile-device #game-board {
-    min-height: auto !important;
-    padding: 8px !important;
-  }
-
-  .mobile-device {
-    font-size: var(--mobile-font-base);
-  }
-
-  .mobile-device #app {
-    padding: 8px;
-    max-width: 100vw;
-    height: 100vh;
-    box-sizing: border-box;
-  }
-
-  /* Login screen optimizations */
-  .mobile-device #login-screen {
-    padding: 16px;
-    max-width: 400px;
-    margin: auto;
-  }
-
-  .mobile-device #login-screen h1 {
-    font-size: 2.5rem;
-    margin-bottom: 8px;
-  }
-
-  .mobile-device #login-screen p {
-    font-size: 0.9rem;
-    margin-bottom: 16px;
-  }
-
-  .mobile-device input {
-    padding: 12px 16px;
-    font-size: 16px;
-    /* Prevents zoom on iOS */
-    /* margin-bottom: 12px; */
-  }
-
-  .mobile-device .mobile-skip-button {
-    min-height: 28px;
-    padding: 6px 16px;
-    background-color: #386ccc;
-    color: white;
-    font-size: 14px;
-    font-weight: 600;
-  }
-
-  .mobile-device #game-playpause-btn {
-    min-height: fit-content;
-    min-width: auto;
-    align-items: center;
-    padding: 12px;
-    font-size: 1.5rem;
-  }
-
-  .mobile-device button {
-    min-height: var(--mobile-button-height);
-    padding: 12px 20px;
-    font-size: 16px;
-  }
-
-  /* Game selection screen */
-  .mobile-device #game-selection-screen {
-    padding: 12px;
-  }
-
-  .mobile-device .page-title {
-    font-size: 2rem;
-    margin-bottom: 16px;
-  }
-
-  .mobile-device .game-grid {
-    gap: 12px;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-
-  /* Game screen layout */
-  .mobile-device #game-screen {
-    padding: 0;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .mobile-device #game-top-menu {
-    padding: 8px 12px;
-    min-height: 44px;
-    flex-shrink: 0;
-  }
-
-  .mobile-device #game-board {
-    flex: 1;
-    padding: 12px;
-    overflow-y: auto;
-  }
-
-  /* Memory game mobile adaptations */
-  .mobile-device .memory-board-container {
-    gap: var(--card-gap);
-    max-width: 100%;
-  }
-
-  .mobile-device .memory-board-container .card {
-    width: var(--card-size-mobile);
-    height: var(--card-size-mobile);
-    font-size: 0.8rem;
-  }
-
-  .mobile-device .memory-board-phase-1 {
-    grid-template-columns: repeat(4, var(--card-size-mobile));
-  }
-
-  .mobile-device .memory-board-phase-2 {
-    grid-template-columns: repeat(5, var(--card-size-mobile));
-  }
-
-  .mobile-device .memory-board-phase-3 {
-    grid-template-columns: repeat(7, var(--card-size-mobile));
-  }
-
-  /* Genius game mobile adaptations */
-  .mobile-device #genius-phrase {
-    gap: 8px;
-    min-height: 80px;
-  }
-
-  /* Mobile preview mode - responsive columns */
-  .mobile-device .memory-board-container.preview-mode {
-    gap: var(--card-gap);
-    padding: 8px;
-    max-width: 100%;
-  }
-
-  /* Phase 1: 2 columns in preview */
-  .mobile-device .preview-mode.memory-board-phase-1 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  /* Phase 2: 3 columns in preview */
-  .mobile-device .preview-mode.memory-board-phase-2 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  /* Phase 3: 4 columns in preview */
-  .mobile-device .preview-mode.memory-board-phase-3 {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  /* Card pairs in preview - responsive */
-  .mobile-device .preview-mode .card-pair {
-    display: flex;
-    gap: 4px;
-    width: 100%;
-  }
-
-  /* Cards in preview mode */
-  .mobile-device .preview-mode .card {
-    width: var(--card-size-mobile);
-    height: var(--card-size-mobile);
-  }
-
-  .mobile-device #genius-phrase>div {
-    font-size: 0.9rem;
-    height: auto;
-    min-height: 60px;
-  }
-
-  .mobile-device #genius-symbols-bank {
-    padding: 12px;
-    gap: 8px;
-    min-height: 80px;
-  }
-
-  .mobile-device .genius-symbol {
-    width: 48px;
-    height: 48px;
-  }
-
-  .mobile-device .ligar-board-grid.fase1,
-  .mobile-device .ligar-board-grid.fase2,
-  .mobile-device .ligar-board-grid.fase3 {
-    gap: 16px;
-    max-width: 100%;
-  }
-
-  /* Scale down Ligar game for mobile */
-  .mobile-device .ligar-board-grid {
-    gap: 20px;
-    /* Reduce gap between columns */
-    transform: scale(1);
-    /* Scale down entire board */
-    transform-origin: center;
-  }
-
-  /* Adjust column widths for mobile */
-  .mobile-device .ligar-col-classes-fase1,
-  .mobile-device .ligar-col-symbols-fase1 {
-    max-width: 120px;
-    gap: 12px;
-  }
-
-  .mobile-device .ligar-col-classes-fase2,
-  .mobile-device .ligar-col-symbols-fase2 {
-    max-width: 120px;
-    gap: 12px;
-  }
-
-  .mobile-device .ligar-col-classes-fase3,
-  .mobile-device .ligar-col-symbols-fase3 {
-    max-width: 280px;
-    /* Much smaller than 456px */
-    gap: 12px;
-  }
-
-  /* Smaller dropzones and symbols on mobile */
-  .mobile-device .ligar-dropzone {
-    width: 60px;
-    height: 60px;
-    min-height: auto;
-  }
-
-  .mobile-device .ligar-class-label {
-    font-size: 0.75rem;
-  }
-
-  .mobile-device .ligar-col-grid {
-    gap: 12px;
-  }
-
-  .mobile-device .ligar-class-item,
-  .mobile-device .ligar-symbol-item {
-    padding: 12px;
-    font-size: 0.9rem;
-    min-height: 44px;
-  }
-
-  .mobile-device .ligar-dropzone {
-    min-height: 44px;
-    padding: 8px;
-  }
-
-  /* Modal adaptations for mobile */
-  .mobile-device .modal-content {
-    margin: 12px;
-    padding: 20px;
-    max-width: calc(100vw - 24px);
-  }
-
-  .mobile-device #phase-selection-modal .modal-content,
-  .mobile-device #phase-end-modal .modal-content,
-  .mobile-device #game-paused-modal .modal-content {
-    width: auto;
-    max-width: 400px;
-  }
-
-  /* Touch target improvements - 44px minimum (Apple recommendation) */
-  .mobile-device button,
-  .mobile-device .button-like {
-    border-radius: 8px;
-    font-weight: 600;
-  }
-
-  .mobile-device .card,
-  .mobile-device .draggable {
-    cursor: grab;
-  }
-
-  .mobile-device .card:active,
-  .mobile-device .draggable:active {
-    cursor: grabbing;
-    transform: scale(1.05);
-  }
-}
-
-/* Very small landscape screens (phones in landscape) */
-@media screen and (max-width: 640px) and (orientation: landscape) {
-  .mobile-device {
-    --mobile-card-size: 60px;
-    --mobile-card-gap: 4px;
-    --mobile-font-base: 13px;
-  }
-
-  .mobile-device #game-top-menu {
-    padding: 6px 10px;
-    min-height: 40px;
-  }
-
-  .mobile-device #game-board {
-    padding: 8px;
-  }
-
-  .mobile-device .ligar-board-grid {
-    gap: 12px;
-  }
-}
-
-/* ============================================
-   MOBILE GAME SCREEN LAYOUT
-   ============================================ */
 
 /* Mobile game wrapper - fullscreen container */
 .mobile-game-wrapper {
@@ -1127,43 +1377,43 @@ body::after {
   top: 0;
   left: 0;
   right: 0;
-  height: 56px;
+  height: 3.75em;
   background-color: #ffffff;
   border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 1em;
   z-index: 100;
 }
 
 .mobile-volume-label {
-  font-size: 12px;
+  font-size: 0.75em;
   font-weight: 600;
   color: #6b7280;
 }
 
 .mobile-volume-slider {
-  width: 60px;
-  height: 4px;
+  width: 3.75em;
+  height: 0.25em;
 }
 
 .mobile-timer {
-  font-size: 18px;
+  font-size: 1.125em;
   font-weight: 700;
   color: #1f2937;
 }
 
 .mobile-icon-btn {
-  width: 32px;
-  height: 32px;
+  width: 2em;
+  height: 2em;
   border-radius: 50%;
   background-color: transparent;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
+  font-size: 1.25em;
   font-weight: 700;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -1175,7 +1425,7 @@ body::after {
 
 .mobile-close-btn {
   color: #ef4444;
-  font-size: 28px;
+  font-size: 1.75em;
 }
 
 /* Mobile content area - scrollable */
@@ -1184,8 +1434,7 @@ body::after {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  padding: 72px 16px 80px 16px;
-  /* Top padding for header, bottom for footer */
+  padding: 4.5em 1em 5em 1em;
 }
 
 /* Mobile footer - fixed at bottom */
@@ -1194,7 +1443,7 @@ body::after {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 72px;
+  height: 4.5em;
   background-color: #ffffff;
   border-top: 1px solid #e5e7eb;
   display: flex;
@@ -1204,8 +1453,8 @@ body::after {
 }
 
 .mobile-pause-btn {
-  width: 56px;
-  height: 56px;
+  width: 3.5em;
+  height: 3.5em;
   border-radius: 50%;
   background-color: #1e40af;
   border: none;
@@ -1213,7 +1462,7 @@ body::after {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0.25em 0.75em rgba(0, 0, 0, 0.15);
   transition: all 0.2s;
 }
 
@@ -1223,77 +1472,52 @@ body::after {
 }
 
 .mobile-pause-icon {
-  font-size: 24px;
+  font-size: 1.5em;
   color: #ffffff;
 }
 
 .mobile-game-message {
   position: fixed;
-  bottom: 88px;
+  bottom: 5.5em;
   left: 0;
   right: 0;
   text-align: center;
-  font-size: 14px;
+  font-size: 0.875em;
   font-weight: 600;
   color: #374151;
-  padding: 0 16px;
+  padding: 0 1em;
 }
 
-/* Mobile card styling - full width in column
-.mobile-game-board .card {
-  width: 100%;
-  max-width: 120px;
-  height: 120px;
-  flex-shrink: 0;
-} */
-
-/* Hide desktop layout on mobile */
-@media screen and (max-width: 1024px) {
-  .mobile-device #game-content-wrapper {
-    display: none;
-  }
-
-  .mobile-device #game-bottom-menu {
-    display: none;
-  }
-}
-
-/* Hide mobile layout on desktop */
-@media screen and (min-width: 1025px) {
-  .mobile-game-wrapper {
-    display: none;
-  }
-}
-
-/* ============================================
-   MOBILE BODY FIXES - PREVENT SCROLL BUT ALLOW CLICKS
-   ============================================ */
-
-body.mobile-device {
+/* Main board container on mobile */
+.mobile-game-board {
   overflow: hidden;
-  height: 100vh;
-  /* Remove position: fixed - it blocks clicks */
-}
-
-body.mobile-device #app {
-  overflow: hidden;
-  height: 100vh;
-  /* Ensure clicks work */
-  pointer-events: auto;
-}
-
-/* Game selection screen should not scroll */
-body.mobile-device #game-selection-screen {
-  overflow: hidden;
-  height: 100vh;
+  height: calc(100vh - 3.75em);
   display: flex;
-  flex-direction: column;
-  /* Ensure buttons are clickable */
-  pointer-events: auto;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+  box-sizing: border-box;
 }
 
-body.mobile-device #game-selection-screen * {
-  pointer-events: auto;
+/* Mobile header layout components */
+.mobile-header-left {
+  display: flex;
+  align-items: center;
+  font-size: 0.75em;
+}
+
+.mobile-header-center {
+  flex: 1;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1em;
+}
+
+.mobile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  font-size: 0.875em;
 }
 
 /* Mobile Game Layout */
@@ -1304,345 +1528,31 @@ body.mobile-device #game-selection-screen * {
   overflow: hidden;
 }
 
-.mobile-game-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  background: white;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  border-bottom: 1px solid #e5e7eb;
-  z-index: 100;
-}
-
-.mobile-header-left {
-  display: flex;
-  align-items: center;
-  font-size: 12px;
-}
-
-.mobile-header-center {
-  flex: 1;
-  text-align: center;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.mobile-header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 14px;
-}
-
-/* ============================================
-   MOBILE GAME SCREEN & GRID FIX
-   ============================================ */
-
-/* Main board container on mobile */
-.mobile-game-board {
-  margin-top: 32px;
-  padding: 1vmin;
-  overflow: hidden;
-  height: calc(100vh - 60px);
-  display: flex;
+/* Centralizar e agrupar o grid do jogo da memória no mobile */
+.mobile-device .mobile-game-board .memory-board-container {
+  display: grid;
   justify-content: center;
-  /* Centers horizontally */
-  align-items: center;
-  /* Centers vertically */
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* The memory game grid itself */
-.mobile-game-board .memory-board-container {
-  display: grid;
-  gap: var(--card-gap);
-  max-width: 90vh;
-  max-height: 90%;
-  margin: 0 auto;
-  /* Centers the grid */
-  justify-self: center;
-  /* Ensures grid is centered in flex parent */
-  align-self: center;
-  /* Centers vertically in flex parent */
-  place-items: center;
-  /* Centers items within grid cells */
-}
-
-/* Animação das estrelas de favoritos */
-.favorite-star {
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  cursor: pointer;
-  display: inline-block;
-}
-
-.favorite-star:hover {
-  transform: scale(1.2) rotate(15deg);
-}
-
-.favorite-star:active {
-  transform: scale(0.9);
-}
-
-/* Animação de pulsar quando favoritar */
-@keyframes pulse-favorite {
-  0% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.3) rotate(15deg);
-  }
-
-  100% {
-    transform: scale(1);
-  }
-}
-
-.favorite-star.favorited {
-  animation: pulse-favorite 0.5s ease-out;
-}
-
-/* Brilho dourado quando favorito */
-.favorite-star[style*='fbbf24'] {
-  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
-}
-
-/* ===== DRAG AND DROP VISUAL FEEDBACK ===== */
-
-/* Zona de drop com highlight azul quando hover */
-.drag-over {
-  background-color: #dbeafe !important;
-  border-color: #3b82f6 !important;
-  border-width: 3px !important;
-  transform: scale(1.05);
-  box-shadow:
-    0 0 20px rgba(59, 130, 246, 0.5),
-    inset 0 0 20px rgba(59, 130, 246, 0.1);
-  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Elemento sendo arrastado - sombra e opacidade */
-.dragging {
-  opacity: 0.9;
-  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.3));
-  transition: opacity 0.2s ease;
-}
-
-/* Feedback visual para drop correto (verde) */
-.correct-drop {
-  background-color: #dcfce7 !important;
-  border-color: #22c55e !important;
-  animation: pulse-correct 0.5s ease;
-}
-
-@keyframes pulse-correct {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-/* Feedback visual para drop errado (vermelho) */
-.wrong-drop {
-  background-color: #fee2e2 !important;
-  border-color: #ef4444 !important;
-}
-
-/* Shake suave para indicar erro */
-@keyframes shake-subtle {
-
-  0%,
-  100% {
-    transform: translateX(0);
-  }
-
-  10%,
-  30%,
-  50%,
-  70%,
-  90% {
-    transform: translateX(-4px);
-  }
-
-  20%,
-  40%,
-  60%,
-  80% {
-    transform: translateX(4px);
-  }
-}
-
-.shake-subtle {
-  animation: shake-subtle 0.4s ease-in-out;
-}
-
-/* Placeholder mais visível */
-.symbol-placeholder {
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Base mobile styles */
-#games-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  width: 100%;
-  padding: 1rem;
-}
-
-/* Small screens (like Galaxy S8+) */
-@media screen and (max-width: 640px) {
-  #games-container {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 0.75rem;
-    padding: 0.5rem;
-  }
-
-  /* Adjust card content for smaller screens */
-  #games-container>div {
-    padding: 1rem;
-  }
-
-  #games-container h2 {
-    font-size: 1.25rem;
-  }
-
-  #games-container p {
-    font-size: 0.875rem;
-  }
-
-  #game-selection-screen header {
-    flex-direction: column;
-    gap: 1rem;
-    width: 100%;
-  }
-
-  #game-selection-screen .space-y-4 {
-    width: 100%;
-    text-align: center;
-  }
-
-  .page-title {
-    font-size: 1.5rem !important;
-    text-align: center !important;
-    padding-left: 0 !important;
-  }
-
-  .mobile-indented-text {
-    text-align: center;
-    padding-left: 0;
-  }
-}
-
-/* Medium screens */
-@media screen and (min-width: 641px) and (max-width: 1024px) {
-  #games-container {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
-}
-
-/* Large screens */
-@media screen and (min-width: 1025px) {
-  #games-container {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-#app {
-  width: 100%;
-  max-width: 100%;
-  padding: 1rem;
+  align-content: center;
+  justify-items: center;
+  max-width: fit-content;
   margin: 0 auto;
 }
 
-@media screen and (min-width: 1024px) {
-  #app {
-    max-width: 1200px;
-  }
+/* Forçar o grid a ficar compacto */
+.mobile-device .memory-board-phase-1 {
+  grid-template-columns: repeat(4, var(--card-size-mobile));
+  width: fit-content;
+  margin: 0 auto;
 }
 
-/* Replace visibility hidden with more specific selectors */
-.app-screen {
-  display: none;
+.mobile-device .memory-board-phase-2 {
+  grid-template-columns: repeat(5, var(--card-size-mobile));
+  width: fit-content;
+  margin: 0 auto;
 }
 
-.app-screen.active {
-  display: flex;
-}
-
-/* Modal system with proper z-indexing */
-.modal {
-  z-index: var(--z-modal);
-}
-
-.modal-overlay {
-  z-index: var(--z-overlay);
-}
-
-/* Replace .hidden class with more specific display states */
-[data-state="hidden"] {
-  display: none;
-  pointer-events: none;
-}
-
-[data-state="visible"] {
-  display: flex;
-}
-
-/* Grid containers with proper specificity */
-.games-grid {
-  display: grid;
-  gap: 1rem;
-  width: 100%;
-  padding: 1rem;
-}
-
-@media (max-width: 640px) {
-  .games-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-  }
-
-  .mobile-device .games-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 641px) and (max-width: 1024px) {
-  .games-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (min-width: 1025px) {
-  .games-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-/* Proper class-based state management */
-.dropzone {
-  background: #f5f5f5;
-  border: 2px dashed #60a5fa;
-}
-
-.dropzone[data-state="correct"] {
-  background: rgba(34, 197, 94, 0.25);
-  border-color: rgba(34, 197, 94, 0.5);
-}
-
-.dropzone[data-state="wrong"] {
-  background: #fee2e2;
-  border-color: #ef4444;
+.mobile-device .memory-board-phase-3 {
+  grid-template-columns: repeat(7, var(--card-size-mobile));
+  width: fit-content;
+  margin: 0 auto;
 }
