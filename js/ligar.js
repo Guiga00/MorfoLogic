@@ -172,20 +172,38 @@ function handleLigarDrop(symbolEl, targetEl, placeholder, unlockCallback) {
     GameAudio.play('match');
     placeholder.remove();
     const targetRect = targetEl.getBoundingClientRect();
+    const symbolRect = symbolEl.getBoundingClientRect();
+
+    // Get scroll offsets
+    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+
+    // Calculate position considering scroll and symbol size
+    const left =
+      targetRect.left + scrollX + (targetRect.width - symbolRect.width) / 2;
+    const top =
+      targetRect.top + scrollY + (targetRect.height - symbolRect.height) / 2;
 
     Object.assign(symbolEl.style, {
+      position: 'fixed',
       transition: 'all 0.2s ease-out',
-      left: `${
-        targetRect.left + targetRect.width / 2 - symbolEl.offsetWidth / 2
-      }px`,
-      top: `${
-        targetRect.top + targetRect.height / 2 - symbolEl.offsetHeight / 2
-      }px`,
+      left: `${left}px`,
+      top: `${top}px`,
       transform: 'scale(0.8)',
+      zIndex: '1000',
     });
 
     setTimeout(() => {
-      // Insere o símbolo dentro da dropzone quadrada, mantendo o label acima
+      // Reset styles before appending to target
+      Object.assign(symbolEl.style, {
+        position: '',
+        left: '',
+        top: '',
+        transform: '',
+        transition: '',
+        zIndex: '',
+      });
+
       targetEl.innerHTML = '';
       targetEl.appendChild(symbolEl);
       targetEl.classList.remove('border-green-400');
