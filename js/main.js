@@ -84,10 +84,10 @@ function filterGames(selectedGame) {
   }
 
   // Restaurar cards se foram removidos
-  if (gameCards.length === 0) {
-    location.reload(); // Força reload se os cards foram perdidos
-    return;
-  }
+  // if (gameCards.length === 0) {
+  //   location.reload(); // Força reload se os cards foram perdidos
+  //   return;
+  // }
 
   if (selectedGame === 'all') {
     // Mostrar todos em grid
