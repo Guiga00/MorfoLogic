@@ -513,7 +513,7 @@ const USERS = {
   professor: 'admin',
   diretora: 'admin',
 };
-const SESSION_DURATION_MINUTES = 15; // Duração padrão da sessão em minutos
+const SESSION_DURATION_MINUTES = 30; // Duração padrão da sessão em minutos
 const GENIUS_PHRASES = {
   1: [
     {
@@ -1511,14 +1511,47 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// // Registrar Service Worker
-// if ('serviceWorker' in navigator) {
-//   navigator.serviceWorker
-//     .register('./sw.js')
-//     .then((registration) => {
-//       console.log('✅ PWA registrado com sucesso!', registration.scope);
-//     })
-//     .catch((error) => {
-//       console.log('❌ Erro ao registrar PWA:', error);
-//     });
-// }
+// Registra o Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then((registration) => {
+        console.log('Service Worker registrado com sucesso:', registration);
+
+        // Verifica atualizações a cada 60 segundos
+        setInterval(() => {
+          registration.update();
+        }, 1800000); // 30 minutos
+
+        // Detecta quando há uma atualização esperando
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+
+          newWorker.addEventListener('statechange', () => {
+            if (
+              newWorker.state === 'installed' &&
+              navigator.serviceWorker.controller
+            ) {
+              // Nova versão disponível - notifica o usuário
+              if (confirm('Nova versão disponível! Deseja atualizar?')) {
+                window.location.reload();
+              }
+            }
+          });
+        });
+      })
+      .catch((error) => {
+        console.error('Erro ao registrar Service Worker:', error);
+      });
+
+    // Listener para quando o Service Worker é atualizado
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
+  });
+}
