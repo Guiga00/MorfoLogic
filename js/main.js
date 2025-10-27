@@ -83,28 +83,40 @@ function filterGames(selectedGame) {
     emptyMessage.remove();
   }
 
-  // Restaurar cards se foram removidos
-  // if (gameCards.length === 0) {
-  //   location.reload(); // Força reload se os cards foram perdidos
-  //   return;
-  // }
+  // 1. Resetar a visibilidade de todos os cards
+  gameCards.forEach((card) => {
+    card.style.display = 'block';
+  });
+
+  // 2. Limpar classes de layout dos filtros anteriores
+  gamesContainer.classList.remove(
+    'flex',
+    'justify-center',
+    'items-start',
+    'text-center'
+  );
+  // Adicionar a classe de grid padrão de volta
+  gamesContainer.classList.add(
+    'grid',
+    'md:grid-cols-3',
+    'gap-6',
+    'text-center'
+  );
 
   if (selectedGame === 'all') {
-    // Mostrar todos em grid
-    gamesContainer.className = 'grid md:grid-cols-3 gap-6 text-center';
     gameCards.forEach((card) => {
-      card.style.display = 'block';
       card.classList.remove('max-w-sm', 'w-full');
     });
   } else if (selectedGame === 'favorites') {
     if (favorites.length === 0) {
-      // Ocultar todos os cards mas mantê-los no DOM
       gameCards.forEach((card) => {
         card.style.display = 'none';
       });
 
-      // Adicionar mensagem de favoritos vazia
-      gamesContainer.className = 'text-center';
+      // Mudar para layout de texto e remover grid
+      gamesContainer.classList.remove('grid', 'md:grid-cols-3', 'gap-6');
+      gamesContainer.classList.add('text-center');
+
       const emptyDiv = document.createElement('div');
       emptyDiv.className =
         'empty-favorites-message bg-white p-8 rounded-2xl shadow-lg';
@@ -117,21 +129,16 @@ function filterGames(selectedGame) {
       return;
     }
 
-    // Centralizar se houver 1 ou 2 favoritos, grid se 3
+    // Se houver 1 ou 2 favoritos, centralizar com flex
     if (favorites.length <= 2) {
-      gamesContainer.className =
-        'flex justify-center items-start gap-6 text-center';
-    } else {
-      gamesContainer.className = 'grid md:grid-cols-3 gap-6 text-center';
+      gamesContainer.classList.remove('grid', 'md:grid-cols-3');
+      gamesContainer.classList.add('flex', 'justify-center', 'items-start');
     }
 
     gameCards.forEach((card) => {
       if (favorites.includes(card.dataset.game)) {
-        card.style.display = 'block';
-        // Remover classes de largura para permitir centralização
-        card.classList.remove('max-w-sm', 'w-full');
+        card.classList.remove('w-full'); // Garante que a largura total seja removida
         if (favorites.length <= 2) {
-          // Adicionar apenas max-w para limitar largura, sem w-full
           card.classList.add('max-w-sm');
         }
       } else {
@@ -140,10 +147,11 @@ function filterGames(selectedGame) {
     });
   } else {
     // Mostrar apenas o selecionado centralizado
-    gamesContainer.className = 'flex justify-center text-center';
+    gamesContainer.classList.remove('grid', 'md:grid-cols-3', 'gap-6');
+    gamesContainer.classList.add('flex', 'justify-center');
+
     gameCards.forEach((card) => {
       if (card.dataset.game === selectedGame) {
-        card.style.display = 'block';
         card.classList.add('max-w-sm', 'w-full');
       } else {
         card.style.display = 'none';
