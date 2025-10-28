@@ -152,9 +152,10 @@ body::after {
 #app {
   display: grid;
   place-items: center;
-  min-height: 100vh;
+  height: 100%;
   width: 100%;
   max-width: 70em;
+  max-height: 70em;
   padding: 1em;
   margin: 0 auto;
 }
@@ -1591,14 +1592,14 @@ body.mobile-device #game-board {
 }
 
 /* Mostrar APENAS quando estiver na tela de seleção E EM DESKTOP */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   body.game-selection #floating-nav {
     display: flex !important;
   }
 }
 
 /* GARANTIR que fica escondido no mobile SEMPRE */
-@media (max-width: 767px) {
+@media (max-width: 1024px) {
   #floating-nav {
     display: none !important;
   }
@@ -1611,6 +1612,7 @@ body.mobile-device #game-board {
   color: var(--nav-text-white);
   font-family: var(--nav-font-family-mobile);
   font-weight: var(--nav-font-weight-mobile);
+  text-align: center;
   font-size: 1.6rem;
   letter-spacing: var(--nav-letter-spacing-mobile);
   text-transform: uppercase;
