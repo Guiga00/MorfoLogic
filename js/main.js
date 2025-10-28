@@ -718,9 +718,16 @@ function navigate(screenId) {
   const currentScreen = document.getElementById(AppState.currentScreen);
   const nextScreen = document.getElementById(screenId);
 
-  // ✅ ADICIONAR ESTAS LINHAS NO INÍCIO
   if (screenId === 'game-selection-screen') {
     document.body.classList.add('game-selection');
+    // Atualizar UI quando navegar para seleção
+    setTimeout(() => {
+      loadFavorites();
+      const scoreEl = document.getElementById('general-score');
+      if (scoreEl) {
+        scoreEl.textContent = AppState.generalScore;
+      }
+    }, 100);
   } else {
     document.body.classList.remove('game-selection');
   }
@@ -988,6 +995,11 @@ function setupGameUIListeners() {
 function pauseGame() {
   if (AppState.isPaused) return;
   AppState.isPaused = true;
+
+  if (AppState.currentScreen !== 'game-screen' || !AppState.gameActive) {
+    console.log('⚠️ Pause bloqueado: não está em jogo ativo');
+    return; // Não pausa se não estiver jogando
+  }
 
   // Pause the timer
   Timer.pause();
