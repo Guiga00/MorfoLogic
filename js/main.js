@@ -718,6 +718,13 @@ function navigate(screenId) {
   const currentScreen = document.getElementById(AppState.currentScreen);
   const nextScreen = document.getElementById(screenId);
 
+  // ✅ ADICIONAR ESTAS LINHAS NO INÍCIO
+  if (screenId === 'game-selection-screen') {
+    document.body.classList.add('game-selection');
+  } else {
+    document.body.classList.remove('game-selection');
+  }
+
   // Animação de saída
   if (currentScreen && currentScreen !== nextScreen) {
     const contentToAnimate =
@@ -844,6 +851,7 @@ function extendSessionTimer(minutesToAdd) {
 }
 
 function goBackToLogin(isExpired = false) {
+  document.body.classList.remove('game-selection'); // ✅ ADICIONAR NO INÍCIO
   AppState.cleanupCurrentGame();
   if (typeof window.cleanupMemoryGame === 'function') {
     window.cleanupMemoryGame();
@@ -867,6 +875,7 @@ function goBackToLogin(isExpired = false) {
 
 function goToGameSelection() {
   Timer.reset();
+  document.body.classList.add('game-selection'); // ✅ ADICIONAR
 
   // Reset pause state
   AppState.isPaused = false;
@@ -1259,6 +1268,7 @@ function getHowToPlayContent() {
 }
 
 function startGame(type, phase) {
+  document.body.classList.remove('game-selection'); // ✅ ADICIONAR NO INÍCIO
   AppState.cleanupCurrentGame();
   closeModal(document.getElementById('phase-selection-modal'));
   // Pausa o timer de sessão durante o jogo
@@ -1420,6 +1430,7 @@ function restartPhase() {
 function quitGame() {
   // Reset pause state
   AppState.isPaused = false;
+  document.body.classList.add('game-selection'); // ✅ ADICIONAR
 
   hidePauseModal();
   goToGameSelection();
@@ -1563,3 +1574,247 @@ document.addEventListener('DOMContentLoaded', () => {
 //     });
 //   });
 // }
+
+// ========== SISTEMA DE NAVEGAÇÃO ==========
+
+// Função global para abrir modais do menu mobile
+function openModalFromMenu(modalId) {
+  console.log('🎯 openModalFromMenu chamado:', modalId);
+
+  // Fechar menu
+  const menu = document.getElementById('mobile-nav-menu');
+  const overlay = document.getElementById('mobile-nav-overlay');
+  menu?.classList.remove('active');
+  overlay?.classList.add('hidden');
+  overlay?.classList.remove('active');
+  document.body.classList.remove('menu-open');
+  document.body.style.overflow = '';
+
+  // Abrir modal
+  setTimeout(() => {
+    MainNavigation.openModal(modalId);
+  }, 300);
+}
+
+const MainNavigation = {
+  init() {
+    this.setupModals(); // CRIAR MODAIS PRIMEIRO
+    this.setupMobileMenu(); // DEPOIS O MENU
+    this.setupLinks(); // POR ÚLTIMO OS LINKS
+  },
+
+  setupMobileMenu() {
+    const toggleMobile = document.getElementById('nav-toggle-mobile');
+    const toggleDesktop = document.getElementById('nav-toggle');
+    const closeBtn = document.getElementById('nav-close');
+    const menu = document.getElementById('mobile-nav-menu');
+    const overlay = document.getElementById('mobile-nav-overlay');
+
+    const openMenu = () => {
+      menu?.classList.add('active');
+      overlay?.classList.add('active');
+      overlay?.classList.remove('hidden');
+      document.body.classList.add('menu-open');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeMenu = () => {
+      menu?.classList.remove('active');
+      overlay?.classList.remove('active');
+      overlay?.classList.add('hidden');
+      document.body.classList.remove('menu-open');
+      document.body.style.overflow = '';
+    };
+
+    toggleMobile?.addEventListener('click', openMenu);
+    toggleDesktop?.addEventListener('click', openMenu);
+    closeBtn?.addEventListener('click', closeMenu);
+
+    // COMENTAR OU REMOVER ESTA LINHA:
+    // overlay?.addEventListener('click', closeMenu);
+
+    // ADICIONAR ESTA NOVA LINHA: Fechar só ao clicar na ÁREA do overlay, não em seus filhos
+    overlay?.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        // Só fecha se clicar diretamente no overlay
+        closeMenu();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeMenu();
+        this.closeAllModals();
+      }
+    });
+
+    window.closeMobileMenu = closeMenu;
+  },
+
+  setupLinks() {
+    // Esperar um pouco para garantir que os modais foram criados
+    setTimeout(() => {
+      // Links desktop
+      const desktopLinks = document.querySelectorAll('.nav-link');
+      console.log('Desktop links encontrados:', desktopLinks.length);
+
+      desktopLinks.forEach((link) => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const href = link.getAttribute('href');
+          if (!href) return;
+
+          const modalId = href.substring(1) + '-modal';
+          console.log('Desktop - Abrindo modal:', modalId);
+          this.openModal(modalId);
+        });
+      });
+
+      // Links mobile
+      const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+      console.log('Mobile links encontrados:', mobileLinks.length);
+
+      mobileLinks.forEach((link) => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          const href = link.getAttribute('href');
+          console.log('Mobile - Link clicado:', href);
+          if (!href) return;
+
+          const modalId = href.substring(1) + '-modal';
+          console.log('Mobile - Tentando abrir modal:', modalId);
+
+          // Fechar menu mobile
+          const menu = document.getElementById('mobile-nav-menu');
+          const overlay = document.getElementById('mobile-nav-overlay');
+          if (menu) menu.classList.remove('active');
+          if (overlay) overlay.classList.remove('active');
+          document.body.classList.remove('menu-open');
+          document.body.style.overflow = '';
+
+          // Abrir modal após fechar o menu
+          setTimeout(() => {
+            this.openModal(modalId);
+          }, 350);
+        });
+      });
+    }, 200);
+  },
+
+  setupModals() {
+    const modals = {
+      sobre: {
+        title: 'Sobre Nós',
+        content: `
+          <p>O <strong>MorfoLogic</strong> é uma plataforma educacional baseada no método Montessori para ensinar gramática de forma lúdica e interativa.</p>
+          <p>Nossa missão é tornar o aprendizado divertido e acessível, usando jogos que estimulam o raciocínio e a memorização.</p>
+          <p><strong>Recursos:</strong></p>
+          <ul style="list-style: disc; padding-left: 1.5em;">
+            <li>🧠 Jogo da Memória - Encontre pares de símbolos</li>
+            <li>✨ Jogo Genius - Reproduza sequências</li>
+            <li>🔗 Jogo Tempo - Conecte símbolos às classes</li>
+          </ul>
+        `,
+      },
+      'como-jogar': {
+        title: '<strong>Como Jogar</strong>',
+        content: `
+    <h4>🧠 Jogo da Memória</h4>
+    <p>Encontre os pares antes do tempo acabar!</p>
+    
+    <h4>✨ Jogo Genius</h4>
+    <p>Reproduza a sequência arrastando os símbolos.</p>
+    
+    <h4>🔗 Jogo Tempo</h4>
+    <p>Conecte símbolos às classes gramaticais rapidamente.</p>
+    
+    <p style="margin-top: 1em; background: #f0f9ff; padding: 0.8em; border-radius: 0.5em; border-left: 3px solid #386ccc; font-size: 0.9em;">
+      <strong>💡</strong> Use modo paisagem no mobile!
+    </p>
+  `,
+      },
+      contato: {
+        title: 'Contato',
+        content: `
+          <p>Entre em contato para dúvidas, sugestões ou parcerias:</p>
+          <ul style="margin-top: 1.5em;">
+            <li style="margin: 1em 0;">
+              <strong>📧 Email:</strong><br>
+              <a href="mailto:contato@morfologic.com">contato@morfologic.com</a>
+            </li>
+            <li style="margin: 1em 0;">
+              <strong>🌐 Site:</strong><br>
+              <a href="https://morfologic.com" target="_blank">morfologic.com</a>
+            </li>
+            <li style="margin: 1em 0;">
+              <strong>📱 WhatsApp:</strong><br>
+              <a href="https://wa.me/5511999999999" target="_blank">(11) 99999-9999</a>
+            </li>
+          </ul>
+        `,
+      },
+    };
+
+    Object.keys(modals).forEach((id) => {
+      const modal = document.createElement('div');
+      modal.id = `${id}-modal`;
+      modal.className = 'content-modal';
+      modal.innerHTML = `
+        <div class="modal-box">
+          <button class="modal-close-btn" onclick="MainNavigation.closeModal('${id}-modal')">&times;</button>
+          <h2>${modals[id].title}</h2>
+          ${modals[id].content}
+        </div>
+      `;
+      document.body.appendChild(modal);
+      console.log('Modal criado:', `${id}-modal`);
+
+      // Fechar ao clicar fora
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          this.closeModal(`${id}-modal`);
+        }
+      });
+    });
+  },
+
+  openModal(modalId) {
+    console.log('Tentando abrir modal:', modalId);
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      console.log('Modal encontrado, abrindo...');
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+    } else {
+      console.error('Modal não encontrado:', modalId);
+    }
+  },
+
+  closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+      modal.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+  },
+
+  closeAllModals() {
+    document.querySelectorAll('.content-modal.active').forEach((modal) => {
+      modal.classList.remove('active');
+    });
+    document.body.style.overflow = '';
+  },
+};
+
+// Inicializar - usar setTimeout para garantir que tudo carregou
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => MainNavigation.init(), 100);
+  });
+} else {
+  setTimeout(() => MainNavigation.init(), 100);
+}
+
+// ========== FIM NAVEGAÇÃO ==========

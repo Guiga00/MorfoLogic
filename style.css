@@ -66,6 +66,30 @@ h6,
   /* Viewport height variable (handles mobile browser UI) */
   --app-vh: 100dvh;
   --mobile-header-h: 60px;
+
+  /* Cores */
+  --nav-primary-color: #386ccc;
+  --nav-stroke-color: #316ecb;
+  --nav-text-white: white;
+  --nav-text-dark: #44403c;
+
+  /* Tipografia - Mobile */
+  --nav-font-family-mobile: 'Irish Grover', serif;
+  --nav-font-weight-mobile: 900;
+  --nav-font-size-mobile: 1.5rem;
+  --nav-letter-spacing-mobile: 0.05em;
+  --nav-line-height-mobile: 1.5;
+
+  /* Tipografia - Desktop */
+  --nav-font-family-desktop: 'Playfair Display', serif;
+  --nav-font-weight-desktop: 600;
+  --nav-letter-spacing-desktop: 0.03em;
+
+  /* Contorno de texto */
+  --nav-stroke-width: 3px;
+
+  /* Transições */
+  --nav-transition-speed: 0.3s;
 }
 
 /* ============================================
@@ -130,7 +154,7 @@ body::after {
   place-items: center;
   min-height: 100vh;
   width: 100%;
-  max-width: 75em;
+  max-width: 70em;
   padding: 1em;
   margin: 0 auto;
 }
@@ -1555,4 +1579,350 @@ body.mobile-device #game-board {
   grid-template-columns: repeat(7, var(--card-size-mobile));
   width: fit-content;
   margin: 0 auto;
+}
+
+/* ============================================
+   CATEGORIA 38: NAVEGAÇÃO FLUTUANTE
+   ============================================ */
+
+/* Esconder navegação por padrão */
+#floating-nav {
+  display: none !important;
+}
+
+/* Mostrar APENAS quando estiver na tela de seleção E EM DESKTOP */
+@media (min-width: 768px) {
+  body.game-selection #floating-nav {
+    display: flex !important;
+  }
+}
+
+/* GARANTIR que fica escondido no mobile SEMPRE */
+@media (max-width: 767px) {
+  #floating-nav {
+    display: none !important;
+  }
+}
+
+/* Links da navegação desktop */
+.nav-link {
+  position: relative;
+  padding: 0.9em 1.5em;
+  color: var(--nav-text-white);
+  font-family: var(--nav-font-family-mobile);
+  font-weight: var(--nav-font-weight-mobile);
+  font-size: 2rem;
+  letter-spacing: var(--nav-letter-spacing-mobile);
+  text-transform: uppercase;
+  border-radius: 8px;
+
+  background-image: url('./assets/img/img-bg-menu.svg');
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  text-shadow:
+    calc(-1 * var(--nav-stroke-width)) calc(-1 * var(--nav-stroke-width)) 0
+      var(--nav-stroke-color),
+    var(--nav-stroke-width) calc(-1 * var(--nav-stroke-width)) 0
+      var(--nav-stroke-color),
+    calc(-1 * var(--nav-stroke-width)) var(--nav-stroke-width) 0
+      var(--nav-stroke-color),
+    var(--nav-stroke-width) var(--nav-stroke-width) 0 var(--nav-stroke-color),
+    calc(-1 * var(--nav-stroke-width)) 0 0 var(--nav-stroke-color),
+    var(--nav-stroke-width) 0 0 var(--nav-stroke-color),
+    0 calc(-1 * var(--nav-stroke-width)) 0 var(--nav-stroke-color),
+    0 var(--nav-stroke-width) 0 var(--nav-stroke-color);
+
+  transition: transform var(--nav-transition-speed) ease;
+}
+
+.nav-link:hover {
+  transform: scale(1.08) translateY(-2px);
+}
+
+/* ============================================
+   CATEGORIA 39: MENU MOBILE
+   ============================================ */
+
+/* Menu lateral - deve estar ACIMA do overlay */
+#mobile-nav-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 72vw;
+  max-width: 300px;
+  background: white;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform var(--nav-transition-speed) ease;
+  pointer-events: auto;
+}
+
+#mobile-nav-menu a.mobile-nav-link {
+  background-image: url('./assets/img/img-bg-menu.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#mobile-nav-menu.active {
+  transform: translateX(0);
+}
+
+#mobile-nav-overlay.active {
+  display: block;
+}
+
+/* BLUR aplicado APENAS no conteúdo de fundo quando menu está aberto */
+body.menu-open #app {
+  filter: blur(4px);
+  transition: filter var(--nav-transition-speed) ease;
+}
+
+body.menu-open #main-navigation {
+  filter: blur(4px);
+  transition: filter var(--nav-transition-speed) ease;
+}
+
+/* Links do menu mobile */
+.mobile-nav-link {
+  display: block;
+  user-select: none;
+  cursor: pointer;
+  color: var(--nav-text-white);
+  font-weight: var(--nav-font-weight-mobile);
+  font-size: var(--nav-font-size-mobile);
+  line-height: var(--nav-line-height-mobile);
+  text-align: center;
+  text-transform: uppercase;
+  font-family: var(--nav-font-family-mobile);
+  letter-spacing: var(--nav-letter-spacing-mobile);
+
+  /* CONTORNO AZUL COM TEXT-SHADOW */
+  text-shadow:
+    calc(-1 * var(--nav-stroke-width)) calc(-1 * var(--nav-stroke-width)) 0
+      var(--nav-stroke-color),
+    var(--nav-stroke-width) calc(-1 * var(--nav-stroke-width)) 0
+      var(--nav-stroke-color),
+    calc(-1 * var(--nav-stroke-width)) var(--nav-stroke-width) 0
+      var(--nav-stroke-color),
+    var(--nav-stroke-width) var(--nav-stroke-width) 0 var(--nav-stroke-color),
+    calc(-1 * var(--nav-stroke-width)) 0 0 var(--nav-stroke-color),
+    var(--nav-stroke-width) 0 0 var(--nav-stroke-color),
+    0 calc(-1 * var(--nav-stroke-width)) 0 var(--nav-stroke-color),
+    0 var(--nav-stroke-width) 0 var(--nav-stroke-color);
+}
+
+.mobile-nav-link:active {
+  transform: scale(0.98);
+}
+
+/* Mobile device - ajustes */
+.mobile-device #mobile-nav-menu {
+  width: 85vw;
+  max-width: 300px;
+}
+
+/* ============================================
+   CATEGORIA 39: MENU MOBILE
+   ============================================ */
+
+/* Menu lateral - deve estar ACIMA do overlay */
+#mobile-nav-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 72vw;
+  max-width: 300px;
+  background: white;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  pointer-events: auto; /* Permite clicar no overlay para fechar */
+}
+
+#mobile-nav-menu a.mobile-nav-link {
+  background-image: url('./assets/img/img-bg-menu.svg'); /* Ajuste o caminho */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#mobile-nav-menu.active {
+  transform: translateX(0);
+}
+
+#mobile-nav-overlay.active {
+  display: block;
+}
+
+/* BLUR aplicado APENAS no conteúdo de fundo quando menu está aberto */
+body.menu-open #app {
+  filter: blur(4px);
+  transition: filter 0.3s ease;
+}
+
+body.menu-open #main-navigation {
+  filter: blur(4px);
+  transition: filter 0.3s ease;
+}
+
+/* Links do menu mobile */
+.mobile-nav-link {
+  display: block;
+  user-select: none;
+  cursor: pointer;
+  color: white;
+  font-weight: 900;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  text-align: center;
+  text-transform: uppercase;
+  font-family: 'Irish Grover', serif; /* FONTE ADICIONADA */
+  letter-spacing: 0.05em; /* Espaçamento entre letras para melhor legibilidade */
+
+  /* CONTORNO AZUL COM TEXT-SHADOW */
+  text-shadow:
+    -3px -3px 0 #316ecb,
+    3px -3px 0 #316ecb,
+    -3px 3px 0 #316ecb,
+    3px 3px 0 #316ecb,
+    -3px 0 0 #316ecb,
+    3px 0 0 #316ecb,
+    0 -3px 0 #316ecb,
+    0 3px 0 #316ecb;
+}
+
+.mobile-nav-link:active {
+  transform: scale(0.98);
+}
+
+/* Mobile device - ajustes */
+.mobile-device #mobile-nav-menu {
+  width: 85vw;
+  max-width: 300px;
+}
+
+/* ============================================
+   CATEGORIA 40: MODAIS DE CONTEÚDO
+   ============================================ */
+
+.content-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.75); /* Fundo escuro - já estava correto */
+  z-index: 200;
+  overflow-y: auto;
+  padding: 2em;
+}
+
+.content-modal.active {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 100px;
+  backdrop-filter: blur(2px); /* ADICIONE ESTE BLUR LEVE */
+}
+
+.modal-box {
+  background: white;
+  border-radius: 1rem;
+  padding: 2.5em;
+  max-width: 650px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1em;
+  right: 1em;
+  font-size: 2em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #dc2626;
+  transition: transform 0.2s;
+  line-height: 1;
+}
+
+.modal-close-btn:hover {
+  transform: scale(1.2) rotate(90deg);
+}
+
+.modal-box h2 {
+  font-family: 'Irineu', 'Comic Sans MS', cursive, sans-serif;
+  font-size: 2em;
+  color: #386ccc;
+  margin-bottom: 0.8em;
+}
+
+.modal-box h3 {
+  font-size: 1.3em;
+  color: #386ccc;
+  margin: 1em 0 0.5em;
+  font-weight: 700;
+}
+
+.modal-box p,
+.modal-box ul {
+  margin-bottom: 1em;
+  line-height: 1.6;
+  color: #44403c;
+}
+
+.modal-box ul {
+  list-style: none;
+  padding: 0;
+}
+
+.modal-box a {
+  color: #386ccc;
+  text-decoration: underline;
+}
+
+.modal-box a:hover {
+  color: #2a529f;
+}
+
+/* Mobile adaptations */
+.mobile-device .modal-box {
+  padding: 3em; /* Menos padding */
+  margin: 3em; /* Menos margem */
+  max-width: 50vw; /* Largura máxima menor */
+  font-size: 0.9em; /* Texto um pouco menor */
+}
+
+.mobile-device .modal-box h2 {
+  font-size: 1.3em; /* Título menor */
+  margin-bottom: 0.6em;
+}
+
+.mobile-device .modal-box h3 {
+  font-size: 1.1em; /* Subtítulo menor */
+}
+
+.mobile-device .modal-box p,
+.mobile-device .modal-box ul {
+  margin-bottom: 0.8em;
+  line-height: 1.5; /* Espaçamento de linha menor */
+}
+
+.mobile-device .content-modal.active {
+  padding-top: 60px; /* Menos espaço no topo */
+  padding: 0.5em; /* Menos padding geral */
+}
+
+.mobile-device .modal-close-btn {
+  font-size: 1.8em; /* Botão X menor */
+  top: 0.5em;
+  right: 0.5em;
 }
