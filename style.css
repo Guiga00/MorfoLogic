@@ -2,14 +2,16 @@
    CATEGORIA 1: CONFIGURAÇÃO DE FONTES
    ============================================ */
 
+/* Fonte customizada Irineu */
 @font-face {
   font-family: 'Irineu';
-  src: url('../assets/fonts/Irineu Canva Alfabeto T2.otf') format('opentype');
+  src: url('../assets/fonts/Irineu\ Canva\ Alfabeto\ T2.otf') format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
+/* IRINEU - Títulos e comandos dos jogos (tamanho 15px) */
 h1,
 h2,
 h3,
@@ -23,8 +25,40 @@ h6,
 .modal-title,
 #game-selection-screen h1,
 #game-selection-screen h2,
-#login-screen h1 {
+#login-screen h1,
+#genius-instruction,
+#memory-instruction,
+#ligar-instruction,
+.game-instruction,
+.game-command,
+.phase-selection-title {
   font-family: 'Irineu', 'Comic Sans MS', cursive, sans-serif;
+  font-size: 1.5em;
+  text-transform: none; /* Remove maiúsculas */
+}
+
+/* CINZEL DECORATIVE - Todos os demais textos (GROSSA) */
+body,
+p,
+span,
+div,
+button,
+input,
+select,
+label,
+a,
+.description,
+.text-stone-500,
+.text-stone-600,
+.text-stone-700,
+.text-stone-800,
+.mobile-indented-text,
+.ligar-class-label,
+.game-card p,
+#games-container p {
+  font-family: 'Cinzel Decorative', serif;
+  font-weight: 700; /* Deixa mais grossa (bold) */
+  text-transform: none; /* Remove maiúsculas */
 }
 
 /* ============================================
@@ -455,6 +489,7 @@ body:has(.mobile-game-header) #app {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   border: 0.1em solid var(--card-border-color);
+  font-size: 0.8em;
 }
 
 .card-back {
