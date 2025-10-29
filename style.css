@@ -424,7 +424,7 @@ body:has(.mobile-game-header) #app {
 .memory-board-container.preview-mode {
   display: grid;
   justify-content: center;
-  gap: 0.25em;
+  gap: 1.25em;
 }
 
 /* Phase-specific grid layouts for preview */
