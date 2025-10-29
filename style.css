@@ -1983,6 +1983,11 @@ body.menu-open #main-navigation {
     width: auto;
   }
 
+  .page-title,
+  .mobile-indented-text {
+    margin-left: 1em;
+  }
+
   /* Ajusta títulos */
   h1 {
     font-size: 2rem; /* 18px */
@@ -2024,10 +2029,6 @@ body.menu-open #main-navigation {
   #games-container {
     gap: 0.5rem;
   }
-  .page-title,
-  .mobile-indented-text {
-    margin-left: 1em;
-  }
 
   /* Ajusta modal */
   .modal-content {
@@ -2053,10 +2054,6 @@ body.menu-open #main-navigation {
   html,
   body {
     font-size: 12px; /* Ainda menor */
-  }
-
-  body {
-    max-width: 90vw;
   }
 
   .logo,
