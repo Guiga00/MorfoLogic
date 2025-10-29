@@ -1963,3 +1963,117 @@ body.menu-open #main-navigation {
   top: 0.5em;
   right: 0.5em;
 }
+
+/* ============================================
+   AJUSTE PARA LANDSCAPE MOBILE SEM SCALE
+   ============================================ */
+
+@media (max-width: 768px) and (orientation: landscape) {
+  /* Reduz font-size base de todo o site */
+  html,
+  body {
+    font-size: 15px; /* Reduz de 16px padrão para 15px */
+  }
+
+  /* Ajusta logo */
+  .logo,
+  #login-screen img,
+  .game-header img {
+    max-height: 50px;
+    width: auto;
+  }
+
+  /* Ajusta títulos */
+  h1 {
+    font-size: 2rem; /* 18px */
+    margin: 0.5rem 0;
+  }
+
+  h2 {
+    font-size: 1.5rem; /* 14.4px */
+    margin: 0.3rem 0;
+  }
+
+  /* Ajusta inputs e botões */
+  input,
+  select,
+  button {
+    padding: 0.5rem 0.8rem;
+    font-size: 1rem;
+    margin: 0.3rem 0;
+  }
+
+  /* Reduz padding de containers */
+  #app,
+  #login-screen,
+  #game-selection-screen,
+  .game-container {
+    padding: 0.5rem;
+  }
+
+  /* Ajusta cards de jogos */
+  .game-card,
+  #games-container > div {
+    padding: 0.8rem;
+    margin: 0.3rem;
+  }
+
+  /* Reduz gap entre elementos */
+  .flex,
+  .grid,
+  #games-container {
+    gap: 0.5rem;
+  }
+  .page-title,
+  .mobile-indented-text {
+    margin-left: 1em;
+  }
+
+  /* Ajusta modal */
+  .modal-content {
+    padding: 1rem;
+    max-width: 90vw;
+  }
+
+  /* Reduz header mobile */
+  .mobile-header {
+    height: 50px;
+    padding: 0.5rem;
+  }
+
+  /* Ajusta parágrafos e textos */
+  p {
+    font-size: 0.9rem;
+    margin: 0.3rem 0;
+  }
+}
+
+/* Para telas muito baixas (S9+ 320px altura) */
+@media (max-width: 768px) and (max-height: 400px) and (orientation: landscape) {
+  html,
+  body {
+    font-size: 12px; /* Ainda menor */
+  }
+
+  body {
+    max-width: 90vw;
+  }
+
+  .logo,
+  #login-screen img {
+    max-height: 40px;
+  }
+
+  h1 {
+    font-size: 1.3rem;
+  }
+
+  input,
+  button {
+    padding: 0.4rem 0.6rem;
+  }
+
+  #app {
+    padding: 0.3rem;
+  }
+}
