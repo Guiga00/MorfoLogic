@@ -1972,7 +1972,7 @@ body.menu-open #main-navigation {
   /* Reduz font-size base de todo o site */
   html,
   body {
-    font-size: 15px; /* Reduz de 16px padrão para 15px */
+    font-size: 14px; /* Reduz de 16px padrão para 14px */
   }
 
   /* Ajusta logo */
@@ -2053,7 +2053,7 @@ body.menu-open #main-navigation {
 @media (max-width: 768px) and (max-height: 400px) and (orientation: landscape) {
   html,
   body {
-    font-size: 12px; /* Ainda menor */
+    font-size: 14px; /* Ainda menor */
   }
 
   .logo,
