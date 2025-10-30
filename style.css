@@ -31,6 +31,12 @@ h6,
 #ligar-instruction,
 .game-instruction,
 .game-command,
+#game-message {
+  font-family: 'Irineu', 'Comic Sans MS', cursive, sans-serif;
+  font-size: 1em;
+  text-align: center;
+  text-transform: none;
+}
 .phase-selection-title {
   font-family: 'Irineu', 'Comic Sans MS', cursive, sans-serif;
   font-size: 15px;
@@ -265,6 +271,12 @@ body:has(.mobile-game-header) #app {
   color: #386ccc;
   text-align: center;
   padding-left: 0;
+  font-size: 1.5em !important;
+}
+
+/* Ou se quiser maior */
+#games-container h2 {
+  font-size: 1.25em;
 }
 
 .mobile-indented-text {
@@ -489,7 +501,7 @@ body:has(.mobile-game-header) #app {
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   border: 0.1em solid var(--card-border-color);
-  font-size: 0.8em !important;
+  font-size: 0.7em !important;
 }
 
 .card-back {
@@ -506,6 +518,14 @@ body:has(.mobile-game-header) #app {
 .card-name-symbol-bg {
   opacity: var(--symbol-hint-opacity);
   z-index: 0;
+}
+
+/* Fonte Irineu para texto dos cards */
+.card-front,
+.card-back,
+.card-back span,
+.card-back div:not(.card-name-symbol-bg) {
+  font-family: 'Irineu', 'Comic Sans MS', cursive, sans-serif !important;
 }
 
 /* ============================================
@@ -1570,7 +1590,6 @@ body.mobile-device #game-board {
   flex: 1;
   text-align: center;
   font-weight: 600;
-  font-size: 1em;
 }
 
 .mobile-header-right {
