@@ -2,10 +2,20 @@
    CATEGORIA 1: CONFIGURAÇÃO DE FONTES
    ============================================ */
 
-/* Fonte customizada Irineu */
+/*  IRINEU - Fonte principal para títulos e comandos */
 @font-face {
   font-family: 'Irineu';
-  src: url('../assets/fonts/Irineu\ Canva\ Alfabeto\ T2.otf') format('opentype');
+  src: url('../assets/fonts/Irineu Canva T2.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* IRINEU PAUTA - Fonte com linhas de escrita */
+@font-face {
+  font-family: 'Irineu Pauta';
+  src: url('../assets/fonts/Irineu Canva T2 Pauta Regular.otf')
+    format('opentype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -26,21 +36,15 @@ h6,
 #game-selection-screen h1,
 #game-selection-screen h2,
 #login-screen h1,
+#game-message,
+.game-instruction,
 #genius-instruction,
 #memory-instruction,
-#ligar-instruction,
-.game-instruction,
-.game-command,
-#game-message {
+#ligar-instruction {
+  /* Instruções do Tempo */
   font-family: 'Irineu', 'Comic Sans MS', cursive, sans-serif;
   font-size: 1em;
-  text-align: center;
   text-transform: none;
-}
-.phase-selection-title {
-  font-family: 'Irineu', 'Comic Sans MS', cursive, sans-serif;
-  font-size: 15px;
-  text-transform: none; /* Remove maiúsculas */
 }
 
 /* CINZEL DECORATIVE - Todos os demais textos (GROSSA) */
@@ -63,8 +67,8 @@ a,
 .game-card p,
 #games-container p {
   font-family: 'Cinzel Decorative', serif;
-  font-weight: 700; /* Deixa mais grossa (bold) */
-  text-transform: none; /* Remove maiúsculas */
+  font-weight: 700;
+  text-transform: none;
 }
 
 /* ============================================
