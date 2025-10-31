@@ -1448,6 +1448,30 @@ function quitGame() {
   goToGameSelection();
 }
 
+// ✅ FUNÇÃO GLOBAL PARA ATUALIZAR ESTRELAS
+function updateStars() {
+  const { errors, startTime } = AppState.currentGame;
+  const currentTime = Date.now();
+  const elapsedMinutes = (currentTime - startTime) / 60000; // Tempo em minutos
+
+  // Calcula perda de estrelas por erros (1 estrela a cada 5 erros)
+  const starsLostByErrors = Math.floor(errors / 5);
+
+  // Calcula perda de estrelas por tempo (1 estrela a cada 1 minuto)
+  const starsLostByTime = Math.floor(elapsedMinutes);
+
+  // Calcula estrelas restantes (mínimo 0)
+  const totalStarsLost = starsLostByErrors + starsLostByTime;
+  AppState.currentGame.stars = Math.max(0, 3 - totalStarsLost);
+
+  // Se perdeu todas as estrelas, game over
+  if (AppState.currentGame.stars === 0) {
+    return false; // Indica game over
+  }
+
+  return true; // Jogo continua
+}
+
 function updateGameUI() {
   // Função de placeholder, pode ser expandida
 }
@@ -1467,37 +1491,73 @@ function showPhaseEndModal(isSuccess = true) {
     GameAudio.play('success');
     modalTitle.textContent = `Fase ${phase} Concluída!`;
 
-    const { clickCount, startTime } = AppState.currentGame;
-    const endTime = Date.now();
-    const elapsedTimeInSeconds = (endTime - startTime) / 1000;
+    // ✅ ATUALIZA ESTRELAS UMA ÚLTIMA VEZ
+    updateStars();
+    const earnedStars = AppState.currentGame.stars;
+
+    // ✅ CÁLCULO SIMPLIFICADO BASEADO EM ESTRELAS
     const gameLevelConfig = GameConfig[type].levels.find(
       (level) => level.phase === phase
     );
     const difficultyFactor = gameLevelConfig
       ? gameLevelConfig.difficultyFactor
       : 1;
-    const basePoints = 100;
-    const initialScore = basePoints * difficultyFactor;
-    const timePenalty = elapsedTimeInSeconds * difficultyFactor;
-    const clickPenalty = clickCount * difficultyFactor;
-    let finalScore = initialScore - timePenalty - clickPenalty;
-    pointsEarned = Math.max(0, Math.round(finalScore));
+    const basePoints = 100 * difficultyFactor;
+    const starMultiplier = earnedStars / 3;
+    pointsEarned = Math.round(basePoints * starMultiplier);
 
-    modalScore.textContent = `Sua pontuação final foi de ${pointsEarned} pontos!`;
+    // ✅ ATUALIZA ESTRELAS VISUALMENTE
+    const starElements = document.querySelectorAll('#modal-stars .star');
+    starElements.forEach((star, index) => {
+      if (index < earnedStars) {
+        star.classList.add('active');
+      } else {
+        star.classList.remove('active');
+      }
+    });
+
+    // ✅ FEEDBACK POR ESTRELAS
+    let performanceText = '';
+    let motivationalText = '';
+
+    if (earnedStars === 3) {
+      performanceText = '🏆 Perfeito!';
+      motivationalText = 'Você conquistou 3 estrelas!';
+    } else if (earnedStars === 2) {
+      performanceText = '👍 Muito Bem!';
+      motivationalText = 'Você conquistou 2 estrelas!';
+    } else if (earnedStars === 1) {
+      performanceText = '💪 Continue Tentando!';
+      motivationalText = 'Você conquistou 1 estrela!';
+    } else {
+      performanceText = '😅 Quase lá!';
+      motivationalText = 'Mais sorte na próxima vez!';
+    }
+
+    modalScore.textContent = `${performanceText}`;
     modalBonus.innerHTML = `
-        <div style="text-align: left; display: inline-block;">
-          Pontuação Base: ${Math.round(initialScore)}<br>
-          Perda por Tempo: -${Math.round(timePenalty)}<br>
-          Perda por Cliques: -${Math.round(clickPenalty)}
-        </div>`;
+      <div style="text-align: center;">
+        <p class="text-2xl font-bold text-amber-500 mb-2">+${pointsEarned} pontos</p>
+        <p class="text-sm text-stone-600">${motivationalText}</p>
+      </div>`;
 
     if (phase >= (AppState.progress[type] || 0)) {
       AppState.progress[type] = phase;
     }
   } else {
-    modalTitle.textContent = `Fim de Jogo`;
-    modalScore.textContent = `Você não conseguiu concluir a fase.`;
-    modalBonus.textContent = '';
+    GameAudio.play('error');
+    modalTitle.textContent = `😢 Fim de Jogo`;
+    modalScore.textContent = `Você perdeu todas as estrelas!`;
+    modalBonus.innerHTML = `
+      <div style="text-align: center;">
+        <p class="text-sm text-stone-600">Mais sorte na próxima vez!</p>
+      </div>`;
+
+    // ✅ 0 ESTRELAS NO FRACASSO
+    const starElements = document.querySelectorAll('#modal-stars .star');
+    starElements.forEach((star) => {
+      star.classList.remove('active');
+    });
   }
 
   AppState.generalScore += pointsEarned;

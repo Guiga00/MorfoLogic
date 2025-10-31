@@ -146,11 +146,11 @@ function shuffleAnimation(cards) {
   }, 800);
 }
 
-function removeStar() {
-  if (AppState.currentGame.stars > 0) {
-    AppState.currentGame.stars--;
-  }
-}
+// function removeStar() {
+//   if (AppState.currentGame.stars > 0) {
+//     AppState.currentGame.stars--;
+//   }
+// }
 
 window.cleanupMemoryGame = function (hideSkipButton = true) {
   console.log('Cleaning up memory game...'); // Debug
@@ -340,25 +340,24 @@ function checkForMemoryMatch() {
   } else {
     GameAudio.play('error');
     AppState.currentGame.errors++;
-    if (
-      AppState.currentGame.errors > 0 &&
-      AppState.currentGame.errors % 10 === 0
-    ) {
-      removeStar();
-    }
-    if (AppState.currentGame.stars === 0) {
+
+    // ✅ ATUALIZA ESTRELAS COM NOVA LÓGICA
+    const canContinue = updateStars();
+
+    if (!canContinue) {
+      // Game Over - perdeu todas as estrelas
       document.getElementById('game-message').textContent =
         'Você perdeu todas as estrelas!';
       if (memoryState.gameTimer) memoryState.gameTimer.stop();
       setTimeout(() => showPhaseEndModal(false), 1500);
-    }
-    setTimeout(() => {
-      if (AppState.currentGame.stars > 0) {
+    } else {
+      // Continua jogando
+      setTimeout(() => {
         firstPick.el.classList.remove('flipped');
         secondPick.el.classList.remove('flipped');
         resetMemoryTurn();
-      }
-    }, 1500);
+      }, 1500);
+    }
   }
 }
 
