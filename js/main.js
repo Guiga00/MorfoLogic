@@ -858,16 +858,26 @@ function extendSessionTimer(minutesToAdd) {
 }
 
 function goBackToLogin(isExpired = false) {
-  document.body.classList.remove('game-selection'); // ✅ ADICIONAR NO INÍCIO
+  document.body.classList.remove('game-selection'); //
   AppState.cleanupCurrentGame();
   if (typeof window.cleanupMemoryGame === 'function') {
     window.cleanupMemoryGame();
   }
 
+  setTimeout(() => {
+    GameAudio.playBGM('menu');
+  }, 500);
+
+  if (isExpired) {
+    closeModal(document.getElementById('session-expired-modal'));
+    GameAudio.playBGM('menu');
+    SessionTimerDisplay.reset();
+  }
+
   if (isExpired) {
     closeModal(document.getElementById('session-expired-modal'));
   }
-
+  GameAudio.playBGM('menu');
   SessionTimerDisplay.reset(); // Para e reseta o display do timer
   AppState.currentUser = null;
   AppState.generalScore = 0;
@@ -882,16 +892,25 @@ function goBackToLogin(isExpired = false) {
 
 function goToGameSelection() {
   Timer.reset();
-  document.body.classList.add('game-selection'); // ✅ ADICIONAR
+  document.body.classList.add('game-selection'); //
 
   // Reset pause state
   AppState.isPaused = false;
+  GameAudio.playBGM('menu');
+
+  if (!GameAudio.currentBGM || GameAudio.currentBGM !== GameAudio.bgm.menu) {
+    GameAudio.playBGM('menu');
+  }
 
   AppState.cleanupCurrentGame();
 
   // Garantir limpeza adicional do jogo da memória
   if (typeof window.cleanupMemoryGame === 'function') {
     window.cleanupMemoryGame();
+  }
+
+  if (!GameAudio.currentBGM || GameAudio.currentBGM !== GameAudio.bgm.menu) {
+    GameAudio.playBGM('menu');
   }
 
   closeModal(document.getElementById('phase-end-modal'));
@@ -951,21 +970,30 @@ function setupGameUIListeners() {
   if (helpBtn) helpBtn.addEventListener('click', openHelpModal);
   if (!playPauseBtn) return;
 
-  // Add null check for mute button (only exists in desktop layout)
+  // Botão de Mute
   if (muteBtn && muteIcon) {
     muteBtn.addEventListener('click', () => {
       const isMuted = !AppState.globalMuted;
       AppState.globalMuted = isMuted;
-      muteIcon.innerHTML = isMuted ? '&#128263;' : '&#128266;';
+      muteIcon.innerHTML = isMuted ? '🔇' : '🔊';
+
+      GameAudio.updateMute(isMuted);
+
+      // Atualiza todos os áudios
       document.querySelectorAll('audio').forEach((a) => (a.muted = isMuted));
     });
   }
 
-  // Volume slider exists in both layouts
+  // Volume Slider
   if (volumeSlider) {
     volumeSlider.addEventListener('input', (e) => {
       const vol = Number(e.target.value) / 100;
       AppState.globalVolume = vol;
+
+      // GameAudio
+      GameAudio.updateVolume(vol);
+
+      // Atualiza todos os áudios
       document.querySelectorAll('audio').forEach((a) => (a.volume = vol));
     });
   }
@@ -1280,7 +1308,7 @@ function getHowToPlayContent() {
 }
 
 function startGame(type, phase) {
-  document.body.classList.remove('game-selection'); // ✅ ADICIONAR NO INÍCIO
+  document.body.classList.remove('game-selection');
   AppState.cleanupCurrentGame();
   closeModal(document.getElementById('phase-selection-modal'));
   // Pausa o timer de sessão durante o jogo
@@ -1300,7 +1328,7 @@ function startGame(type, phase) {
 
   const gameScreenContainer = document.getElementById('game-screen');
   const gameTitles = { memory: 'Memória', genius: 'Genius', ligar: 'Tempo' };
-
+  GameAudio.playBGM('game');
   gameScreenContainer.innerHTML = GameScreenComponent(gameTitles[type], phase);
   setupGameUIListeners();
   navigate('game-screen');
@@ -1442,13 +1470,13 @@ function restartPhase() {
 function quitGame() {
   // Reset pause state
   AppState.isPaused = false;
-  document.body.classList.add('game-selection'); // ✅ ADICIONAR
+  document.body.classList.add('game-selection');
 
   hidePauseModal();
   goToGameSelection();
 }
 
-// ✅ FUNÇÃO GLOBAL PARA ATUALIZAR ESTRELAS
+// FUNÇÃO GLOBAL PARA ATUALIZAR ESTRELAS
 function updateStars() {
   const { errors, startTime } = AppState.currentGame;
   const currentTime = Date.now();
@@ -1491,11 +1519,11 @@ function showPhaseEndModal(isSuccess = true) {
     GameAudio.play('success');
     modalTitle.textContent = `Fase ${phase} Concluída!`;
 
-    // ✅ ATUALIZA ESTRELAS UMA ÚLTIMA VEZ
+    // ATUALIZA ESTRELAS UMA ÚLTIMA VEZ
     updateStars();
     const earnedStars = AppState.currentGame.stars;
 
-    // ✅ CÁLCULO SIMPLIFICADO BASEADO EM ESTRELAS
+    // CÁLCULO SIMPLIFICADO BASEADO EM ESTRELAS
     const gameLevelConfig = GameConfig[type].levels.find(
       (level) => level.phase === phase
     );
@@ -1506,7 +1534,7 @@ function showPhaseEndModal(isSuccess = true) {
     const starMultiplier = earnedStars / 3;
     pointsEarned = Math.round(basePoints * starMultiplier);
 
-    // ✅ ATUALIZA ESTRELAS VISUALMENTE
+    // ATUALIZA ESTRELAS VISUALMENTE
     const starElements = document.querySelectorAll('#modal-stars .star');
     starElements.forEach((star, index) => {
       if (index < earnedStars) {
@@ -1516,7 +1544,7 @@ function showPhaseEndModal(isSuccess = true) {
       }
     });
 
-    // ✅ FEEDBACK POR ESTRELAS
+    // FEEDBACK POR ESTRELAS
     let performanceText = '';
     let motivationalText = '';
 
@@ -1553,7 +1581,7 @@ function showPhaseEndModal(isSuccess = true) {
         <p class="text-sm text-stone-600">Mais sorte na próxima vez!</p>
       </div>`;
 
-    // ✅ 0 ESTRELAS NO FRACASSO
+    // 0 ESTRELAS NO FRACASSO
     const starElements = document.querySelectorAll('#modal-stars .star');
     starElements.forEach((star) => {
       star.classList.remove('active');
@@ -1888,5 +1916,3 @@ if (document.readyState === 'loading') {
 } else {
   setTimeout(() => MainNavigation.init(), 100);
 }
-
-// ========== FIM NAVEGAÇÃO ==========

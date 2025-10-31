@@ -14,6 +14,17 @@ function initAuth() {
     const errorEl = document.getElementById('login-error');
 
     if (userType && username === password) {
+      if (GameAudio && GameAudio.bgm && GameAudio.bgm.menu) {
+        GameAudio.bgm.menu
+          .play()
+          .then(() => {
+            console.log('✅ Autoplay desbloqueado');
+            GameAudio.bgm.menu.pause();
+            GameAudio.bgm.menu.currentTime = 0;
+          })
+          .catch((err) => console.log('Autoplay ainda bloqueado:', err));
+      }
+
       if (userType === 'student') {
         AppState.currentUser = username;
         loadData(username);
@@ -24,6 +35,9 @@ function initAuth() {
         AppState.currentUser = username;
         navigate('static-screen');
       }
+      setTimeout(() => {
+        GameAudio.playBGM('menu');
+      }, 500);
     } else {
       errorEl.textContent = 'Usuário ou senha inválidos.';
       GameAudio.play('error');
