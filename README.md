@@ -1,6 +1,3 @@
-Claro. Aqui está o conteúdo para o seu arquivo `README.md`:
-
-````markdown
 # MorfoLogic
 
 MorfoLogic é uma plataforma web de minijogos educativos projetada para o ensino de classes gramaticais, com inspiração na metodologia Montessori.
@@ -60,4 +57,4 @@ A lógica da aplicação é modularizada em vários arquivos JavaScript, carrega
     ```bash
     npm install
     ```
-````
+
